@@ -9,6 +9,8 @@ import java.util.List;
 public class Chat {
     @Id
     @Column(name = "chatID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String chatId;
 
     private String message;

@@ -8,6 +8,8 @@ import java.util.List;
 public class Comment {
     @Id
     @Column(name = "commentID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String commentId;
 
     private String blogId;

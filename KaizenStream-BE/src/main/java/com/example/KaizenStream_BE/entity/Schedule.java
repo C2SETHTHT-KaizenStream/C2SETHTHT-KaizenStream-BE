@@ -8,6 +8,7 @@ import java.util.List;
 public class Schedule {
     @Id
     @Column(name = "scheduleID")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String scheduleId;
 
     private String description;

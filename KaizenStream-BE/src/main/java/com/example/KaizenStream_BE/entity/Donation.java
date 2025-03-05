@@ -8,6 +8,8 @@ import java.util.List;
 public class Donation {
     @Id
     @Column(name = "donationID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String donationId;
 
     private int quantityItems;

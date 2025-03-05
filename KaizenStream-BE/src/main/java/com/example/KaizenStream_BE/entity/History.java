@@ -10,6 +10,8 @@ import java.util.List;
 public class History {
     @Id
     @Column(name = "historyID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String historyId;
 
     private String action;
