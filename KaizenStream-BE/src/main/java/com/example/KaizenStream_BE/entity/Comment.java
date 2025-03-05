@@ -12,11 +12,14 @@ public class Comment {
 
     private String commentId;
 
-    private String blogId;
+    @ManyToOne
+    @JoinColumn(name = "blogId", nullable = false)
+    private Blog blog;
     private String content;
     private Date createAt;
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
     private User user;
+
 }

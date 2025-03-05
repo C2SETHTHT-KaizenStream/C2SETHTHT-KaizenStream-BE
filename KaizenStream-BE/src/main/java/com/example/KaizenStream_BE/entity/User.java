@@ -75,5 +75,7 @@ public class User {
     @OneToMany( cascade = CascadeType.ALL)
     private List<Livestream> livestreams;
 
-    // Getters and Setters
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Blog> blogs;
+
 }

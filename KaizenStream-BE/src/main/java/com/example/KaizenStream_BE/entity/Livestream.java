@@ -10,7 +10,6 @@ public class Livestream {
     @Id
     @Column(name = "livestreamsID")
     @GeneratedValue(strategy = GenerationType.UUID)
-
     private String livestreamId;
 
     private String title;
