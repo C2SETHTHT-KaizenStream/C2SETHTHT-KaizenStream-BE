@@ -10,6 +10,8 @@ import java.util.List;
 public class Notification {
     @Id
     @Column(name = "notificationID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String notificationId;
 
     private String content;

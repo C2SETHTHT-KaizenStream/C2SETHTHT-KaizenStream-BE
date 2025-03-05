@@ -10,6 +10,8 @@ import java.util.List;
 public class Purchase {
     @Id
     @Column(name = "purchaseID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String purchaseId;
 
     private String type;

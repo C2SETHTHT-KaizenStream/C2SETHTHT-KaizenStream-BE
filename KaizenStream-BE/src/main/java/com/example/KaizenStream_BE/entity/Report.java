@@ -9,6 +9,8 @@ import java.util.List;
 public class Report {
     @Id
     @Column(name = "reportID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String reportId;
 
     private String reason;

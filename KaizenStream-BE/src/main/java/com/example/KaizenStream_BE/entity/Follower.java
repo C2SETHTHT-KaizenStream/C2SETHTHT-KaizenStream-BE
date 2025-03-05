@@ -8,6 +8,8 @@ import java.util.List;
 public class Follower {
     @Id
     @Column(name = "followerID")
+    @GeneratedValue(strategy = GenerationType.UUID)
+
     private String followerId;
 
     @ManyToOne
