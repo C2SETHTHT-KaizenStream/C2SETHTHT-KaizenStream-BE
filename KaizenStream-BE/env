@@ -1,0 +1,14 @@
+SPRING_APPLICATION_NAME=KaizenStream-BE
+
+# Port Configuration
+SERVER_PORT=8080
+
+# Servlet Context Path Configuration
+SERVER_SERVLET_CONTEXT_PATH=/api/stream
+
+# Kết nối SQL Server
+SPRING_DATASOURCE_URL=jdbc:sqlserver://kaizenstream.database.windows.net:1433;database=KaizenStream;encrypt=true;trustServerCertificate=false;loginTimeout=30;
+SPRING_DATASOURCE_USERNAME=kaizen
+SPRING_DATASOURCE_PASSWORD=Cap2@123
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.microsoft.sqlserver.jdbc.SQLServerDriver
+SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.SQLServerDialect
