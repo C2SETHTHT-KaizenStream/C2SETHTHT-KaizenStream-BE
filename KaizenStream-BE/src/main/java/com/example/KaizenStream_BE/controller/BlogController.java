@@ -28,7 +28,6 @@ public class BlogController {
 //        return ResponseEntity.ok(blogs);
 //    }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping
     public ResponseEntity<Page<BlogResponse>> getAllBlogs(
             @RequestParam(defaultValue = "0") int page,
@@ -43,8 +42,6 @@ public class BlogController {
         Blog blog = blogService.getBlogById(id);
         return ResponseEntity.ok(new BlogResponse(blog));
     }
-
-
 
     @PostMapping
     public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
