@@ -1,5 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -19,12 +21,13 @@ public class Blog {
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
+    @JsonBackReference(value = "user-blogs")
     User user;
 
     @Column(nullable = false)
     String title;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     String content;
 
 
@@ -38,6 +41,7 @@ public class Blog {
     int likeCount = 0;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "blog-comments")
     List<Comment> comments = new ArrayList<>();
 
     @PrePersist

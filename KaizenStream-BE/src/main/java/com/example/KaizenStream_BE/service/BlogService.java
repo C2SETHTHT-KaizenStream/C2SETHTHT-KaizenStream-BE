@@ -66,7 +66,6 @@ public class BlogService {
         if (blogDetails.getContent() != null) {
             existingBlog.setContent(blogDetails.getContent());
         }
-        // updateAt sẽ được tự động cập nhật qua @PreUpdate trong entity
 
         return blogRepository.save(existingBlog);
     }

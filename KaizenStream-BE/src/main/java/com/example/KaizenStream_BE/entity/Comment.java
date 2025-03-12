@@ -1,5 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,13 +18,15 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "blogId", nullable = false)
+    @JsonBackReference(value = "blog-comments")
     private Blog blog;
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
+    @JsonBackReference(value = "user-comments")
     private User user;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false,columnDefinition = "NVARCHAR(MAX)")
     private String content;
 
     @Column(nullable = false, updatable = false)
