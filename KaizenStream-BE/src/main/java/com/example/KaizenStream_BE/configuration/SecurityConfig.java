@@ -25,9 +25,13 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/auth/login",
             "/blogs/**",
-            "/api/stream/blogs/**",
             "/users/**" // Mở quyền truy cập API User
     };
+
+
+    //"/api/stream/blogs/**"
+    //"/api/stream/comments/**"
+    // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
     private final CustomJwtDecoder customJwtDecoder;
 
@@ -67,7 +71,6 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    // 🔥 Cấu hình CORS chính xác
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
