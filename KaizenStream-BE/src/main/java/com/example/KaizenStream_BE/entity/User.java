@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,6 +56,7 @@ public class User {
     private List<History> history;
 
     @OneToMany( cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "user-comments")
     private List<Comment> comments;
 
     @OneToMany( cascade = CascadeType.ALL)
@@ -75,7 +77,9 @@ public class User {
     @OneToMany( cascade = CascadeType.ALL)
     private List<Livestream> livestreams;
 
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-blogs")
     private List<Blog> blogs;
 
 }

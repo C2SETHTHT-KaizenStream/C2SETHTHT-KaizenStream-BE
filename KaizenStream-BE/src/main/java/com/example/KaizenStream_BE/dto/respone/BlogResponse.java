@@ -17,6 +17,7 @@ public class BlogResponse {
     private int likeCount;
     private String userId;
     private String userName;
+    private int CommentCount;
 
     public BlogResponse(Blog blog) {
         this.blogId = blog.getBlogId();
@@ -27,5 +28,6 @@ public class BlogResponse {
         this.likeCount = blog.getLikeCount();
         this.userId = blog.getUser().getUserId();
         this.userName = blog.getUser().getUserName();
+        this.CommentCount = blog.getComments().size();
     }
 }
