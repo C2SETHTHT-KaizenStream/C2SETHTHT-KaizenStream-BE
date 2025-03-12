@@ -22,7 +22,13 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**", "/api/stream/blogs/**"};
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/auth/login",
+            "/blogs/**",
+            "/api/stream/blogs/**",
+            "/users/**" // Mở quyền truy cập API User
+    };
+
     private final CustomJwtDecoder customJwtDecoder;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
