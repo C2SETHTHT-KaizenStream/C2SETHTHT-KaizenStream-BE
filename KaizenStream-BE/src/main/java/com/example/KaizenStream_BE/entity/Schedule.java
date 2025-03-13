@@ -11,6 +11,7 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String scheduleId;
 
+    @Column(columnDefinition = "nvarchar(max)")
     private String description;
     private Date scheduleTime;
 
