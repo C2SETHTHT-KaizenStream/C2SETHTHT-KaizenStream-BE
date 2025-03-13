@@ -21,9 +21,7 @@ public class User {
     @Id
     @Column(name = "userID")
     @GeneratedValue(strategy = GenerationType.UUID)
-
     private String userId;
-
     private String userName;
     private String password;
     private int point;

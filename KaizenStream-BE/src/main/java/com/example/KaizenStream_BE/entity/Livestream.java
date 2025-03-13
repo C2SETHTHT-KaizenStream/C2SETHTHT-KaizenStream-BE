@@ -12,7 +12,11 @@ public class Livestream {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String livestreamId;
 
+    @Column(columnDefinition = "nvarchar(max)")
+
     private String title;
+    @Column(columnDefinition = "nvarchar(max)")
+
     private String description;
     private String thumbnail;
     private int viewerCount;

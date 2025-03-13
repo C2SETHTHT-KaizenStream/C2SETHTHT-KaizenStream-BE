@@ -14,6 +14,7 @@ public class Notification {
 
     private String notificationId;
 
+    @Column(columnDefinition = "nvarchar(max)")
     private String content;
     private boolean isRead;
     private Date createAt;
