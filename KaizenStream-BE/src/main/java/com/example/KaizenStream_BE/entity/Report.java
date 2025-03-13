@@ -13,7 +13,9 @@ public class Report {
 
     private String reportId;
 
+    @Column(columnDefinition = "nvarchar(max)")
     private String reason;
+
     private Date createAt;
 
     @ManyToOne
