@@ -28,6 +28,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
+            //
             var respone=authenticationService.introspect(IntrospectRequest.builder().token(token).build());
             if(!respone.isValid()){
                 throw new JwtException("Token invalid");
