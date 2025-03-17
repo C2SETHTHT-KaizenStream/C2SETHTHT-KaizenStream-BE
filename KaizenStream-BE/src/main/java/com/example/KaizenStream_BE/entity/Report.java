@@ -10,7 +10,6 @@ public class Report {
     @Id
     @Column(name = "reportID")
     @GeneratedValue(strategy = GenerationType.UUID)
-
     private String reportId;
 
     @Column(columnDefinition = "nvarchar(max)")
@@ -19,6 +18,6 @@ public class Report {
     private Date createAt;
 
     @ManyToOne
-    @JoinColumn(name = "userID", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "userID", nullable = false)
     private User user;
 }

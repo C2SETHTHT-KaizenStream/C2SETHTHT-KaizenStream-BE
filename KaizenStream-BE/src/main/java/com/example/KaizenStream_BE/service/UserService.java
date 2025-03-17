@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.service;
 
+import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -22,6 +25,12 @@ public class UserService {
             throw new RuntimeException("User already exists!");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.USER);
+        roles.add(Role.ADMIN);
+        user.setRoles(roles);
+
+
         return userRepository.save(user);
     }
 
