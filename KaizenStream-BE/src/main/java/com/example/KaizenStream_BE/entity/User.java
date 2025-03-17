@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -21,9 +22,7 @@ public class User {
     @Id
     @Column(name = "userID")
     @GeneratedValue(strategy = GenerationType.UUID)
-
     private String userId;
-
     private String userName;
     private String password;
     private int point;
@@ -37,7 +36,7 @@ public class User {
     private String avatarImg;
     private int followerCount;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "userId"),
