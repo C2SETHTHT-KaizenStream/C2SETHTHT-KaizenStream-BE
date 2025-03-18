@@ -27,16 +27,19 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/auth/**",
             "/blogs/**",
-
             "/users/**",
-            "/comments/**"// Mở quyền truy cập API User
-
+            "*",
+            "/ws",
+            "/ws/**",
+            "/ws/*/*",
+            "/topic/notifications",
+            "/api/stream/ws/info"
     };
 
 
     //"/api/stream/blogs/**"
     //"/api/stream/comments/**"
-    // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**",, "/users/**"};
+    // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
     private final CustomJwtDecoder customJwtDecoder;
 
