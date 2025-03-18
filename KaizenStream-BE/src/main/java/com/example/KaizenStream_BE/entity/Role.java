@@ -13,10 +13,23 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
+
+    public static Role USER;
+    public static Role ADMIN;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    String roleID;
-    String name;
+    @Column(name = "roleID")
+    // role_id != roleID
+    private String roleId;
+
+    private String name;
+
+    public Role(String roleId, String name) {
+        this.roleId = roleId;
+        this.name = name;
+    }
+
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
 

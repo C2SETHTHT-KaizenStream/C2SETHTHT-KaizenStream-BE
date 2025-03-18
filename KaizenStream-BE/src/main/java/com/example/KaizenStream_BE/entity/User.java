@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -40,9 +41,9 @@ public class User {
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "roleID")
+            inverseJoinColumns = @JoinColumn(name = "roleID", referencedColumnName = "roleID")
     )
-    private  List<Role> roles;
+    private List<Role> roles;
 
 
     @OneToMany( cascade = CascadeType.ALL)
