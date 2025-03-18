@@ -26,15 +26,26 @@ public class User {
     private String userId;
     private String userName;
     private String password;
+    private String email;
+
     private int point;
+
     private String channelName;
+
     private String bankAccountNumber;
+
     private String bankName;
+
     private String description;
+
     private Date createdAt;
+
     private Date updatedAt;
+
     private String status;
+
     private String avatarImg;
+
     private int followerCount;
 
     @ManyToMany
