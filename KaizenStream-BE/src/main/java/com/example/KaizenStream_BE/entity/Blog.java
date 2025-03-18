@@ -40,7 +40,7 @@ public class Blog {
     @Column(nullable = false)
     int likeCount = 0;
 
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference(value = "blog-comments")
     List<Comment> comments = new ArrayList<>();
 
