@@ -21,20 +21,40 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User {
     @Id
-    @Column(name = "userID")
+    @Column(name = "userID", columnDefinition = "nvarchar(255)")
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
+
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String userName;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String password;
+
     private int point;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String channelName;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String bankAccountNumber;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String description;
+
     private Date createdAt;
     private Date updatedAt;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String status;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String avatarImg;
+
     private int followerCount;
 
     @ManyToMany
@@ -45,38 +65,36 @@ public class User {
     )
     private List<Role> roles;
 
-
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Notification> notifications;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Purchase> purchases;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<History> history;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JsonManagedReference(value = "user-comments")
     private List<Comment> comments;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Donation> donations;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Chat> chats;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Follower> followers;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Schedule> schedules;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Livestream> livestreams;
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "user-blogs")

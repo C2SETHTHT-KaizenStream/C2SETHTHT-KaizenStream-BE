@@ -27,7 +27,13 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/auth/**",
             "/blogs/**",
-            "/users/**"
+            "/users/**",
+            "*",
+            "/ws",
+            "/ws/**",
+            "/ws/*/*",
+            "/topic/notifications",
+            "/api/stream/ws/info"
     };
 
 
