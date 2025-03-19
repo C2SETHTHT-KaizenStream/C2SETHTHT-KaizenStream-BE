@@ -1,8 +1,13 @@
 package com.example.KaizenStream_BE.dto.request.authen;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.util.Set;
@@ -11,17 +16,19 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
-    private String role_name;
+
+
+    @NotNull(message = "Username cannot be null")
+    @NotEmpty(message = "Username cannot be empty")
     private String userName;
+
+    @NotNull(message = "Password cannot be null")
+    @NotEmpty(message = "Password cannot be empty")
     private String password;
-    private int point;
-    private String channelName;
-    private String bankAccountNumber;
-    private String bankName;
-    private String description;
-    private String status;
-    private int followerCount;
+
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Email is not valid")
+    private String email;
 
 
 }
-
