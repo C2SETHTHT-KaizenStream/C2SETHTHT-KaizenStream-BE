@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.authen.RegisterRequest;
+import com.example.KaizenStream_BE.dto.respone.authen.RegisterResponse;
 import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.enums.ErrorCode;
@@ -33,8 +34,8 @@ public class RegisterService {
     @Autowired
     PasswordEncoder passwordEncoder;
     @Transactional
-    public RegisterRequest register(RegisterRequest registerRequest) {
-        Role role = roleRepository.findByName(registerRequest.getRole_name());
+    public RegisterResponse register(RegisterRequest registerRequest) {
+        Role role = new Role("1","USER" );
         if (role == null) {
             throw new AppException(ErrorCode.INVALID_ROLE);
         }
@@ -51,7 +52,8 @@ public class RegisterService {
 
         userRepository.save(user);
 
-        return registerRequest;
+        return RegisterResponse.builder().userName(user.getUserName())
+                .userId(user.getUserId()).build();
     }
 
 }

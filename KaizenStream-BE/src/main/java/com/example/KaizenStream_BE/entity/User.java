@@ -20,6 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     @Id
     @Column(name = "userID", columnDefinition = "nvarchar(255)")
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,6 +33,10 @@ public class User {
     @Column(columnDefinition = "nvarchar(255)")
     private String password;
 
+    private String email;
+
+
+
     private int point;
 
     @Column(columnDefinition = "nvarchar(255)")
@@ -43,16 +48,18 @@ public class User {
     @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
 
-    @Column(columnDefinition = "nvarchar(255)")
+
     private String description;
 
     private Date createdAt;
+
     private Date updatedAt;
+
 
     @Column(columnDefinition = "nvarchar(255)")
     private String status;
 
-    @Column(columnDefinition = "nvarchar(255)")
+
     private String avatarImg;
 
     private int followerCount;
