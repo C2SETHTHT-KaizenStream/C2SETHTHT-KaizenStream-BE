@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,9 +44,18 @@ public class BlogController {
         return ResponseEntity.ok(new BlogResponse(blog));
     }
 
-    @PostMapping
-    public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
-        Blog createdBlog = blogService.createBlog(blog);
+//    @PostMapping
+//    public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
+//        Blog createdBlog = blogService.createBlog(blog);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBlog);
+//    }
+
+
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<Blog> createBlogWithImage(
+            @RequestPart("blog") Blog blog,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+        Blog createdBlog = blogService.createBlogWithImage(blog, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBlog);
     }
 
@@ -53,8 +63,8 @@ public class BlogController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Blog> updateBlog(@PathVariable String id, @RequestBody Blog blogDetails) {
-        Blog updatedBlog = blogService.updateBlog(id, blogDetails);
+    public ResponseEntity<Blog> updateBlog(@PathVariable String id, @RequestBody Blog blogDetails, @RequestParam(value = "image", required = false) MultipartFile image) throws Exception {
+        Blog updatedBlog = blogService.updateBlog(id, blogDetails, image );
         return ResponseEntity.ok(updatedBlog);
     }
 

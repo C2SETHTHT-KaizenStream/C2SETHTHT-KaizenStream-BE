@@ -28,6 +28,7 @@ public class SecurityConfig {
             "/auth/**",
             "/blogs/**",
             "/users/**",
+            "comments/**",
             "*",
             "/ws",
             "/ws/**",
@@ -57,6 +58,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
+
+
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
