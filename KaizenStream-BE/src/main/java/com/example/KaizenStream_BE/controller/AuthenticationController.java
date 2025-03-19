@@ -17,10 +17,7 @@ import lombok.experimental.FieldDefaults;
 import org.apache.coyote.Request;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
@@ -42,6 +39,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     ApiResponse<RegisterResponse> response(@RequestBody RegisterRequest request)
+
     {
         var result= registerService.register(request);
         return ApiResponse.<RegisterResponse>builder()

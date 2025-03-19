@@ -79,21 +79,31 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        //PasswordEncoder passwordEncoder=new BCryptPasswordEncoder(10);
-        var user = userRepository.findByUserName(request.getUserName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        // Sử dụng BCryptPasswordEncoder để kiểm tra mật khẩu
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
-        boolean authenticated = request.getPassword().equals(user.getPassword());
+        // Tìm người dùng trong cơ sở dữ liệu
+        var user = userRepository.findByUserName(request.getUserName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        // Kiểm tra mật khẩu đã mã hóa trong cơ sở dữ liệu với mật khẩu người dùng nhập vào
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        // Nếu mật khẩu không khớp, ném lỗi UNAUTHENTICATED
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+
+        // Tạo JWT token cho người dùng nếu xác thực thành công
         var token = generateToken(user);
 
-        return AuthenticationResponse.builder().token(token).authenticated(true)
-                .userId(user.getUserId())
+        return AuthenticationResponse.builder()
+                .token(token)           // Trả về token
+                .authenticated(true)    // Đánh dấu đăng nhập thành công
+                .userId(user.getUserId())  // Trả về userId của người dùng
                 .build();
-
-
     }
+
 
     private SignedJWT verifyToken(String token, Boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());

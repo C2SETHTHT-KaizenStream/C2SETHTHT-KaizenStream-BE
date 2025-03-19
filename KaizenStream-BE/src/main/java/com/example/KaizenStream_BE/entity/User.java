@@ -20,6 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     @Id
     @Column(name = "userID", columnDefinition = "nvarchar(255)")
     @GeneratedValue(strategy = GenerationType.UUID)
