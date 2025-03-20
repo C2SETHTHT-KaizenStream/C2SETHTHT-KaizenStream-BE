@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.controller;
 
 
+import com.example.KaizenStream_BE.dto.respone.CommentRespone;
 import com.example.KaizenStream_BE.entity.Comment;
 import com.example.KaizenStream_BE.service.CommentService;
 import lombok.AccessLevel;
@@ -19,17 +20,21 @@ import java.util.List;
 public class CommentController {
     CommentService commentService;
 
-    @PostMapping("/blog/{blogId}")
-    public ResponseEntity<Comment> createComment(
-            @PathVariable String blogId,
-            @RequestBody Comment comment) {
-        Comment createdComment = commentService.createComment(blogId, comment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
-    }
+
+@PostMapping("/blog/{blogId}")
+public ResponseEntity<CommentRespone> createComment(
+        @PathVariable String blogId,
+        @RequestBody Comment comment) {
+    CommentRespone createdCommentRespone = commentService.createComment(blogId, comment);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdCommentRespone);
+}
+
+
+
 
     @GetMapping("/blog/{blogId}")
-    public ResponseEntity<List<Comment>> getCommentsByBlogId(@PathVariable String blogId) {
-        List<Comment> comments = commentService.getCommentsByBlogId(blogId);
+    public ResponseEntity<List<CommentRespone>> getCommentsByBlogId(@PathVariable String blogId) {
+        List<CommentRespone> comments = commentService.getCommentsByBlogId(blogId);
         return ResponseEntity.ok(comments);
     }
 

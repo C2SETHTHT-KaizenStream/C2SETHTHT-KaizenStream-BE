@@ -19,6 +19,8 @@ public enum ErrorCode {
 
     PASSWORD_INVALID(1004, "Password must be at least 8 characters",HttpStatus.BAD_REQUEST),
     INVALID_DOB(1005,"Your age must be at least {min}",HttpStatus.FORBIDDEN),
+    INVALID_EMAIL(1008, "Invalid email adress",HttpStatus.NOT_FOUND),
+    INVALID_ROLE( 1007 , "Invalid role default",HttpStatus.NOT_FOUND),
 
     ;
 
