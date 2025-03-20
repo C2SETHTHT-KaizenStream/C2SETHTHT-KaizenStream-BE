@@ -14,7 +14,7 @@ public enum ErrorCode {
     USER_NOT_EXIST(1002,"User don't  exist",HttpStatus.NOT_FOUND),
 
     USERNAME_INVALID(1003, "User name must be at least 3 characters", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(1005,"Unauthenticated",HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED(1005,"Wrong password",HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1006,"You do not have permission",HttpStatus.FORBIDDEN),
 
     PASSWORD_INVALID(1004, "Password must be at least 8 characters",HttpStatus.BAD_REQUEST),
