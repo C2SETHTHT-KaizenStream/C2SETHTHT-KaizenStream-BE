@@ -28,8 +28,10 @@ public class Report {
     @CollectionTable(name = "report_images", joinColumns = @JoinColumn(name = "report_id"))
     @Column(name = "image_url")
     private List<String> images;
-
     private LocalDateTime createdAt;
 
-   private String userId;
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false) // Dùng cột 'userID' để ánh xạ với bảng 'users'
+    @JsonBackReference(value = "user-reports")
+    private User user;
 }
