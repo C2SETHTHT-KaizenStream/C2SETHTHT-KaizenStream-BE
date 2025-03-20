@@ -18,6 +18,7 @@ public class BlogResponse {
     private String userId;
     private String userName;
     private int CommentCount;
+    private String imageUrl;
 
     public BlogResponse(Blog blog) {
         this.blogId = blog.getBlogId();
@@ -29,5 +30,6 @@ public class BlogResponse {
         this.userId = blog.getUser().getUserId();
         this.userName = blog.getUser().getUserName();
         this.CommentCount = blog.getComments().size();
+        this.imageUrl = blog.getImageUrl();
     }
 }
