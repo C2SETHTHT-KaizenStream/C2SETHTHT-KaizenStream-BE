@@ -21,6 +21,7 @@ import java.util.List;
 public class ReportService {
     ReportRepository reportRepository;
     CloudinaryService cloudinaryService;
+    UserRepository userRepository;
 
     /**
      * Tạo một report mới
@@ -31,13 +32,14 @@ public class ReportService {
         List<String> imageUrls = images != null && images.length > 0
                 ? cloudinaryService.uploadMultipleImages(images)
                 : null;
+        User user=userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));;
 
         // Tạo và lưu Report
         Report report = new Report();
         report.setReportType(reportType);
         report.setDescription(description);
         report.setImages(imageUrls);
-        report.setUserId(userId); // Gán User cho Report
+        report.setUser(user); // Gán User cho Report
         report.setCreatedAt(LocalDateTime.now());
 
         return reportRepository.save(report);

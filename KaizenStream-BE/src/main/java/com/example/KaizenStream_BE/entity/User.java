@@ -21,8 +21,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User {
 
+
     @Id
-    @Column(name = "userID", columnDefinition = "nvarchar(255)")
+    @Column(name = "userID")
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
 
