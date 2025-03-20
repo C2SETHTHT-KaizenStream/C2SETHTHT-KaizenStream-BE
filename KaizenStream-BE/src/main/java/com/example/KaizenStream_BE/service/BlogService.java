@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.service;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.example.KaizenStream_BE.dto.respone.BlogResponse;
 import com.example.KaizenStream_BE.entity.Blog;
 import com.example.KaizenStream_BE.repository.BlogRepository;
@@ -12,8 +13,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +28,7 @@ import java.util.List;
 public class BlogService {
     BlogRepository blogRepository;
     CommentRepository commentRepository;
+    Cloudinary cloudinary;
 
 
     public List<BlogResponse> getAllBlogs() {
@@ -41,14 +49,36 @@ public class BlogService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy blog với ID: " + id));
     }
 
+//    @Transactional
+//    public Blog createBlog(Blog blog) {
+//        if (blog.getTitle() == null || blog.getTitle().isBlank()) {
+//            throw new IllegalArgumentException("Tiêu đề blog không được để trống");
+//        }
+//        return blogRepository.save(blog);
+//    }
+
     @Transactional
-    public Blog createBlog(Blog blog) {
+    public Blog createBlogWithImage(Blog blog, MultipartFile image) throws Exception {
         if (blog.getTitle() == null || blog.getTitle().isBlank()) {
             throw new IllegalArgumentException("Tiêu đề blog không được để trống");
         }
-//        if (blog.getUser() == null) {
-//            throw new IllegalArgumentException("Blog phải có người tạo");
-//        }
+        if (image != null && !image.isEmpty()) {
+            String contentType = image.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("File phải là định dạng ảnh (JPEG, PNG, v.v.)");
+            }
+
+            try {
+                Map<String, Object> uploadParams = new HashMap<>();
+                uploadParams.put("resource_type", "image");
+
+                Map uploadResult = cloudinary.uploader().upload(image.getBytes(), uploadParams);
+                String imageUrl = (String) uploadResult.get("url");
+                blog.setImageUrl(imageUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary: " + e.getMessage(), e);
+            }
+        }
         return blogRepository.save(blog);
     }
 
@@ -56,7 +86,7 @@ public class BlogService {
 
 
     @Transactional
-    public Blog updateBlog(String blogId, Blog blogDetails) {
+    public Blog updateBlog(String blogId, Blog blogDetails, MultipartFile image) throws Exception {
         Blog existingBlog = blogRepository.findById(blogId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy blog với ID: " + blogId));
 
