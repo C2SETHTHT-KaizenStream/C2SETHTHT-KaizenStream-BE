@@ -7,6 +7,7 @@ import com.example.KaizenStream_BE.dto.respone.authen.AuthenticationResponse;
 import com.example.KaizenStream_BE.dto.respone.authen.RegisterResponse;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.enums.SuccessCode;
+import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.service.AuthenticationService;
 import com.example.KaizenStream_BE.service.RegisterService;
 import com.example.KaizenStream_BE.service.UserService;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.coyote.Request;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +31,35 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
     RegisterService registerService;
     @PostMapping("/login")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request) {
         System.out.println("Request Body: " + request);
 
-        var result=authenticationService.authenticate(request);
-        return ApiResponse.<AuthenticationResponse>builder()
-                .result(result).build();
+        try {
+            // Thực hiện xác thực người dùng
+            var result = authenticationService.authenticate(request);
+
+            // Tạo ApiResponse cho kết quả thành công
+            ApiResponse<AuthenticationResponse> response = ApiResponse.<AuthenticationResponse>builder()
+                    .code(200)  // Mã thành công
+                    .message("Authentication successful")
+                    .result(result)
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (AppException e) {
+            // Nếu có lỗi (AppException), trả về lỗi và thông báo
+            ApiResponse<AuthenticationResponse> errorResponse = ApiResponse.<AuthenticationResponse>builder()
+                    .code(401)  // Mã lỗi xác thực
+                    .message(e.getMessage())  // Thông báo lỗi từ AppException
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);  // Trả về HTTP 401 Unauthorized
+        }
+
     }
+
+
 
     @PostMapping("/register")
     ApiResponse<RegisterResponse> response(@RequestBody RegisterRequest request)
