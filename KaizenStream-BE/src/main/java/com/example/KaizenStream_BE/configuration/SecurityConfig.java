@@ -34,7 +34,10 @@ public class SecurityConfig {
             "/ws/**",
             "/ws/*/*",
             "/topic/notifications",
-            "/api/stream/ws/info"
+            "/api/stream/ws/info",
+            "/livestream/**",
+            "/category/**"
+
     };
 
 

@@ -1,10 +1,15 @@
 package com.example.KaizenStream_BE.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 @Entity
+@Getter
+@Setter
 @Table(name = "livestreams")
 public class Livestream {
     @Id
@@ -33,4 +38,13 @@ public class Livestream {
 
     @OneToMany(mappedBy = "livestream", cascade = CascadeType.ALL)
     private List<Chat> chats;
+
+    @ManyToMany
+    @JoinTable(
+            name = "livestream_categories", // Tên bảng liên kết
+            joinColumns = @JoinColumn(name = "livestreamsID"), // Cột liên kết cho Livestream
+            inverseJoinColumns = @JoinColumn(name = "categoryId") // Cột liên kết cho Category
+    )
+    private List<Category> categories;
+
 }
