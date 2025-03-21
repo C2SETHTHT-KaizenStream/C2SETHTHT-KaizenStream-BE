@@ -85,7 +85,6 @@ public class AuthenticationService {
         // Tìm người dùng trong cơ sở dữ liệu
         var user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-
         // Kiểm tra mật khẩu đã mã hóa trong cơ sở dữ liệu với mật khẩu người dùng nhập vào
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
