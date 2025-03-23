@@ -42,7 +42,7 @@ public class AuthenticationController {
         try {
             var result = authenticationService.authenticate(request, response);
             
-            return ResponseEntity.ok(ApiResponse.<AuthenticationResponse>builder()gi
+            return ResponseEntity.ok(ApiResponse.<AuthenticationResponse>builder()
                     .code(200)
                     .message("Login successful")
                     .result(result)
