@@ -37,7 +37,7 @@ public class SecurityConfig {
             "/api/stream/ws/info",
             "/item/*",
             "/item/update/**",
-            "/item/update/*"
+            "/item/update/*",
             "/api/stream/ws/info",
             "/livestream/**",
             "/category/**"
@@ -49,7 +49,7 @@ public class SecurityConfig {
     //"/api/stream/comments/**"
     // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
-    private final CustomJwtDecoder customJwtDecoder;
+    private CustomJwtDecoder customJwtDecoder;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
         this.customJwtDecoder = customJwtDecoder;
@@ -98,8 +98,8 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
 
-        // Áp dụng CORS cho tất cả endpoint
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
