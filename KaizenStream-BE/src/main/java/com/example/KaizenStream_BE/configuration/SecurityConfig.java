@@ -34,7 +34,14 @@ public class SecurityConfig {
             "/ws/**",
             "/ws/*/*",
             "/topic/notifications",
-            "/api/stream/ws/info"
+            "/api/stream/ws/info",
+            "/item/*",
+            "/item/update/**",
+            "/item/update/*",
+            "/api/stream/ws/info",
+            "/livestream/**",
+            "/category/**"
+
     };
 
 
@@ -42,7 +49,7 @@ public class SecurityConfig {
     //"/api/stream/comments/**"
     // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
-    private final CustomJwtDecoder customJwtDecoder;
+    private CustomJwtDecoder customJwtDecoder;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
         this.customJwtDecoder = customJwtDecoder;
