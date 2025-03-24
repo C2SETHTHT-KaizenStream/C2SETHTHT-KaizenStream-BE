@@ -1,9 +1,11 @@
 package com.example.KaizenStream_BE.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+@Data
 @Entity
 @Table(name = "livestreams")
 public class Livestream {
@@ -33,4 +35,6 @@ public class Livestream {
 
     @OneToMany(mappedBy = "livestream", cascade = CascadeType.ALL)
     private List<Chat> chats;
+
+
 }

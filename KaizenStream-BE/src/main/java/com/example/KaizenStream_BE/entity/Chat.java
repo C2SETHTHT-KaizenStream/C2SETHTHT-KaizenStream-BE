@@ -1,9 +1,12 @@
 package com.example.KaizenStream_BE.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.Date;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "chat")
 public class Chat {
