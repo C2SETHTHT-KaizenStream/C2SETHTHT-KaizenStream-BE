@@ -3,8 +3,8 @@ package com.example.KaizenStream_BE.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+
 
 @Data
 @Entity
@@ -12,12 +12,14 @@ import java.util.List;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "chatid")
     private String chatId;
 
     @Column(columnDefinition = "nvarchar(max)")
     private String message;
 
-    private Date timestamp;
+    private LocalDateTime timestamp;
+
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
