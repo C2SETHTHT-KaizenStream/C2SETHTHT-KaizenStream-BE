@@ -58,8 +58,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
     }
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173", "http://localhost:63342").withSockJS(); // Mở kết nối
+
+    public void registerStompEndpoints(StompEndpointRegistry registry){
+//        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173").withSockJS(); //  mở kết nối
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:5173").withSockJS(); //  mở kết nối
+
     }
 
     @Override
@@ -93,5 +96,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
     @Bean
     public TaskScheduler taskScheduler() {
         return new ConcurrentTaskScheduler(); // Để chạy ping giữ kết nối
+
     }
 }
