@@ -42,8 +42,8 @@ public class SecurityConfig {
             "/livestream/**",
             "/category/**",
             "/topic/**",
-            "/chat/**"
-
+            "/chat/**",
+            "/donation/**"
     };
 
 

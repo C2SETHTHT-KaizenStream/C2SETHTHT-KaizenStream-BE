@@ -74,8 +74,16 @@ public class ItemController {
 
     // 4️⃣ Lấy danh sách tất cả Item
    @GetMapping("/all")
-   public List<Item> getAllItems() {
-       return itemService.getAllItems();
+   public ResponseEntity<ApiResponse<List<Item>>> getAllItems() {
+       List<Item> items = itemService.getAllItems();
+
+       return ResponseEntity.ok(
+               ApiResponse.<List<Item>>builder()
+                       .code(1000)
+                       .message("Get All Items successfully !")
+                       .result(items)
+                       .build()
+       );
    }
 
    // Cập nhật status
