@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 public class NotificationController {
     //server application
     // /app/sendMessage
-    @MessageMapping("/sendMessage") // api
+    @MessageMapping("/sendNotification") // api
     @SendTo("/topic/notifications") // gửi tin từ server lên client
     public String sendMessage(String message){
 

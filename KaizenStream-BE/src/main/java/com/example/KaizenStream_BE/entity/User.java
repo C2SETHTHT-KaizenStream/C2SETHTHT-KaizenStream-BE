@@ -21,8 +21,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User {
 
+
     @Id
-    @Column(name = "userID", columnDefinition = "nvarchar(255)")
+    @Column(name = "userID")
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
 
@@ -106,5 +107,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "user-blogs")
     private List<Blog> blogs;
+
 
 }
