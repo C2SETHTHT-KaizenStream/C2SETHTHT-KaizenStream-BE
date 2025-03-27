@@ -22,6 +22,12 @@ public enum ErrorCode {
     INVALID_EMAIL(1008, "Invalid email adress",HttpStatus.NOT_FOUND),
     INVALID_ROLE( 1007 , "Invalid role default",HttpStatus.NOT_FOUND),
 
+    ITEM_NOT_EXIST(1009, "Item does not exist", HttpStatus.BAD_REQUEST),
+
+    WALLET_NOT_EXIST(1010, "Wallet doest not exist", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_BALANCE(1011,"Your wallet is not enough money", HttpStatus.BAD_REQUEST),
+
+    LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
