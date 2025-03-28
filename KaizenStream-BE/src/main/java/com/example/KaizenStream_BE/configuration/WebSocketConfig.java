@@ -19,7 +19,7 @@
 //
 //    @Override
 //    public void registerStompEndpoints(StompEndpointRegistry registry){
-//        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173","http://localhost:63342").withSockJS(); //  mở kết nối
+//        registry.addEndpoint("/ws").setAllowedOrigins(feUrl,"http://localhost:63342").withSockJS(); //  mở kết nối
 //    }
 //}
 
@@ -27,6 +27,7 @@
 package com.example.KaizenStream_BE.configuration;
 
 import com.example.KaizenStream_BE.service.StreamWebSocketHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
@@ -50,7 +51,8 @@ import java.util.Map;
 @EnableWebSocketMessageBroker
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
-
+    @Value("${fe-url}")
+    protected String feUrl;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic"); // Serve gửi tin nhắn tới client
@@ -60,15 +62,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
     @Override
 
     public void registerStompEndpoints(StompEndpointRegistry registry){
-//        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:5173").withSockJS(); //  mở kết nối
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:5173").withSockJS(); //  mở kết nối
+//        registry.addEndpoint("/ws").setAllowedOrigins(feUrl).withSockJS(); //  mở kết nối
+        registry.addEndpoint("/ws").setAllowedOriginPatterns(feUrl).withSockJS(); //  mở kết nối
 
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new StreamWebSocketHandler(), "/stream")
-                .setAllowedOrigins("http://localhost:5173") // Chỉ định URL frontend
+                .setAllowedOrigins(feUrl) // Chỉ định URL frontend
                 .addInterceptors(new HandshakeInterceptor() {
                     @Override
                     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
