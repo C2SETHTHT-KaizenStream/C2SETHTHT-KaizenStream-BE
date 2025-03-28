@@ -75,12 +75,12 @@ public class MinioService {
         if (segmentFiles.isEmpty()) {
             System.out.println("Không tìm thấy file .ts cho streamId: " + streamId);
         }
+        segmentFiles=segmentFiles.stream().map(s -> s.substring(s.indexOf("/",s.indexOf("/")+1)+1,s.length()-3)).collect(Collectors.toList());
 
         segmentFiles = segmentFiles.stream()
                 .sorted(Comparator.comparingInt(file -> Integer.parseInt(file.replaceAll("[^0-9]", "")))) // Loại bỏ ký tự không phải số
                 .collect(Collectors.toList());
 
-        segmentFiles=segmentFiles.stream().map(s -> s.substring(s.indexOf("/",s.indexOf("/")+1)+1,s.length()-3)).collect(Collectors.toList());
 
         //segmentFiles.forEach(s -> System.out.println(s));
         return segmentFiles;
