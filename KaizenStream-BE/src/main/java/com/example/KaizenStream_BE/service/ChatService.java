@@ -11,10 +11,9 @@ import com.example.KaizenStream_BE.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.*;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +28,11 @@ public class ChatService {
     ChatRepository chatRepository;
     UserRepository userRepository;
     LivestreamRepository livestreamRepository;
+    RedisTemplate<String, ChatResponse> redisTemplate;
+
+
+    static final String CHAT_KEY = "chat:";
+
 
     // Lưu tin nhắn
     public ChatResponse saveChatMessage(ChatResponse chatResponse) {
@@ -63,11 +67,22 @@ public class ChatService {
         if (!"SYSTEM".equals(chatResponse.getUserId())) {
             chatResponse.setUsername(chat.getUser().getUserName());
         }
+        redisTemplate.opsForList().leftPush(CHAT_KEY + chatResponse.getLivestreamId(), chatResponse);
+
         return chatResponse;
     }
 
     // Lấy tin nhắn theo livestream id với paging
+    @Cacheable(value = "chatMessages", key = "#livestreamId + ':' + #page + ':' + #size")
     public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
+        // Kiểm tra Redis trước
+        List<ChatResponse> cachedMessages = redisTemplate.opsForList()
+                .range(CHAT_KEY + livestreamId, 0, size - 1);
+        if (cachedMessages != null && !cachedMessages.isEmpty()) {
+            return new PageImpl<>(cachedMessages);
+        }
+
+        // Nếu không có trong Redis, lấy từ DB
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
         Page<Chat> chats = chatRepository.findByLivestream_LivestreamId(livestreamId, pageable);
         return chats.map(chat -> {
@@ -83,3 +98,4 @@ public class ChatService {
         });
     }
 }
+
