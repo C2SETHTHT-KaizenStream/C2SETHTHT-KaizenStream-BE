@@ -5,6 +5,7 @@ import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamReques
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
 import com.example.KaizenStream_BE.entity.Livestream;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.enums.LivestreamStatus;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.repository.LivestreamRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
@@ -55,5 +56,11 @@ public class LivestreamService {
 
         livestreamRepository.deleteById(id);
         return "Livestream has been deleted";
+    }
+
+    public void updateStatus(String streamId, LivestreamStatus status) {
+        var live=livestreamRepository.findById(streamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        live.setStatus(status.getDescription());
+        livestreamRepository.save(live);
     }
 }

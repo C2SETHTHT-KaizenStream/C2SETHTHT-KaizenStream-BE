@@ -5,6 +5,7 @@ import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamReques
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
+import com.example.KaizenStream_BE.enums.LivestreamStatus;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,55 +63,60 @@ public class LiveStreamController {
     }
 
 
-
+    public  static  String processName="liveStream";
 
 
     @PostMapping("/start")
-    public ResponseEntity<Map<String, String>> startStream(@RequestParam String name) {
-        String streamKey = "stream-" + UUID.randomUUID().toString();
-        Map<String, String> response = new HashMap<>();
-        response.put("streamKey", streamKey);
-        System.out.println("🔴 Stream bắt đầu với streamKey: " + streamKey);
+    public ApiResponse<String> startStream(@RequestParam String name) {
+        name=getKey(name);
+
+        System.out.println("🔴 Stream bắt đầu 1 live stream: "+name );
+
         int activeStreamCount = activeStreams.incrementAndGet();
+        livestreamService.updateStatus(name, LivestreamStatus.ACTIVE);
+        System.out.println("🔴 🔴 🔴  "+livestreamService.getLivestreamById(name).getStatus() );
+
         if (activeStreamCount == 1 && syncProcess == null) {
 
         try {
             ProcessBuilder pb = new ProcessBuilder("powershell", "-ExecutionPolicy", "Bypass", "-File",
-                    "D:/ApplicationSystem/nginx-rtmp/sync_hls.ps1", name);
+                    "D:/ApplicationSystem/nginx-rtmp/sync_hls.ps1", processName);
             syncProcess = pb.start(); // Khởi tạo tiến trình đồng bộ
-//            syncProcesses.put(name, process); // Lưu process để có thể dừng sau này
-
-
             System.out.println("✅ Script đồng bộ HLS đang chạy trong nền ");
         } catch (IOException e) {
             System.err.println("❌ Lỗi khi chạy PowerShell script: " + e.getMessage());
-            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Failed to start sync script"));
+            return ApiResponse.<String>builder().result("Failed to start sync script").code(500).build();
         }
         }
-
-        return ResponseEntity.ok(response);
+        return ApiResponse.<String>builder().result("Start new livestream").code(200).build();
     }
 
     @PostMapping("/end")
-    public ResponseEntity<String> endStream(@RequestParam String name) {
-        String streamKey=name;
+    public ResponseEntity<String> endStream(@RequestParam String name) throws InterruptedException {
+        String streamKey=getKey(name);
         System.out.println("🛑 Dừng stream với streamKey: " + streamKey);
         int activeStreamCount = activeStreams.decrementAndGet();
-
-        // Chờ 10 giây trước khi dừng tiến trình
-        try {
-            System.out.println("⏳ Đợi 7 giây trước khi dừng tiến trình...");
-            Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
-        } catch (InterruptedException e) {
-            System.err.println("❌ Lỗi khi chờ trước khi dừng tiến trình: " + e.getMessage());
-            return ResponseEntity.status(500).body("Error while waiting to stop stream");
-        }
         // Nếu không còn luồng nào, dừng tiến trình đồng bộ
         if (activeStreamCount == 0 && syncProcess != null) {
-            stopSyncProcess();
+            // Chờ 10 giây trước khi dừng tiến trình
+            try {
+                System.out.println("⏳ Đợi 7 giây trước khi dừng tiến trình...");
+                Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+                stopSyncProcess();
+                Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+
+            } catch (InterruptedException e) {
+                System.err.println("❌ Lỗi khi chờ trước khi dừng tiến trình: " + e.getMessage());
+                return ResponseEntity.status(500).body("Error while waiting to stop stream");
+            }
         }
+        generateM3u8File(streamKey);
+        Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+        livestreamService.updateStatus(streamKey, LivestreamStatus.ENDED);
+
         return ResponseEntity.ok("Stream ended");
     }
+
     private void stopSyncProcess() {
         if (syncProcess != null && syncProcess.isAlive()) {
             syncProcess.destroy();  // Dừng tiến trình đồng bộ
@@ -121,6 +128,13 @@ public class LiveStreamController {
 
     @PostMapping("/{streamId}/generate-m3u8")
     public ResponseEntity<String> generateM3u8(@PathVariable String streamId) {
+        streamId=getKey(streamId);
+
+        return generateM3u8File(streamId);
+    }
+
+    @NotNull
+    private ResponseEntity<String> generateM3u8File(String streamId) {
         try {
             List<String> tsFiles = minioService.listTsFiles(streamId);
             if (tsFiles.isEmpty()) {
@@ -129,6 +143,10 @@ public class LiveStreamController {
 
             String m3u8Content = generateM3u8Content(tsFiles);
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
+            Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+
+            livestreamService.updateStatus(streamId, LivestreamStatus.ENDED);
+
 
             return ResponseEntity.ok("Đã tạo và lưu playlist.m3u8 thành công.");
         } catch (Exception e) {
@@ -136,6 +154,7 @@ public class LiveStreamController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
         }
     }
+
     private String generateM3u8Content(List<String> tsFileNames) {
         StringBuilder sb = new StringBuilder();
         sb.append("#EXTM3U\n");
@@ -150,6 +169,10 @@ public class LiveStreamController {
 
         sb.append("#EXT-X-ENDLIST\n");
         return sb.toString();
+    }
+    private  String getKey(String name){
+        if(!name.contains(",")) return name;
+        return name.substring(name.lastIndexOf(",")+1,name.length());
     }
 
 }
