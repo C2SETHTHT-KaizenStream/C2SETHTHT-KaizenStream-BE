@@ -48,6 +48,13 @@ public class RedisCacheConfig {
                 .build();
     }
 
+    /**
+     * @param redisConnectionFactory
+     * @return
+     *
+     * Cấu hình RedisTemplate để lưu dữ liệu dạng JSON vào Redis.
+     * ObjectMapper hỗ trợ kiểu dữ liệu Java 8 như LocalDateTime nhờ JavaTimeModule.
+     */
     @Bean
     public RedisTemplate<String, ChatResponse> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, ChatResponse> template = new RedisTemplate<>();
