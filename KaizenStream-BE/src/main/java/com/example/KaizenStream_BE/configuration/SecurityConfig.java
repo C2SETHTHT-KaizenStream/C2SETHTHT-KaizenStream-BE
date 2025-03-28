@@ -40,8 +40,10 @@ public class SecurityConfig {
             "/item/update/*",
             "/api/stream/ws/info",
             "/livestream/**",
-            "/category/**"
-
+            "/category/**",
+            "/topic/**",
+            "/chat/**",
+            "/donation/**"
     };
 
 
@@ -61,6 +63,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()

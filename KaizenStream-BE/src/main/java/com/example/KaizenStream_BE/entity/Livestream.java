@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.example.KaizenStream_BE.enums.LivestreamStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -27,7 +28,8 @@ public class Livestream {
     private int viewerCount;
     private Date startTime;
     private Date endTime;
-    private String status;
+
+    private String status= LivestreamStatus.INACTIVE.getDescription();
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)

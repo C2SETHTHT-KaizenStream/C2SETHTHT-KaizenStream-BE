@@ -39,6 +39,7 @@ public class CreateLivestreamRequest {
     private Date endTime;
 
     @NotEmpty(message = "Status is required")
+
     @Pattern(regexp = "^(active|inactive|ended)$", message = "Status must be one of: active, inactive, ended")
     private String status;
 
