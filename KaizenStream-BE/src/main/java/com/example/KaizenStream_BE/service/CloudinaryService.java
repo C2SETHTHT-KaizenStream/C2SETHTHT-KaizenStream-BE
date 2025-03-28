@@ -22,6 +22,7 @@ public class CloudinaryService {
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         return uploadResult.get("secure_url").toString(); // URL của ảnh sau khi upload
     }
+
     // Upload nhiều ảnh
     public List<String> uploadMultipleImages(MultipartFile[] files) throws IOException {
         List<String> imageUrls = new ArrayList<>();
