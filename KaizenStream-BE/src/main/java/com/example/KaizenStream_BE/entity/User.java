@@ -98,8 +98,7 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Livestream> livestreams;
