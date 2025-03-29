@@ -1,8 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
-import com.example.KaizenStream_BE.enums.LivestreamStatus;
+import com.example.KaizenStream_BE.enums.Status;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +28,7 @@ public class Livestream {
     private Date startTime;
     private Date endTime;
 
-    private String status= LivestreamStatus.INACTIVE.getDescription();
+    private String status= Status.INACTIVE.getDescription();
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
@@ -48,5 +47,8 @@ public class Livestream {
             inverseJoinColumns = @JoinColumn(name = "categoryId") // Cột liên kết cho Category
     )
     private List<Category> categories;
+    @OneToOne
+    @JoinColumn(name = "scheduleID",nullable = true)
+    private Schedule schedule;
 
 }

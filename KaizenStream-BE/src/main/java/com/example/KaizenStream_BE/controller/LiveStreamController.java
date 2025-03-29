@@ -1,15 +1,13 @@
 package com.example.KaizenStream_BE.controller;
 
-import com.cloudinary.Api;
 import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
-import com.example.KaizenStream_BE.enums.LivestreamStatus;
+import com.example.KaizenStream_BE.enums.Status;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
-import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
@@ -73,7 +70,7 @@ public class LiveStreamController {
         System.out.println("🔴 Stream bắt đầu 1 live stream: "+name );
 
         int activeStreamCount = activeStreams.incrementAndGet();
-        livestreamService.updateStatus(name, LivestreamStatus.ACTIVE);
+        livestreamService.updateStatus(name, Status.ACTIVE);
         System.out.println("🔴 🔴 🔴  "+livestreamService.getLivestreamById(name).getStatus() );
 
         if (activeStreamCount == 1 && syncProcess == null) {
@@ -112,7 +109,7 @@ public class LiveStreamController {
         }
         generateM3u8File(streamKey);
         Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
-        livestreamService.updateStatus(streamKey, LivestreamStatus.ENDED);
+        livestreamService.updateStatus(streamKey, Status.ENDED);
 
         return ResponseEntity.ok("Stream ended");
     }
@@ -145,7 +142,7 @@ public class LiveStreamController {
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
             Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
 
-            livestreamService.updateStatus(streamId, LivestreamStatus.ENDED);
+            livestreamService.updateStatus(streamId, Status.ENDED);
 
 
             return ResponseEntity.ok("Đã tạo và lưu playlist.m3u8 thành công.");

@@ -16,6 +16,8 @@ public interface  LivestreamMapper {
 
     @Mapping(target = "livestreamId", ignore = true) // Vì livestreamId sẽ được tự động tạo
     @Mapping(target = "user", ignore = true) // Chúng ta sẽ set user trong service hoặc controller
+    @Mapping(target = "categories", ignore = true) // Chúng ta sẽ set user trong service hoặc controller
+    @Mapping(target = "schedule", ignore = true)
     Livestream toLivestream(CreateLivestreamRequest livestream);
 
     @Mapping (target ="user", ignore = true)
