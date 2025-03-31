@@ -46,7 +46,8 @@ public class SecurityConfig {
             "/chat/**",
             "/donation/**",
             "/schedule/**",
-            "/tag/**"
+            "/tag/**",
+            "/payment/**"
     };
 
     @Value("${fe-url}")
