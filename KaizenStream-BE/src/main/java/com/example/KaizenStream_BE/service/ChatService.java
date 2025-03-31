@@ -17,9 +17,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,16 +30,42 @@ public class ChatService {
     UserRepository userRepository;
     LivestreamRepository livestreamRepository;
     RedisTemplate<String, ChatResponse> redisTemplate;
-
+    ExecutorService executorService = Executors.newSingleThreadExecutor();  // Executor để thực hiện lưu DB bất đồng bộ
 
     static final String CHAT_KEY = "chat:";
 
+    public ChatResponse prepareChatMessage(ChatResponse chatResponse) {
+        if (chatResponse.getTimestamp() == null) {
+            chatResponse.setTimestamp(LocalDateTime.now());
+        }
 
-    // Lưu tin nhắn
+        if (chatResponse.getUserId() != null && chatResponse.getUsername() == null) {
+            User user = userRepository.findById(chatResponse.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            chatResponse.setUsername(user.getUserName());
+        }
+
+        chatResponse.setType("SYSTEM".equals(chatResponse.getUserId()) ? "SYSTEM" : "USER");
+
+        return chatResponse;
+    }
+
     public ChatResponse saveChatMessage(ChatResponse chatResponse) {
+
+        prepareChatMessage(chatResponse);
+
+        redisTemplate.opsForList().leftPush(CHAT_KEY + chatResponse.getLivestreamId(), chatResponse);
+
+        executorService.submit(() -> saveChatToDatabase(chatResponse));
+
+        return chatResponse;
+    }
+
+    private void saveChatToDatabase(ChatResponse chatResponse) {
         Chat chat = new Chat();
         chat.setMessage(chatResponse.getMessage());
         chat.setTimestamp(LocalDateTime.now());
+
 
         if ("SYSTEM".equals(chatResponse.getUserId())) {
             User systemUser = userRepository.findById("SYSTEM")
@@ -67,12 +94,9 @@ public class ChatService {
         if (!"SYSTEM".equals(chatResponse.getUserId())) {
             chatResponse.setUsername(chat.getUser().getUserName());
         }
-        redisTemplate.opsForList().leftPush(CHAT_KEY + chatResponse.getLivestreamId(), chatResponse);
 
-        return chatResponse;
     }
-
-    // Lấy tin nhắn theo livestream id với paging
+    //Lấy tin nhắn theo livestream id với paging
     @Cacheable(value = "chatMessages", key = "#livestreamId + ':' + #page + ':' + #size")
     public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
         // Kiểm tra Redis trước
@@ -97,5 +121,6 @@ public class ChatService {
             return dto;
         });
     }
-}
 
+
+}

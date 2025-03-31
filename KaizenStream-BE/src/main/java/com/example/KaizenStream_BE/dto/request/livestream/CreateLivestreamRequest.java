@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,5 +46,11 @@ public class CreateLivestreamRequest {
     private String status;
 
     private  String userId;
+    private List<String> categories;
+    private List<String> tags;
+
+    private String scheduleId;
+
+
 
 }

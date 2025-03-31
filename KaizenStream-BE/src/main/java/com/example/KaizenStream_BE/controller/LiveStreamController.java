@@ -1,19 +1,18 @@
 package com.example.KaizenStream_BE.controller;
 
-import com.cloudinary.Api;
 import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
-import com.example.KaizenStream_BE.enums.LivestreamStatus;
+import com.example.KaizenStream_BE.enums.Status;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
-import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -34,16 +33,18 @@ public class LiveStreamController {
     LivestreamMapper livestreamMapper;
    // private final Map<String, Process> syncProcesses = new HashMap<>();
     private static Process syncProcess = null; // Chỉ có một tiến trình đồng bộ HLS
-    private static final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
+    private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
 
     @Autowired
     private MinioService minioService;
 
     @PostMapping
     ApiResponse<LivestreamRespone> createLivestream(@RequestBody @Valid CreateLivestreamRequest request){
+
+
         ApiResponse<LivestreamRespone> response= new ApiResponse<>();
-        response.setResult(livestreamMapper.toLivestreamRespone(livestreamService.createLivestream(request)));
-        return response;
+        LivestreamRespone respone=livestreamService.createLivestream(request);
+        return ApiResponse.<LivestreamRespone>builder().result(respone).build();
     }
     @GetMapping
     ApiResponse<List<LivestreamRespone>>  getAll(){
@@ -73,8 +74,16 @@ public class LiveStreamController {
         System.out.println("🔴 Stream bắt đầu 1 live stream: "+name );
 
         int activeStreamCount = activeStreams.incrementAndGet();
-        livestreamService.updateStatus(name, LivestreamStatus.ACTIVE);
+        livestreamService.updateStatus(name, Status.ACTIVE);
         System.out.println("🔴 🔴 🔴  "+livestreamService.getLivestreamById(name).getStatus() );
+        log.warn("activeStreamCount: "+activeStreamCount);
+        if (syncProcess != null) {
+            System.out.println("Sync process đang chạy");
+        } else {
+            System.out.println("Sync process chưa được khởi động");
+        }
+
+
 
         if (activeStreamCount == 1 && syncProcess == null) {
 
@@ -112,7 +121,7 @@ public class LiveStreamController {
         }
         generateM3u8File(streamKey);
         Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
-        livestreamService.updateStatus(streamKey, LivestreamStatus.ENDED);
+        livestreamService.updateStatus(streamKey, Status.ENDED);
 
         return ResponseEntity.ok("Stream ended");
     }
@@ -145,7 +154,7 @@ public class LiveStreamController {
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
             Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
 
-            livestreamService.updateStatus(streamId, LivestreamStatus.ENDED);
+            livestreamService.updateStatus(streamId, Status.ENDED);
 
 
             return ResponseEntity.ok("Đã tạo và lưu playlist.m3u8 thành công.");
@@ -174,5 +183,14 @@ public class LiveStreamController {
         if(!name.contains(",")) return name;
         return name.substring(name.lastIndexOf(",")+1,name.length());
     }
-
+    @GetMapping("/{streamId}/playlist-url")
+    public ResponseEntity<String> getM3u8Url(@PathVariable String streamId) {
+        try {
+            String url = minioService.getPresignedM3u8Url(streamId, 3600); // 1 tiếng
+            return ResponseEntity.ok(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
+        }
+    }
 }

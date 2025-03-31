@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,4 +21,6 @@ public class LivestreamRespone {
     Date startTime;
     Date endTime;
     String status;
+    private List<String> categories;
+    private List<String> tags;
 }
