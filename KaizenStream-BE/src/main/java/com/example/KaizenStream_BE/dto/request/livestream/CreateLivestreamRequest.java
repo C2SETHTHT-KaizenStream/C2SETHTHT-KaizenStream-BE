@@ -47,6 +47,7 @@ public class CreateLivestreamRequest {
 
     private  String userId;
     private List<String> categories;
+    private List<String> tags;
 
     private String scheduleId;
 
