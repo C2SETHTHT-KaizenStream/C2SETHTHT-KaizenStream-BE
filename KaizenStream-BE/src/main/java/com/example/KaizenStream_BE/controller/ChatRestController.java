@@ -20,11 +20,35 @@ public class ChatRestController {
 
     final ChatService  chatService;
 
-    @GetMapping("livestream/{livestreamId}")
-    public Page<ChatResponse> getChatMessage(
+
+
+
+//@GetMapping("/livestream/{livestreamId}")
+//public Page<ChatResponse> getChatMessages(
+//        @PathVariable String livestreamId,
+//        @RequestParam(defaultValue = "0") int page,
+//        @RequestParam(defaultValue = "20") int size) {
+//    return chatService.getChatMessagesByLivestream(livestreamId, page, size);
+//}
+
+//    @GetMapping("/livestream/{livestreamId}")
+//    public List<ChatResponse> getChatMessages(
+//            @PathVariable String livestreamId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "20") int size) {
+//        Page<ChatResponse> chatMessages = chatService.getChatMessagesByLivestream(livestreamId, page, size);
+//        return chatMessages.getContent();
+//    }
+
+    @GetMapping("/livestream/{livestreamId}")
+    public List<ChatResponse> getChatMessages(
             @PathVariable String livestreamId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return chatService.getChatMessagesByLivestream(livestreamId, page, size);
+        // Gọi service để lấy chat messages từ cơ sở dữ liệu
+        Page<ChatResponse> chatMessages = chatService.getChatMessagesByLivestream(livestreamId, page, size);
+        return chatMessages.getContent(); // Trả về phần content (danh sách tin nhắn)
     }
+
+
 }
