@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum LivestreamStatus {
-    ACTIVE("active"), INACTIVE("inactive"), ENDED("ended");
+public enum Status {
+    ACTIVE("active"), INACTIVE("inactive"), ENDED("ended"), PENDING("pending");
 
    String description;
 }

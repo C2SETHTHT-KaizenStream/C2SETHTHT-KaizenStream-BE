@@ -27,8 +27,8 @@ public enum ErrorCode {
     WALLET_NOT_EXIST(1010, "Wallet doest not exist", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE(1011,"Your wallet is not enough money", HttpStatus.BAD_REQUEST),
 
-    LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST)
-    ;
+    LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST),
+    SCHEDULE_NOT_EXIST(1002, "Schedule does not exist",HttpStatus.NOT_FOUND );
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
