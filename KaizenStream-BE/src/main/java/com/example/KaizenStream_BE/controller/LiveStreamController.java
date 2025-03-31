@@ -28,11 +28,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+//@FieldDefaults(level = AccessLevel.PRIVATE)
+
 @RequestMapping("/livestream")
 public class LiveStreamController {
 
-    @Value("${nginx.url}")
-    String nginxUrl;
+//    @Value("${nginx.path}")
+//    String nginxUrl;
 
     LivestreamService livestreamService;
     LivestreamMapper livestreamMapper;
@@ -94,7 +96,7 @@ public class LiveStreamController {
 
         try {
             ProcessBuilder pb = new ProcessBuilder("powershell", "-ExecutionPolicy", "Bypass", "-File",
-                    nginxUrl, processName);
+                    "C:/Users/Hua Hieu/Downloads/nginx-rtmp/nginx-rtmp/sync_hls.ps1", processName);
             syncProcess = pb.start(); // Khởi tạo tiến trình đồng bộ
             System.out.println("✅ Script đồng bộ HLS đang chạy trong nền ");
         } catch (IOException e) {
