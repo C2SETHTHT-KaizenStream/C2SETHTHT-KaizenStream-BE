@@ -2,6 +2,7 @@ package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.request.purchase.PurchaseRequest;
 import com.example.KaizenStream_BE.dto.respone.StripeRespone;
+//import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.StripeService;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    @Autowired
-    private StripeService stripeService;
-    @Autowired
-    private PaymentService paymentService;
+    private final StripeService stripeService;
+    private final PaymentService paymentService;
+
+//    @PostMapping("/checkout")
+//    public ResponseEntity<StripeRespone> checkout(@RequestBody PurchaseRequest request) {
+//        StripeRespone response = stripeService.checkoutPurchase(request);
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//    }
 
     // Endpoint để thanh toán (tạo session Stripe)
     @PostMapping("/checkout")
@@ -34,21 +39,21 @@ public class PaymentController {
 
     // Endpoint để xử lý thanh toán thành công
     @GetMapping("/payment-success")
-    public ResponseEntity<String> handlePaymentSuccess(@RequestParam String sessionId, @RequestParam String userId, @RequestParam double amount) {
+    public ResponseEntity<String> handlePaymentSuccess(
+            @RequestParam String sessionId,
+            @RequestParam String userId,
+            @RequestParam double amount,
+            @RequestParam String type
+    ) {
         // Sau khi thanh toán thành công, xử lý thông tin người dùng và lưu vào database
         // Gọi service để xử lý thanh toán, cộng điểm vào wallet và lưu lịch sử
         // Lưu purchase vào database và cập nhật wallet balance
-        paymentService.handlePaymentSuccess(sessionId, userId, amount); // Sử dụng `amount` truyền vào
-
-        // Trả về thông báo thành công
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("Payment successful for user: " + userId);
+        paymentService.handlePaymentSuccess(sessionId, userId, amount, type);
+        return ResponseEntity.ok("Payment successful for user: " + userId);
     }
 
 }
 
-//
-//
 //package com.example.KaizenStream_BE.controller;
 //
 //import com.example.KaizenStream_BE.dto.request.purchase.PurchaseRequest;
