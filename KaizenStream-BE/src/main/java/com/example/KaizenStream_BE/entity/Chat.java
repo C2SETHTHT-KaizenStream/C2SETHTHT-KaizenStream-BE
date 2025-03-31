@@ -21,6 +21,7 @@ public class Chat {
     private LocalDateTime timestamp;
 
 
+
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
     private User user;
