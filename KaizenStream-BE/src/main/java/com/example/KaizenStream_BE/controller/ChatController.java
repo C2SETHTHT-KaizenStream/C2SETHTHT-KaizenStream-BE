@@ -20,16 +20,14 @@ public class ChatController {
     ChatService chatService;
     SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat/{livestreamId}")
+        @MessageMapping("/chat/{livestreamId}")
     public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
-
         chatResponse.setLivestreamId(livestreamId);
-
-        chatService.prepareChatMessage(chatResponse);
-        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, chatResponse);
-
-        CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
-
+            //chatService.prepareChatMessage(chatResponse);
+            chatResponse.setLivestreamId(livestreamId);
+        ChatResponse saved = chatService.saveChatMessage(chatResponse);
+        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
+            //CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
     }
 
 

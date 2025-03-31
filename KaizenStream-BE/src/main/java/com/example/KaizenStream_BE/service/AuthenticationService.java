@@ -108,6 +108,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(accessToken)
                 .userId(user.getUserId())
+                .userName(user.getUserName())
                 .authenticated(true)
                 .build();
     }
