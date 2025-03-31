@@ -25,7 +25,7 @@ public class RedisCacheConfig {
      * Dữ liệu trong cache được lưu dưới dạng key-value, với key là chuỗi (String) và value là JSON.
      * Cache tự động hết hạn sau 10 phút, giúp tiết kiệm bộ nhớ và đảm bảo dữ liệu không bị cũ quá lâu.
      * Hỗ trợ các kiểu dữ liệu Java 8 như LocalDateTime nhờ JavaTimeModule.
-     * **/
+     **/
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
@@ -50,9 +50,7 @@ public class RedisCacheConfig {
 
     /**
      * @param redisConnectionFactory
-     * @return
-     *
-     * Cấu hình RedisTemplate để lưu dữ liệu dạng JSON vào Redis.
+     * @return Cấu hình RedisTemplate để lưu dữ liệu dạng JSON vào Redis.
      * ObjectMapper hỗ trợ kiểu dữ liệu Java 8 như LocalDateTime nhờ JavaTimeModule.
      */
     @Bean
@@ -70,6 +68,7 @@ public class RedisCacheConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
         template.afterPropertiesSet();
+
 
         return template;
     }
