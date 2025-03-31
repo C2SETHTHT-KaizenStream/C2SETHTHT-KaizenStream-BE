@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -50,5 +53,16 @@ public class Livestream {
     @OneToOne
     @JoinColumn(name = "scheduleID",nullable = true)
     private Schedule schedule;
+
+
+    // Quan hệ nhiều-nhiều với Tag
+    @ManyToMany
+    @JoinTable(
+            name = "livestream_tag",
+            joinColumns = @JoinColumn(name = "livestream_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
 
 }
