@@ -40,17 +40,9 @@ public class User {
 
     private int point;
 
-    @Column(columnDefinition = "nvarchar(255)")
-    private String channelName;
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String bankAccountNumber;
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String bankName;
 
 
-    private String description;
+
 
     private Date createdAt;
 
@@ -61,7 +53,7 @@ public class User {
     private String status;
 
 
-    private String avatarImg;
+
 
     private int followerCount;
 
@@ -97,7 +89,8 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Report> reports;
-
+    @Column(columnDefinition = "nvarchar(255)")
+    private String channelName;
 
 
     @OneToMany(cascade = CascadeType.ALL)
