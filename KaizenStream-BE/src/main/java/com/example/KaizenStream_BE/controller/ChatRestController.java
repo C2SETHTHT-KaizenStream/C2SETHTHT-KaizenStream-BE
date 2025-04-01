@@ -45,9 +45,8 @@ public class ChatRestController {
             @PathVariable String livestreamId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        // Gọi service để lấy chat messages từ cơ sở dữ liệu
         Page<ChatResponse> chatMessages = chatService.getChatMessagesByLivestream(livestreamId, page, size);
-        return chatMessages.getContent(); // Trả về phần content (danh sách tin nhắn)
+        return chatMessages.getContent();
     }
 
 
