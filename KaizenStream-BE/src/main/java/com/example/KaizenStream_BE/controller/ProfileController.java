@@ -1,7 +1,11 @@
 package com.example.KaizenStream_BE.controller;
 
-import com.example.KaizenStream_BE.dto.ProfileDTO;
+import com.example.KaizenStream_BE.dto.request.profile.CreateProfileRequest;
+import com.example.KaizenStream_BE.dto.request.profile.UpdateProfileRequest;
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.profile.ProfileResponse;
 import com.example.KaizenStream_BE.service.ProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,30 +20,32 @@ import java.io.IOException;
 public class ProfileController {
     private final ProfileService profileService;
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<ProfileDTO> createProfile(
-            @PathVariable String userId,
-            @RequestBody ProfileDTO profileDTO,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile) throws IOException {
-        return ResponseEntity.ok(profileService.createProfile(userId, profileDTO, avatarFile));
+//    @PostMapping("/{userId}")
+//    public ResponseEntity<CreateProfileRequest> createProfile(
+//            @PathVariable String userId,
+//            @RequestBody CreateProfileRequest profileDTO,
+//            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile) throws IOException {
+//        return ResponseEntity.ok(profileService.createProfile(userId, profileDTO, avatarFile));
+//    }
+
+    @PostMapping
+    ApiResponse<ProfileResponse> createProfile(@RequestBody @Valid CreateProfileRequest request){
+        return  ApiResponse.<ProfileResponse>builder().result(profileService.createProfile(request)).build();
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<ProfileDTO> updateProfile(
-            @PathVariable String userId,
-            @RequestBody ProfileDTO profileDTO,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile) throws IOException {
-        return ResponseEntity.ok(profileService.updateProfile(userId, profileDTO, avatarFile));
+    @PutMapping("/{profile_id}")
+    ApiResponse<ProfileResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request , @PathVariable String profile_id )
+    {
+        return ApiResponse.<ProfileResponse>builder().result(profileService.updateProfile(profile_id , request)).build();
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<ProfileDTO> getProfile(@PathVariable String userId) {
-        return ResponseEntity.ok(profileService.getProfile(userId));
+    @DeleteMapping("/{profileId}")
+    public ApiResponse<String> deleteProfile(@PathVariable String profileId) {
+        profileService.deleteProfile(profileId);
+        return ApiResponse.<String>builder()
+                .result("Profile deleted successfully.")
+                .build();
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable String userId) {
-        profileService.deleteProfile(userId);
-        return ResponseEntity.ok().build();
-    }
-} 
+
+}

@@ -1,16 +1,18 @@
 package com.example.KaizenStream_BE.service;
 
-import com.example.KaizenStream_BE.dto.ProfileDTO;
+import com.example.KaizenStream_BE.dto.request.profile.CreateProfileRequest;
+import com.example.KaizenStream_BE.dto.request.profile.UpdateProfileRequest;
+import com.example.KaizenStream_BE.dto.respone.profile.ProfileResponse;
 import com.example.KaizenStream_BE.entity.Profile;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.enums.ErrorCode;
+import com.example.KaizenStream_BE.exception.AppException;
+import com.example.KaizenStream_BE.mapper.ProfileMapper;
 import com.example.KaizenStream_BE.repository.ProfileRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -18,110 +20,52 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final ProfileMapper profileMapper;
 
-    public ProfileDTO createProfile(String userId, ProfileDTO profileDTO, MultipartFile avatarFile) throws IOException {
-        // Validate user exists
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với ID: " + userId));
 
-        // Check if profile already exists
-        if (profileRepository.existsByUser_UserId(userId)) {
-            throw new RuntimeException("User đã có profile, vui lòng sử dụng API update");
+    public ProfileResponse createProfile(CreateProfileRequest request) {
+        // Check nếu user đã có profile → báo lỗi
+        if (profileRepository.existsByUser_UserId(request.getUserId())) {
+            throw new AppException(ErrorCode.USER_ALREADY_HAS_PROFILE);
         }
 
-        // Validate required fields
-        if (profileDTO.getFullName() == null || profileDTO.getFullName().trim().isEmpty()) {
-            throw new RuntimeException("Họ tên không được để trống");
-        }
+        // Tìm user
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
-        // Upload avatar if provided
-        String avatarUrl = null;
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            try {
-                avatarUrl = cloudinaryService.uploadImage(avatarFile);
-            } catch (IOException e) {
-                throw new RuntimeException("Lỗi khi upload ảnh: " + e.getMessage());
-            }
-        }
+        // Tạo profile mới
+        Profile profile = profileMapper.toProfile(request);
+        profile.setUser(user);
 
-        // Create new profile
-        Profile profile = Profile.builder()
-                .user(user)
-                .fullName(profileDTO.getFullName())
-                .phoneNumber(profileDTO.getPhoneNumber())
-                .address(profileDTO.getAddress())
-                .bio(profileDTO.getBio())
-                .avatarUrl(avatarUrl)
-                .gender(profileDTO.getGender())
-                .dateOfBirth(profileDTO.getDateOfBirth())
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .status("ACTIVE")
-                .build();
-
-        Profile savedProfile = profileRepository.save(profile);
-        return convertToDTO(savedProfile);
+        // Lưu và trả về
+        profileRepository.save(profile);
+        return profileMapper.toProfileRespone(profile);
     }
 
-    public ProfileDTO updateProfile(String userId, ProfileDTO profileDTO, MultipartFile avatarFile) throws IOException {
-        // Validate profile exists
-        Profile profile = profileRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy profile cho user ID: " + userId));
 
-        // Validate required fields
-        if (profileDTO.getFullName() == null || profileDTO.getFullName().trim().isEmpty()) {
-            throw new RuntimeException("Họ tên không được để trống");
-        }
 
-        // Upload new avatar if provided
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            try {
-                String avatarUrl = cloudinaryService.uploadImage(avatarFile);
-                profile.setAvatarUrl(avatarUrl);
-            } catch (IOException e) {
-                throw new RuntimeException("Lỗi khi upload ảnh: " + e.getMessage());
-            }
-        }
 
-        // Update profile fields
-        profile.setFullName(profileDTO.getFullName());
-        profile.setPhoneNumber(profileDTO.getPhoneNumber());
-        profile.setAddress(profileDTO.getAddress());
-        profile.setBio(profileDTO.getBio());
-        profile.setGender(profileDTO.getGender());
-        profile.setDateOfBirth(profileDTO.getDateOfBirth());
-        profile.setUpdatedAt(new Date());
 
-        Profile updatedProfile = profileRepository.save(profile);
-        return convertToDTO(updatedProfile);
+    public ProfileResponse updateProfile(String profileId, @Valid UpdateProfileRequest updateProfileRequest) {
+
+        var profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
+
+        // Cập nhật profile
+        profileMapper.updateProfile(profile, updateProfileRequest);
+        profileRepository.save(profile);
+
+        return profileMapper.toProfileRespone(profile);
     }
 
-    public ProfileDTO getProfile(String userId) {
-        Profile profile = profileRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy profile cho user ID: " + userId));
-        return convertToDTO(profile);
-    }
+    public void deleteProfile(String profileId) {
+        var profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
 
-    public void deleteProfile(String userId) {
-        Profile profile = profileRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy profile cho user ID: " + userId));
         profileRepository.delete(profile);
     }
 
-    private ProfileDTO convertToDTO(Profile profile) {
-        return ProfileDTO.builder()
-                .profileId(profile.getProfileId())
-                .userId(profile.getUser().getUserId())
-                .fullName(profile.getFullName())
-                .phoneNumber(profile.getPhoneNumber())
-                .address(profile.getAddress())
-                .bio(profile.getBio())
-                .avatarUrl(profile.getAvatarUrl())
-                .gender(profile.getGender())
-                .dateOfBirth(profile.getDateOfBirth())
-                .createdAt(profile.getCreatedAt())
-                .updatedAt(profile.getUpdatedAt())
-                .status(profile.getStatus())
-                .build();
-    }
-} 
+
+
+
+}
