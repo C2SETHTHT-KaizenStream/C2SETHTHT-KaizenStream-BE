@@ -1,4 +1,4 @@
-package com.example.KaizenStream_BE.dto;
+package com.example.KaizenStream_BE.dto.request.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileDTO {
-    private String profileId;
+public class CreateProfileRequest {
     private String userId;
     private String fullName;
     private String phoneNumber;
@@ -21,7 +20,9 @@ public class ProfileDTO {
     private String avatarUrl;
     private String gender;
     private Date dateOfBirth;
-    private Date createdAt;
-    private Date updatedAt;
-    private String status;
+    private String bankAccountNumber;
+    private String bankName;
+    private String description;
+
+
 } 

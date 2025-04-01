@@ -44,10 +44,16 @@ public class Profile {
 
     private Date dateOfBirth;
 
-    private Date createdAt;
 
-    private Date updatedAt;
+
 
     @Column(columnDefinition = "nvarchar(255)")
-    private String status;
+    private String bankAccountNumber;
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String bankName;
+
+    private String description;
+
+
 } 
