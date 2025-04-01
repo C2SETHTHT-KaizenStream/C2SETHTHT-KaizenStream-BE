@@ -144,11 +144,9 @@ public class ChatService {
 //    }
 
     public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
-        // Trực tiếp lấy dữ liệu từ cơ sở dữ liệu
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
         Page<Chat> chats = chatRepository.findByLivestream_LivestreamId(livestreamId, pageable);
 
-        // Chuyển đổi từ Chat entity sang ChatResponse DTO
         return chats.map(chat -> {
             ChatResponse dto = new ChatResponse();
             dto.setChatId(chat.getChatId());
