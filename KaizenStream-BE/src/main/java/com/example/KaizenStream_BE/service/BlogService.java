@@ -108,4 +108,11 @@ public class BlogService {
         }
         blogRepository.deleteById(id);
     }
+
+    public List <BlogResponse> getBlogsByUserId(String userId) {
+        return blogRepository.findByUser_UserId(userId)
+                .stream()
+                .map(BlogResponse::new)
+                .toList();
+    }
 }
