@@ -20,4 +20,5 @@ public class ChatResponse {
     String livestreamId;
     String type;
 
+
 }

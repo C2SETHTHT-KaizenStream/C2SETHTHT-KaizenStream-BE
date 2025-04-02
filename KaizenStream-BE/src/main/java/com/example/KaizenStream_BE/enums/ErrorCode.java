@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+
+
     UNCATEGORIZED_EXCEPTION(999,"Uncategorized exception !", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_KEY(1001,"Invalid Message Key",HttpStatus.BAD_REQUEST),
 
@@ -21,12 +23,13 @@ public enum ErrorCode {
     INVALID_DOB(1005,"Your age must be at least {min}",HttpStatus.FORBIDDEN),
     INVALID_EMAIL(1008, "Invalid email adress",HttpStatus.NOT_FOUND),
     INVALID_ROLE( 1007 , "Invalid role default",HttpStatus.NOT_FOUND),
+    USER_ALREADY_HAS_PROFILE(409, "User already has a profile",HttpStatus.BAD_REQUEST),
 
     ITEM_NOT_EXIST(1009, "Item does not exist", HttpStatus.BAD_REQUEST),
 
     WALLET_NOT_EXIST(1010, "Wallet doest not exist", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE(1011,"Your wallet is not enough money", HttpStatus.BAD_REQUEST),
-
+    PROFILES_NOT_EXIST(1004,"Profile_id is not exist", HttpStatus.BAD_REQUEST),
     LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST),
     SCHEDULE_NOT_EXIST(1002, "Schedule does not exist",HttpStatus.NOT_FOUND );
 
@@ -39,5 +42,6 @@ public enum ErrorCode {
     private  int code;
     private  String message;
     private HttpStatusCode statusCode;
+
 
 }

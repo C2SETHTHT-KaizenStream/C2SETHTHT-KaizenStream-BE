@@ -1,11 +1,14 @@
 package com.example.KaizenStream_BE.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "purchases")
 public class Purchase {
     @Id
@@ -16,8 +19,8 @@ public class Purchase {
 
     private String type;
     private double amount;
-    private Date purchaseDate;
-    private boolean pointReceived;
+    private LocalDateTime purchaseDate;
+    private int pointReceived;
 
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
