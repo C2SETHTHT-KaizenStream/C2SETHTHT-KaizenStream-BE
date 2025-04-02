@@ -114,6 +114,7 @@ public class LivestreamService {
         return livestreamMapper.toLivestreamRespone(live);
     }
 
+
     public String deleteById(String id) {
         var live=livestreamRepository.findById(id).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
 

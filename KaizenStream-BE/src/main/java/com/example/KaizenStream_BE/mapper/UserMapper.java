@@ -20,9 +20,7 @@ public interface UserMapper {
     @Mapping(target = "followerCount", ignore = true)
     @Mapping(target = "point", ignore = true)
     @Mapping(target = "channelName", ignore = true)
-    @Mapping(target = "bankAccountNumber", ignore = true)
-    @Mapping(target = "bankName", ignore = true)
-    @Mapping(target = "description", ignore = true)
+
     @Mapping(target = "status", ignore = true)
 
     User toUser(RegisterRequest registerRequest);
