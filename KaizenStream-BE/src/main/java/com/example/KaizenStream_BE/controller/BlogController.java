@@ -80,6 +80,7 @@ public class BlogController {
     @GetMapping("/me")
     public ResponseEntity<List<BlogResponse>> getBlogsByCurrentUser(@AuthenticationPrincipal Jwt jwt) {
         String userId = jwt.getSubject();
+        
         List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
         return ResponseEntity.ok(blogs);
     }
