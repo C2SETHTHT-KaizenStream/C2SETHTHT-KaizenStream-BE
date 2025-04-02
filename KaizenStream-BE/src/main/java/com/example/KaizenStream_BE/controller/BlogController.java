@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,6 +76,15 @@ public class BlogController {
         blogService.deleteBlog(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<BlogResponse>> getBlogsByCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        
+        List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
+        return ResponseEntity.ok(blogs);
+    }
+
 
 
     @ExceptionHandler(IllegalArgumentException.class)
