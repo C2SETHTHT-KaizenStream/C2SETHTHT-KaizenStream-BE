@@ -19,6 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
 import java.util.*;
@@ -54,6 +58,16 @@ public class LiveStreamController {
     ApiResponse<List<LivestreamRespone>>  getAll(){
         return ApiResponse.<List<LivestreamRespone>>builder().result(livestreamService.getAll()).build();
     }
+    @GetMapping("/paginated")
+    public ApiResponse<Page<LivestreamRespone>> getAllPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        return ApiResponse.<Page<LivestreamRespone>>builder()
+                .result(livestreamService.getAllPaginated(page, size))
+                .build();
+    }
+
     @GetMapping("/{id}")
     ApiResponse<LivestreamRespone>  getLivestreamById(@PathVariable("id") String id){
          return ApiResponse.<LivestreamRespone>builder().result(livestreamService.getLivestreamById(id)).code(200).build();
