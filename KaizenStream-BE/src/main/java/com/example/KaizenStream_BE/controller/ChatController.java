@@ -20,17 +20,29 @@ public class ChatController {
     ChatService chatService;
     SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat/{livestreamId}")
-    public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
+//        @MessageMapping("/chat/{livestreamId}")
+//    public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
+//        chatResponse.setLivestreamId(livestreamId);
+//            //chatService.prepareChatMessage(chatResponse);
+////            chatResponse.setLivestreamId(livestreamId);
+//        ChatResponse saved = chatService.saveChatMessage(chatResponse);
+//        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
+//            CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
+//    }
+@MessageMapping("/chat/{livestreamId}")
+public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
+    chatResponse.setLivestreamId(livestreamId);
 
-        chatResponse.setLivestreamId(livestreamId);
+    // Lưu tin nhắn đồng bộ lần đầu tiên
+    ChatResponse saved = chatService.saveChatMessage(chatResponse);
 
-        chatService.prepareChatMessage(chatResponse);
-        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, chatResponse);
+    // Gửi tin nhắn qua WebSocket
+    messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
 
-        CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
+    // Lưu tin nhắn vào cơ sở dữ liệu bất đồng bộ (chỉ gọi một lần)
+//    CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
+}
 
-    }
 
 
     @MessageMapping("/join/{livestreamId}")

@@ -82,7 +82,7 @@ public class MinioService {
                 .collect(Collectors.toList());
 
 
-        //segmentFiles.forEach(s -> System.out.println(s));
+        segmentFiles.forEach(s -> System.out.println(s));
         return segmentFiles;
     }
 

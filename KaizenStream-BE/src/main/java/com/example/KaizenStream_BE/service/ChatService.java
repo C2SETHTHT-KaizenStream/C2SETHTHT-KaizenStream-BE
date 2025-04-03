@@ -97,18 +97,56 @@ public class ChatService {
 
     }
     //Lấy tin nhắn theo livestream id với paging
-    @Cacheable(value = "chatMessages", key = "#livestreamId + ':' + #page + ':' + #size")
-    public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
-        // Kiểm tra Redis trước
-        List<ChatResponse> cachedMessages = redisTemplate.opsForList()
-                .range(CHAT_KEY + livestreamId, 0, size - 1);
-        if (cachedMessages != null && !cachedMessages.isEmpty()) {
-            return new PageImpl<>(cachedMessages);
-        }
+//    @Cacheable(value = "chatMessages", key = "#livestreamId + ':' + #page + ':' + #size")
+//    public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
+//        // Kiểm tra Redis trước
+//        List<ChatResponse> cachedMessages = redisTemplate.opsForList()
+//                .range(CHAT_KEY + livestreamId, 0, size - 1);
+//        if (cachedMessages != null && !cachedMessages.isEmpty()) {
+//            return new PageImpl<>(cachedMessages);
+//        }
+//
+//        // Nếu không có trong Redis, lấy từ DB
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
+//        Page<Chat> chats = chatRepository.findByLivestream_LivestreamId(livestreamId, pageable);
+//        return chats.map(chat -> {
+//            ChatResponse dto = new ChatResponse();
+//            dto.setChatId(chat.getChatId());
+//            dto.setMessage(chat.getMessage());
+//            dto.setTimestamp(chat.getTimestamp());
+//            dto.setUserId(chat.getUser().getUserId());
+//            dto.setLivestreamId(chat.getLivestream().getLivestreamId());
+//            dto.setUsername(chat.getUser().getUserName());
+//            dto.setType(chat.getUser().getUserId().equals("SYSTEM") ? "SYSTEM" : "USER");
+//            return dto;
+//        });
+//    }
+//    @Cacheable(value = "chatMessages", key = "#livestreamId + ':' + #page + ':' + #size")
+//    public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
+//        List<ChatResponse> cachedMessages = redisTemplate.opsForList().range(CHAT_KEY + livestreamId, 0, size - 1);
+//        if (cachedMessages != null && !cachedMessages.isEmpty()) {
+//            Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
+//            return new PageImpl<>(cachedMessages, pageable, cachedMessages.size()); // Thêm pageable và total
+//        }
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
+//        Page<Chat> chats = chatRepository.findByLivestream_LivestreamId(livestreamId, pageable);
+//        return chats.map(chat -> {
+//            ChatResponse dto = new ChatResponse();
+//            dto.setChatId(chat.getChatId());
+//            dto.setMessage(chat.getMessage());
+//            dto.setTimestamp(chat.getTimestamp());
+//            dto.setUserId(chat.getUser().getUserId());
+//            dto.setLivestreamId(chat.getLivestream().getLivestreamId());
+//            dto.setUsername(chat.getUser().getUserName());
+//            dto.setType(chat.getUser().getUserId().equals("SYSTEM") ? "SYSTEM" : "USER");
+//            return dto;
+//        });
+//    }
 
-        // Nếu không có trong Redis, lấy từ DB
+    public Page<ChatResponse> getChatMessagesByLivestream(String livestreamId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").ascending());
         Page<Chat> chats = chatRepository.findByLivestream_LivestreamId(livestreamId, pageable);
+
         return chats.map(chat -> {
             ChatResponse dto = new ChatResponse();
             dto.setChatId(chat.getChatId());
@@ -121,6 +159,5 @@ public class ChatService {
             return dto;
         });
     }
-
 
 }

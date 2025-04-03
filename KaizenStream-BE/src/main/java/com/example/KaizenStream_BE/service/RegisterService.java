@@ -4,11 +4,13 @@ import com.example.KaizenStream_BE.dto.request.authen.RegisterRequest;
 import com.example.KaizenStream_BE.dto.respone.authen.RegisterResponse;
 import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.entity.Wallet;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.mapper.UserMapper;
 import com.example.KaizenStream_BE.repository.RoleRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
+import com.example.KaizenStream_BE.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RegisterService {
     @Autowired
+    WalletRepository walletRepository;
+    @Autowired
     RoleRepository roleRepository;
     @Autowired
     UserMapper userMapper;
@@ -33,6 +37,7 @@ public class RegisterService {
     UserRepository userRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
         Role role = new Role("1","USER" );
@@ -52,6 +57,12 @@ public class RegisterService {
 
         userRepository.save(user);
 
+        //Tạo Wallet ngay sau khi đăng ký user
+        Wallet wallet = Wallet.builder()
+                .user(user)
+                .balance(0) // Số dư ban đầu
+                .build();
+        walletRepository.save(wallet);
         return RegisterResponse.builder().userName(user.getUserName())
                 .userId(user.getUserId()).build();
     }
