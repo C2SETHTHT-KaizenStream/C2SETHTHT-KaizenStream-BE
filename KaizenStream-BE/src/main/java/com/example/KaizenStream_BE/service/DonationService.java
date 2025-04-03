@@ -1,15 +1,18 @@
 package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.donation.DonationRequest;
+import com.example.KaizenStream_BE.dto.respone.donation.DonationNotification;
 import com.example.KaizenStream_BE.entity.*;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,13 +27,17 @@ public class DonationService {
     LivestreamRepository livestreamRepository;
     WalletRepository walletRepository;
     DonationRepository donationRepository;
+    SimpMessagingTemplate messagingTemplate;
 
 
-    @Transactional public void donate(DonationRequest requestDTO){
-        String id = requestDTO.getUserId();
-        User sender = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+    @Transactional
+    public void donate(DonationRequest requestDTO){
+        String userId = requestDTO.getUserId();
+        User sender = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
         Livestream receiver = livestreamRepository.findById(requestDTO.getLivestreamId()).orElseThrow(()-> new AppException(ErrorCode.LIVESTREAM_NOT_EXIST));
         Item item = itemRepository.findById(requestDTO.getItemId()).orElseThrow(()-> new AppException(ErrorCode.ITEM_NOT_EXIST));
+        String streamerId = receiver.getUser().getUserId();
+
 
         int totalPrice = Integer.parseInt(item.getPrice()) * requestDTO.getAmount();
 
@@ -39,6 +46,17 @@ public class DonationService {
         if(senderWallet.getBalance() < totalPrice){
             throw new AppException(ErrorCode.INSUFFICIENT_BALANCE);
         }
+
+        DonationNotification notification = new DonationNotification(
+                userId,
+                item.getItemId(),
+                requestDTO.getAmount()
+        );
+
+        // Gửi thông báo đến streamer
+        messagingTemplate.convertAndSendToUser(streamerId,"/queue/donate", notification);
+        System.out.println("Sent donation notification to streamer: " + streamerId);
+        System.out.println("Notification content: " + notification);
 
         senderWallet.setBalance(senderWallet.getBalance() - totalPrice);
         walletRepository.save(senderWallet);
@@ -52,8 +70,19 @@ public class DonationService {
         donation.setTimestamp(LocalDateTime.now()); // Thời gian tặng quà
 
         donationRepository.save(donation);
-
-
     }
 
+    public void testdonate(String streamerId) {
+        // Tạo đối tượng donation test
+        DonationNotification notification = new DonationNotification(
+                "c91b0544-1665-44be-ab82-778617b4b7f0",
+                "ae01af6b-a3e0-4314-a97e-f4cb6d8c99d9",
+                1
+        );
+
+        // Gửi tin nhắn tới user (streamer) có streamerId
+        messagingTemplate.convertAndSendToUser(streamerId, "/queue/donate", notification);
+        System.out.println("Sending to user: " + streamerId + " | data: " + notification);
+
+    }
 }

@@ -4,6 +4,7 @@ import com.example.KaizenStream_BE.dto.request.status.UpdateStatusRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.entity.Item;
 import com.example.KaizenStream_BE.entity.Report;
+import com.example.KaizenStream_BE.enums.StatusItem;
 import com.example.KaizenStream_BE.service.ItemService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +73,7 @@ public class ItemController {
         );
     }
 
-    // 4️⃣ Lấy danh sách tất cả Item
+    //  Lấy danh sách tất cả Item
    @GetMapping("/all")
    public ResponseEntity<ApiResponse<List<Item>>> getAllItems() {
        List<Item> items = itemService.getAllItems();
@@ -103,4 +104,29 @@ public class ItemController {
        }
    }
 
+   //Tìm kiếm item active
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<Item>>> getAllItemsActive() {
+        StatusItem status = StatusItem.valueOf("ACTIVE");
+        List<Item> items = itemService.getItemsByStatus(status);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Item>>builder()
+                        .code(1000)
+                        .message("Get All Items successfully !")
+                        .result(items)
+                        .build()
+        );
+    }
+
+    //Xóa item khỏi database
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteItem(@PathVariable String id) {
+        try {
+            itemService.deleteItem(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
