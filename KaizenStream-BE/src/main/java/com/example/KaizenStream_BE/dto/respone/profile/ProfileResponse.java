@@ -42,6 +42,7 @@ public class ProfileResponse {
     private String bankName;
 
     private String description;
+    private Integer balance;
 
     boolean existsByUser_UserId(String userId) {
         return false;
