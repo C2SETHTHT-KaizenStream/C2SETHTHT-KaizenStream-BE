@@ -39,8 +39,6 @@ public void sendMessage(@DestinationVariable String livestreamId, ChatResponse c
     // Gửi tin nhắn qua WebSocket
     messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
 
-    // Lưu tin nhắn vào cơ sở dữ liệu bất đồng bộ (chỉ gọi một lần)
-//    CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
 }
 
 
