@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ProfileController {
@@ -47,6 +47,10 @@ public class ProfileController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<ProfileResponse> getProfile(@PathVariable String id){
+        return profileService.getProfileById(id);
+    }
 
 
 
