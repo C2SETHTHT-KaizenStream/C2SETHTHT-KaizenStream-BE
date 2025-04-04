@@ -2,6 +2,7 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.profile.CreateProfileRequest;
 import com.example.KaizenStream_BE.dto.request.profile.UpdateProfileRequest;
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.profile.ProfileResponse;
 import com.example.KaizenStream_BE.entity.Profile;
 import com.example.KaizenStream_BE.entity.User;
@@ -10,6 +11,7 @@ import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.mapper.ProfileMapper;
 import com.example.KaizenStream_BE.repository.ProfileRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
+import com.example.KaizenStream_BE.repository.WalletRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
     private final ProfileMapper profileMapper;
+    private final WalletRepository walletRepository;
 
 
     public ProfileResponse createProfile(CreateProfileRequest request) {
@@ -66,6 +69,18 @@ public class ProfileService {
     }
 
 
-
-
+   public ApiResponse <ProfileResponse> getProfileById(String id) {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        var walletOfUser = walletRepository.findByUser(user).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXIST));
+        var profile = profileRepository.findByUser_UserId(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
+        var response=  profileMapper.toProfileRespone(profile);
+        response.setBalance(walletOfUser.getBalance());
+        String check = profile == null? "false" : "true";
+        return ApiResponse.<ProfileResponse>builder()
+                .message(check)
+                .result(response)
+                .build();
+    }
 }

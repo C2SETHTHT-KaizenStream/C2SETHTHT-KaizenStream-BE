@@ -19,6 +19,8 @@ public class LivestreamRespone {
     String description;
     String thumbnail;
     Date startTime;
+     int viewerCount;
+
     Date endTime;
     String status;
     private List<String> categories;

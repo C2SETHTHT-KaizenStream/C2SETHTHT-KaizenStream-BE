@@ -2,12 +2,14 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.authen.RegisterRequest;
 import com.example.KaizenStream_BE.dto.respone.authen.RegisterResponse;
+import com.example.KaizenStream_BE.entity.Profile;
 import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.entity.Wallet;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.mapper.UserMapper;
+import com.example.KaizenStream_BE.repository.ProfileRepository;
 import com.example.KaizenStream_BE.repository.RoleRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
 import com.example.KaizenStream_BE.repository.WalletRepository;
@@ -37,6 +39,8 @@ public class RegisterService {
     UserRepository userRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    ProfileRepository profileRepository;
 
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
@@ -62,6 +66,21 @@ public class RegisterService {
                 .user(user)
                 .balance(0) // Số dư ban đầu
                 .build();
+        // Tạo Profile cho User ngay sau khi đăng ký
+        Profile profile = Profile.builder()
+                .user(user)
+                .fullName(registerRequest.getUserName())  // Có thể để trống hoặc lấy từ registerRequest nếu có
+                .phoneNumber("")
+                .address("")
+                .bio("")
+                .avatarUrl("")
+                .gender("")
+                .dateOfBirth(null)
+                .bankAccountNumber("")
+                .bankName("")
+                .description("")
+                .build();
+        profileRepository.save(profile);
         walletRepository.save(wallet);
         return RegisterResponse.builder().userName(user.getUserName())
                 .userId(user.getUserId()).build();
