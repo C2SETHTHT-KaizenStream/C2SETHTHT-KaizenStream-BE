@@ -21,7 +21,7 @@ public class PaymentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        int points = (int) (amount * 10);
+        int points = (int) (amount * 100);
 
         Purchase purchase = new Purchase();
         purchase.setUser(user);
