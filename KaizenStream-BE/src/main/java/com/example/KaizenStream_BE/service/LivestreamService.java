@@ -14,11 +14,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Service
 @RequiredArgsConstructor
@@ -129,4 +134,17 @@ public class LivestreamService {
         System.out.println("updateStatus:updateStatus:"+live.getStatus());
         livestreamRepository.save(live);
     }
+
+    public Page<LivestreamRespone> getAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startTime").descending());
+        Page<Livestream> livePage = livestreamRepository.findAll(pageable);
+
+        return livePage.map(livestream -> {
+            LivestreamRespone response = livestreamMapper.toLivestreamRespone(livestream);
+            response.setCategories(livestream.getCategories().stream().map(c -> c.getName()).toList());
+            response.setTags(livestream.getTags().stream().map(t -> t.getName()).toList());
+            return response;
+        });
+    }
+
 }
