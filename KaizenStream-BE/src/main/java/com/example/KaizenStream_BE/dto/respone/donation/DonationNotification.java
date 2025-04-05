@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DonationNotification {
-    String viewerId;  // ID người donate
-    String itemId;     //ID của vật phẩm
+    String viewerName;  // ID người donate
+    String itemName;     //ID của vật phẩm
     Integer amount;       // Số lượng donate
 }
