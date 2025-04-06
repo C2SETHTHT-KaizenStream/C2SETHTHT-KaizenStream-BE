@@ -148,4 +148,11 @@ public class LivestreamService {
         });
     }
 
+
+    public void stopLive(String livestreamId, Integer viewCount) {
+        var live=livestreamRepository.findById(livestreamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        live.setViewerCount(viewCount);
+        livestreamRepository.save(live);
+
+    }
 }
