@@ -128,9 +128,8 @@ public class LiveStreamController {
             // Chờ 10 giây trước khi dừng tiến trình
             try {
                 System.out.println("⏳ Đợi 7 giây trước khi dừng tiến trình...");
-                Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+                Thread.sleep(5000); // Chờ 10 giây (10,000 milliseconds)
                 stopSyncProcess();
-                Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
 
             } catch (InterruptedException e) {
                 System.err.println("❌ Lỗi khi chờ trước khi dừng tiến trình: " + e.getMessage());
@@ -138,8 +137,8 @@ public class LiveStreamController {
             }
         }
         generateM3u8File(streamKey);
-        Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
-        livestreamService.updateStatus(streamKey, Status.ENDED);
+        //Thread.sleep(5000); // Chờ 10 giây (10,000 milliseconds)
+       // livestreamService.updateStatus(streamKey, Status.ENDED);
 
         return ResponseEntity.ok("Stream ended");
     }
@@ -170,7 +169,7 @@ public class LiveStreamController {
 
             String m3u8Content = generateM3u8Content(tsFiles);
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
-            Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
+            //Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
 
             livestreamService.updateStatus(streamId, Status.ENDED);
 

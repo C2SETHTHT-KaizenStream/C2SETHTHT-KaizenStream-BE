@@ -90,7 +90,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
 //        registry.addEndpoint("/ws").setAllowedOrigins(feUrl).withSockJS(); //  mở kết nối
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns(feUrl).withSockJS(); //  mở kết nối
-
     }
 
     @Override
