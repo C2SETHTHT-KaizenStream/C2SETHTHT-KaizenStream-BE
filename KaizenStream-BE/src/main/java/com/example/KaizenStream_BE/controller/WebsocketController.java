@@ -10,12 +10,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.concurrent.CompletableFuture;
-
 @Controller
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ChatController {
+public class WebsocketController {
 
     ChatService chatService;
     SimpMessagingTemplate messagingTemplate;
@@ -29,19 +27,19 @@ public class ChatController {
 //        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
 //            CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
 //    }
-@MessageMapping("/chat/{livestreamId}")
-public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
-    chatResponse.setLivestreamId(livestreamId);
+    @MessageMapping("/chat/{livestreamId}")
+    public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
+        chatResponse.setLivestreamId(livestreamId);
 
-    // Lưu tin nhắn đồng bộ lần đầu tiên
-    ChatResponse saved = chatService.saveChatMessage(chatResponse);
+        // Lưu tin nhắn đồng bộ lần đầu tiên
+        ChatResponse saved = chatService.saveChatMessage(chatResponse);
 
-    // Gửi tin nhắn qua WebSocket
-    messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
+        // Gửi tin nhắn qua WebSocket
+        messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
 
-    // Lưu tin nhắn vào cơ sở dữ liệu bất đồng bộ (chỉ gọi một lần)
-//    CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
-}
+        // Lưu tin nhắn vào cơ sở dữ liệu bất đồng bộ (chỉ gọi một lần)
+    //    CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
+    }
 
 
 
@@ -65,8 +63,6 @@ public void sendMessage(@DestinationVariable String livestreamId, ChatResponse c
         leaveMessage.setUserId("SYSTEM");
         leaveMessage.setType("LEAVE");
         leaveMessage.setLivestreamId(livestreamId);
-
-
         ChatResponse saved = chatService.saveChatMessage(leaveMessage);
         messagingTemplate.convertAndSend("/topic/livestream/" + livestreamId, saved);
     }

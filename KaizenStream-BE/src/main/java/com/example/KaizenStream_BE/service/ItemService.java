@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.service;
 
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.entity.Item;
 import com.example.KaizenStream_BE.enums.StatusItem;
 import com.example.KaizenStream_BE.repository.ItemRepository;
@@ -67,5 +68,18 @@ public class ItemService {
 
         // Lưu thay đổi vào database
         return itemRepository.save(item);
+    }
+
+    // Lấy các item active
+    public List<Item> getItemsByStatus(StatusItem status) {
+        return itemRepository.findByStatus(status);
+    }
+
+    //Xóa Item khỏi database
+    public void deleteItem(String id) {
+        if (!itemRepository.existsById(id)) {
+            throw new RuntimeException("Item not found");
+        }
+        itemRepository.deleteById(id);
     }
 }
