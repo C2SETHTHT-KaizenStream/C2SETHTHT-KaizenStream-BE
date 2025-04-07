@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,8 +54,9 @@ public class ChatService {
     public ChatResponse saveChatMessage(ChatResponse chatResponse) {
 
         prepareChatMessage(chatResponse);
-
+        String cacheKey = CHAT_KEY + chatResponse.getLivestreamId();
         redisTemplate.opsForList().leftPush(CHAT_KEY + chatResponse.getLivestreamId(), chatResponse);
+        redisTemplate.expire(cacheKey, 10, TimeUnit.MINUTES);
 
         executorService.submit(() -> saveChatToDatabase(chatResponse));
 
