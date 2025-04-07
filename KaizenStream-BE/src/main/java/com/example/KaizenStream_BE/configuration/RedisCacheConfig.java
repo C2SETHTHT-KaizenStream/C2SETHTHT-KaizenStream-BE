@@ -72,5 +72,17 @@ public class RedisCacheConfig {
 
         return template;
     }
+    @Bean
+    public RedisTemplate<String, Integer> redisViewCount(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Integer> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // Cấu hình serializer cho key và value
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.afterPropertiesSet();
+
+        return template;
+    }
 
 }

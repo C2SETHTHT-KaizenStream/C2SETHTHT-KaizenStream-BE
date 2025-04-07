@@ -109,7 +109,8 @@ public class ItemController {
     public ResponseEntity<ApiResponse<List<Item>>> getAllItemsActive() {
         StatusItem status = StatusItem.valueOf("ACTIVE");
         List<Item> items = itemService.getItemsByStatus(status);
-
+        log.warn("activeactiveactiveactiveactiveactiveactiveactiveactiveactive");
+        System.out.println("activeactiveactiveactiveactiveactiveactiveactiveactiveactive");
         return ResponseEntity.ok(
                 ApiResponse.<List<Item>>builder()
                         .code(1000)
