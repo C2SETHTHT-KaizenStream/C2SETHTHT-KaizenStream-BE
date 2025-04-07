@@ -64,7 +64,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
     protected String feUrl;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue"); // Serve gửi tin nhắn tới client
+        config.enableSimpleBroker("/topic", "/queue","/watch"); // Serve gửi tin nhắn tới client
         config.setApplicationDestinationPrefixes("/app"); // Client gửi message đến server
         config.setUserDestinationPrefix("/user"); // Định nghĩa tiền tố cho tin nhắn đến từng user
     }
@@ -90,7 +90,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
 //        registry.addEndpoint("/ws").setAllowedOrigins(feUrl).withSockJS(); //  mở kết nối
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns(feUrl).withSockJS(); //  mở kết nối
-
     }
 
     @Override

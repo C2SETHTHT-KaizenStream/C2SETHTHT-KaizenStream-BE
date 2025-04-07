@@ -13,7 +13,6 @@ public interface  LivestreamMapper {
 
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "tags", ignore = true)
-
     LivestreamRespone toLivestreamRespone(Livestream livestream);
 
 

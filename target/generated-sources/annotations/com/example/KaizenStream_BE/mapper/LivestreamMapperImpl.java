@@ -27,6 +27,7 @@ public class LivestreamMapperImpl implements LivestreamMapper {
         livestreamRespone.description( livestream.getDescription() );
         livestreamRespone.thumbnail( livestream.getThumbnail() );
         livestreamRespone.startTime( livestream.getStartTime() );
+        livestreamRespone.viewerCount( livestream.getViewerCount() );
         livestreamRespone.endTime( livestream.getEndTime() );
         livestreamRespone.status( livestream.getStatus() );
 

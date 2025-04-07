@@ -140,6 +140,7 @@ public class LivestreamService {
         Page<Livestream> livePage = livestreamRepository.findAll(pageable);
 
         return livePage.map(livestream -> {
+            System.out.println("Viewer count: "+livestream.getViewerCount());
             LivestreamRespone response = livestreamMapper.toLivestreamRespone(livestream);
             response.setCategories(livestream.getCategories().stream().map(c -> c.getName()).toList());
             response.setTags(livestream.getTags().stream().map(t -> t.getName()).toList());
@@ -147,4 +148,11 @@ public class LivestreamService {
         });
     }
 
+
+    public void stopLive(String livestreamId, Integer viewCount) {
+        var live=livestreamRepository.findById(livestreamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        live.setViewerCount(viewCount);
+        livestreamRepository.save(live);
+
+    }
 }
