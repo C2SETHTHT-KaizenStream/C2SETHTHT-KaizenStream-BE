@@ -19,7 +19,7 @@ public class LivestreamRespone {
     String description;
     String thumbnail;
     Date startTime;
-     int viewerCount;
+    int viewerCount;
 
     Date endTime;
     String status;

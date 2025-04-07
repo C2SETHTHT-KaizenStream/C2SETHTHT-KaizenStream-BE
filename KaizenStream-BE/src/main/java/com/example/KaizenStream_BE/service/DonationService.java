@@ -42,24 +42,29 @@ public class DonationService {
         int totalPrice = Integer.parseInt(item.getPrice()) * requestDTO.getAmount();
 
         Wallet senderWallet = walletRepository.findByUser(sender).orElseThrow(()-> new AppException(ErrorCode.WALLET_NOT_EXIST));
-
+        Wallet receiverWallet = walletRepository.findByUser(receiver.getUser()).orElseThrow(()-> new AppException(ErrorCode.WALLET_NOT_EXIST));
         if(senderWallet.getBalance() < totalPrice){
             throw new AppException(ErrorCode.INSUFFICIENT_BALANCE);
         }
 
+        //Trừ tiền người gửi
+        senderWallet.setBalance(senderWallet.getBalance() - totalPrice);
+        walletRepository.save(senderWallet);
+        //Cộng tiền cho streamer
+        receiverWallet.setBalance(receiverWallet.getBalance() + totalPrice);
+        walletRepository.save(receiverWallet);
+
         DonationNotification notification = new DonationNotification(
-                userId,
-                item.getItemId(),
+                sender.getUserName(),
+                item.getName(),
                 requestDTO.getAmount()
         );
 
         // Gửi thông báo đến streamer
-        messagingTemplate.convertAndSendToUser(streamerId,"/queue/donate", notification);
+        messagingTemplate.convertAndSend("/queue/donate/"+streamerId, notification);
+        System.out.println("destination: " + "/queue/donate/"+streamerId);
         System.out.println("Sent donation notification to streamer: " + streamerId);
         System.out.println("Notification content: " + notification);
-
-        senderWallet.setBalance(senderWallet.getBalance() - totalPrice);
-        walletRepository.save(senderWallet);
 
         Donation donation = new Donation();
         donation.setUser(sender); // Người gửi quà
@@ -70,19 +75,5 @@ public class DonationService {
         donation.setTimestamp(LocalDateTime.now()); // Thời gian tặng quà
 
         donationRepository.save(donation);
-    }
-
-    public void testdonate(String streamerId) {
-        // Tạo đối tượng donation test
-        DonationNotification notification = new DonationNotification(
-                "c91b0544-1665-44be-ab82-778617b4b7f0",
-                "ae01af6b-a3e0-4314-a97e-f4cb6d8c99d9",
-                1
-        );
-
-        // Gửi tin nhắn tới user (streamer) có streamerId
-        messagingTemplate.convertAndSendToUser(streamerId, "/queue/donate", notification);
-        System.out.println("Sending to user: " + streamerId + " | data: " + notification);
-
     }
 }
