@@ -129,6 +129,9 @@ public class WebsocketController {
         Integer viewCount = redisTemplate.opsForValue().get(keyViewCount);
 
         livestreamService.stopLive(livestreamId, viewCount);
+        messagingTemplate.convertAndSend("/watch/stop/" + livestreamId,"Stop Live");
+
+
     }
 
     @MessageMapping("/leave/watch/{livestreamId}")
@@ -144,6 +147,8 @@ public class WebsocketController {
 
 
     }
+
+
 
 
 
