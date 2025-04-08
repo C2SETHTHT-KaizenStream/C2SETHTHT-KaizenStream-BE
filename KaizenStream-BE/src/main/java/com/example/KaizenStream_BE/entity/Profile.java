@@ -53,6 +53,7 @@ public class Profile {
     @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
 
+    @Column(columnDefinition = "nvarchar(500)")
     private String description;
 
 
