@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,7 +46,10 @@ public class ChatService {
             chatResponse.setUsername(user.getUserName());
         }
 
-        chatResponse.setType("SYSTEM".equals(chatResponse.getUserId()) ? "SYSTEM" : "USER");
+//        chatResponse.setType("SYSTEM".equals(chatResponse.getUserId()) ? "SYSTEM" : "USER");
+        if (chatResponse.getType() == null) {
+            chatResponse.setType("SYSTEM".equals(chatResponse.getUserId()) ? "SYSTEM" : "USER");
+        }
 
         return chatResponse;
     }
@@ -53,8 +57,9 @@ public class ChatService {
     public ChatResponse saveChatMessage(ChatResponse chatResponse) {
 
         prepareChatMessage(chatResponse);
-
+        String cacheKey = CHAT_KEY + chatResponse.getLivestreamId();
         redisTemplate.opsForList().leftPush(CHAT_KEY + chatResponse.getLivestreamId(), chatResponse);
+        redisTemplate.expire(cacheKey, 10, TimeUnit.MINUTES);
 
         executorService.submit(() -> saveChatToDatabase(chatResponse));
 
@@ -65,6 +70,7 @@ public class ChatService {
         Chat chat = new Chat();
         chat.setMessage(chatResponse.getMessage());
         chat.setTimestamp(LocalDateTime.now());
+        chat.setType(chatResponse.getType());
 
 
         if ("SYSTEM".equals(chatResponse.getUserId())) {
@@ -155,7 +161,8 @@ public class ChatService {
             dto.setUserId(chat.getUser().getUserId());
             dto.setLivestreamId(chat.getLivestream().getLivestreamId());
             dto.setUsername(chat.getUser().getUserName());
-            dto.setType(chat.getUser().getUserId().equals("SYSTEM") ? "SYSTEM" : "USER");
+            //dto.setType(chat.getUser().getUserId().equals("SYSTEM") ? "SYSTEM" : "USER");
+            dto.setType(chat.getType());
             return dto;
         });
     }
