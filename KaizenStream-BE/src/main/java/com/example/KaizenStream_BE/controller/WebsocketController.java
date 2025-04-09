@@ -42,14 +42,11 @@ public class WebsocketController {
     public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
         chatResponse.setLivestreamId(livestreamId);
 
-        // Lưu tin nhắn đồng bộ lần đầu tiên
         ChatResponse saved = chatService.saveChatMessage(chatResponse);
 
-        // Gửi tin nhắn qua WebSocket
         messagingTemplate.convertAndSend("/topic/livestream/chat/" + livestreamId, saved);
 
-        // Lưu tin nhắn vào cơ sở dữ liệu bất đồng bộ (chỉ gọi một lần)
-    //    CompletableFuture.runAsync(() -> chatService.saveChatMessage(chatResponse));
+
     }
 
 
@@ -132,6 +129,9 @@ public class WebsocketController {
         Integer viewCount = redisTemplate.opsForValue().get(keyViewCount);
 
         livestreamService.stopLive(livestreamId, viewCount);
+        messagingTemplate.convertAndSend("/watch/stop/" + livestreamId,"Stop Live");
+
+
     }
 
     @MessageMapping("/leave/watch/{livestreamId}")
@@ -147,6 +147,8 @@ public class WebsocketController {
 
 
     }
+
+
 
 
 
