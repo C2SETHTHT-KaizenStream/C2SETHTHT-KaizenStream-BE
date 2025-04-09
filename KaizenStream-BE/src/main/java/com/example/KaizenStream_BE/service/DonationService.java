@@ -2,6 +2,7 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.donation.DonationRequest;
 import com.example.KaizenStream_BE.dto.respone.donation.DonationNotification;
+import com.example.KaizenStream_BE.dto.respone.donation.ViewerNotification;
 import com.example.KaizenStream_BE.entity.*;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
@@ -54,17 +55,26 @@ public class DonationService {
         receiverWallet.setBalance(receiverWallet.getBalance() + totalPrice);
         walletRepository.save(receiverWallet);
 
+        // Tạo thông báo hiệu ứng đến streamer
         DonationNotification notification = new DonationNotification(
                 sender.getUserName(),
                 item.getName(),
                 requestDTO.getAmount()
         );
+        // Tạo thông báo hiệu ứng đến Viewer khác
+        ViewerNotification viewerNotification = new ViewerNotification(
+                streamerId,
+                sender.getUserId(),
+                sender.getUserName(),
+                item.getName(),
+                item.getImage(),
+                requestDTO.getAmount()
+        );
 
         // Gửi thông báo đến streamer
         messagingTemplate.convertAndSend("/queue/donate/"+streamerId, notification);
-        System.out.println("destination: " + "/queue/donate/"+streamerId);
-        System.out.println("Sent donation notification to streamer: " + streamerId);
-        System.out.println("Notification content: " + notification);
+        //Gửi thông báo viewer khác
+        messagingTemplate.convertAndSend("/queue/donate/"+receiver.getLivestreamId(),viewerNotification);
 
         Donation donation = new Donation();
         donation.setUser(sender); // Người gửi quà

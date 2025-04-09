@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReportController {
-    SimpMessagingTemplate messagingTemplate;
+
     ReportService reportService;
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -38,25 +38,9 @@ public class ReportController {
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
         // Tạo Logger
         Logger logger = LoggerFactory.getLogger(getClass());
-
-        // Log các tham số nhận được
-//        logger.info("Received Report Creation Request: ");
-//        logger.info("reportType: {}", reportType);
-//        logger.info("description: {}", description);
-//        logger.info("userId: {}", userId);
-//
-//        // Kiểm tra tên các hình ảnh được gửi lên
-//        if (images != null && images.length > 0) {
-//            for (MultipartFile image : images) {
-//                logger.info("Received image: {}", image.getOriginalFilename());
-//            }
-//        } else {
-//            logger.info("No images received");
-//        }
         try {
             Report report = reportService.createReport(reportType, description, userId, images);
-            ReportRequest notification = new ReportRequest(userId, LocalDateTime.now());
-            messagingTemplate.convertAndSend("/topic/adminNotifications", notification);
+
             return ResponseEntity.ok(
                     ApiResponse.<Report>builder()
                             .code(1000)
