@@ -25,7 +25,6 @@ public class ProfileService {
     private final ProfileMapper profileMapper;
     private final WalletRepository walletRepository;
 
-
     public ProfileResponse createProfile(CreateProfileRequest request) {
         // Check nếu user đã có profile → báo lỗi
         if (profileRepository.existsByUser_UserId(request.getUserId())) {

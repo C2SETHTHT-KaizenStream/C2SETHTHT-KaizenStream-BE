@@ -1,12 +1,11 @@
 package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.request.purchase.PurchaseRequest;
-import com.example.KaizenStream_BE.dto.respone.StripeRespone;
+import com.example.KaizenStream_BE.dto.respone.StripeResponse;
 //import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.StripeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,14 +26,14 @@ public class PaymentController {
 
     // Endpoint để thanh toán (tạo session Stripe)
     @PostMapping("/checkout")
-    public ResponseEntity<StripeRespone> checkout(@RequestBody PurchaseRequest purchaseRequest) {
+    public ResponseEntity<StripeResponse> checkout(@RequestBody PurchaseRequest purchaseRequest) {
         // Gọi service để tạo session Stripe và trả về StripeResponse
-        StripeRespone stripeRespone = stripeService.checkoutPurchase(purchaseRequest);
+        StripeResponse stripeResponse = stripeService.checkoutPurchase(purchaseRequest);
 
         // Trả về ResponseEntity với mã trạng thái OK và đối tượng StripeResponse
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(stripeRespone);
+                .body(stripeResponse);
     }
 
     // Endpoint để xử lý thanh toán thành công

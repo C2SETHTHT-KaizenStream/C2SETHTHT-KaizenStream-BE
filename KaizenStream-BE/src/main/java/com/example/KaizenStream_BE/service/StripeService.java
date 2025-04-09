@@ -1,19 +1,15 @@
 package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.purchase.PurchaseRequest;
-import com.example.KaizenStream_BE.dto.respone.StripeRespone;
-import com.example.KaizenStream_BE.entity.*;
+import com.example.KaizenStream_BE.dto.respone.StripeResponse;
 import com.example.KaizenStream_BE.repository.*;
 import com.stripe.*;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.StripeResponse;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +24,7 @@ public class StripeService {
     private final PurchaseRepository purchaseRepository;
     private final WalletRepository walletRepository;
 
-    public StripeRespone checkoutPurchase(PurchaseRequest request) {
+    public StripeResponse checkoutPurchase(PurchaseRequest request) {
         Stripe.apiKey = stripeSecretKey;
 
         // Stripe yêu cầu số tiền phải là cent (100 = 1 USD)
@@ -66,7 +62,7 @@ public class StripeService {
         try {
             Session session = Session.create(params);
 
-            return StripeRespone.builder()
+            return StripeResponse.builder()
                     .status("SUCCESS")
                     .message("Payment session created")
                     .sessionId(session.getId())
