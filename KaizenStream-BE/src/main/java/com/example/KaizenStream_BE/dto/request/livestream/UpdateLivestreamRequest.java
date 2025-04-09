@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -39,6 +40,8 @@ public class UpdateLivestreamRequest {
     @NotEmpty(message = "Status is required")
     @Pattern(regexp = "^(active|inactive|ended)$", message = "Status must be one of: active, inactive, ended")
     private String status;
+    private List<String> categories;
+    private List<String> tags;
 
 
 }

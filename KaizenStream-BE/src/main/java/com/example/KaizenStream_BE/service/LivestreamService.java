@@ -115,8 +115,38 @@ public class LivestreamService {
     public LivestreamRespone updateLivestreamById( @Valid UpdateLivestreamRequest updateLivestreamRequest) {
         var live=livestreamRepository.findById(updateLivestreamRequest.getLivestreamId()).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
         livestreamMapper.updateLivestream(live,updateLivestreamRequest);
+
+
+        List<Category> categoryEntities = updateLivestreamRequest.getCategories().stream()
+                .map(name -> {
+                    return categoryRepository.findFirstByNameIgnoreCase(name)
+                            .orElseGet(() -> {
+                                Category category=new Category();
+                                category.setName(name);
+                                categoryRepository.save(category);
+                                return category;
+                            });
+                })
+                .collect(Collectors.toList());
+        List<Tag>  tags=updateLivestreamRequest.getTags().stream().map(name->{
+            return  tagRepository.findFirstByNameIgnoreCase(name)
+                    .orElseGet(()->{
+                        Tag tag=new Tag();
+                        tag.setName(name);
+                        tagRepository.save(tag);
+                        return tag;
+                    });
+        }).collect(Collectors.toList());
+        live.setCategories(categoryEntities);
+        live.setTags(tags);
         livestreamRepository.save(live);
-        return livestreamMapper.toLivestreamRespone(live);
+
+        List<String> categoryList=live.getCategories().stream().map(c->c.getName()).toList();
+        List<String> tagList=live.getTags().stream().map(c->c.getName()).toList();
+        LivestreamRespone livestreamRespone=livestreamMapper.toLivestreamRespone(live);
+        livestreamRespone.setTags(tagList);
+        livestreamRespone.setCategories(categoryList);
+        return livestreamRespone;
     }
 
 
