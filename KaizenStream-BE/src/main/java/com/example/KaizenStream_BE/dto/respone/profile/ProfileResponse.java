@@ -13,9 +13,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class ProfileResponse {
 
+    private String fullName;
     private String channelName;  // channelName từ User
     private String userName;     // userName từ User
-    private String fullName;
     private String phoneNumber;
     private String address;
     private String bio;

@@ -28,15 +28,17 @@ public class ProfileController {
 //        return ResponseEntity.ok(profileService.createProfile(userId, profileDTO, avatarFile));
 //    }
 
+    // Endpoint để tạo mới profile
     @PostMapping
     ApiResponse<ProfileResponse> createProfile(@RequestBody @Valid CreateProfileRequest request){
         return  ApiResponse.<ProfileResponse>builder().result(profileService.createProfile(request)).build();
     }
 
-    @PutMapping("/{profile_id}")
-    ApiResponse<ProfileResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request , @PathVariable String profile_id )
+    // Endpoint để cập nhật profile
+    @PutMapping("/{profileId}")
+    ApiResponse<ProfileResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request , @PathVariable String profileId )
     {
-        return ApiResponse.<ProfileResponse>builder().result(profileService.updateProfile(profile_id , request)).build();
+        return ApiResponse.<ProfileResponse>builder().result(profileService.updateProfile(profileId , request)).build();
     }
 
     @DeleteMapping("/{profileId}")
@@ -47,6 +49,7 @@ public class ProfileController {
                 .build();
     }
 
+    // Endpoint để lấy thông tin profile
     @GetMapping("/{userId}")
     public ApiResponse<ProfileResponse> getProfile(@PathVariable String userId){
         return profileService.getProfileById(userId);

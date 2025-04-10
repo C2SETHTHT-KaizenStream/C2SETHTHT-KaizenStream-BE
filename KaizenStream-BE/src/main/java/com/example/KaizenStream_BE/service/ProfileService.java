@@ -25,28 +25,35 @@ public class ProfileService {
     private final ProfileMapper profileMapper;
     private final WalletRepository walletRepository;
 
+    // Tạo mới profile + cập nhập channel_name trong user
     public ProfileResponse createProfile(CreateProfileRequest request) {
         // Check nếu user đã có profile → báo lỗi
         if (profileRepository.existsByUser_UserId(request.getUserId())) {
             throw new AppException(ErrorCode.USER_ALREADY_HAS_PROFILE);
         }
 
-        // Tìm user
+        // Lấy user từ userId
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
-        // Tạo profile mới
+        // Cập nhật channel_name trong bảng users
+        user.setChannelName(request.getChannelName());
+        userRepository.save(user); // Lưu lại user với channelName mới
+
+        // Tạo mới profile
         Profile profile = profileMapper.toProfile(request);
         profile.setUser(user);
 
-        // Lưu và trả về
+        // Lưu profile vào cơ sở dữ liệu
         profileRepository.save(profile);
-        return profileMapper.toProfileRespone(profile);
+
+        return profileMapper.toProfileRespone(profile); // Trả về thông tin profile đã được tạo
     }
 
-
+    // Cập nhật profile + channel_name trong user
     public ProfileResponse updateProfile(String profileId, @Valid UpdateProfileRequest updateProfileRequest) {
 
+        // Lấy thông tin profile hiện tại
         var profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
 
@@ -54,7 +61,12 @@ public class ProfileService {
         profileMapper.updateProfile(profile, updateProfileRequest);
         profileRepository.save(profile);
 
-        return profileMapper.toProfileRespone(profile);
+        // Cập nhật thông tin channelName trong bảng users
+        User user = profile.getUser();
+        user.setChannelName(updateProfileRequest.getChannelName());
+        userRepository.save(user); // Cập nhật thông tin user
+
+        return profileMapper.toProfileRespone(profile); // Trả về thông tin profile đã được cập nhật
     }
 
     public void deleteProfile(String profileId) {
