@@ -45,9 +45,6 @@ public class ProfileService {
     }
 
 
-
-
-
     public ProfileResponse updateProfile(String profileId, @Valid UpdateProfileRequest updateProfileRequest) {
 
         var profile = profileRepository.findById(profileId)
@@ -68,17 +65,32 @@ public class ProfileService {
     }
 
 
-   public ApiResponse <ProfileResponse> getProfileById(String id) {
+    public ApiResponse<ProfileResponse> getProfileById(String id) {
+        // Tìm user theo userId
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-        var walletOfUser = walletRepository.findByUser(user).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXIST));
+
+        // Tìm wallet của user
+        var walletOfUser = walletRepository.findByUser(user)
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXIST));
+
+        // Tìm thông tin profile của user
         var profile = profileRepository.findByUser_UserId(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
-        var response=  profileMapper.toProfileRespone(profile);
+
+        // Chuyển đổi profile thành ProfileResponse thông qua profileMapper
+        var response = profileMapper.toProfileRespone(profile);
+
+        // Thêm balance từ wallet vào response
         response.setBalance(walletOfUser.getBalance());
-        String check = profile == null? "false" : "true";
+
+        // Thêm channelName và userName từ User vào response
+        response.setChannelName(user.getChannelName());
+        response.setUserName(user.getUserName());
+
+        // Trả về ApiResponse
         return ApiResponse.<ProfileResponse>builder()
-                .message(check)
+                .message("Profile fetched successfully")
                 .result(response)
                 .build();
     }

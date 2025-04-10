@@ -45,8 +45,6 @@ public class Profile {
     private Date dateOfBirth;
 
 
-
-
     @Column(columnDefinition = "nvarchar(255)")
     private String bankAccountNumber;
 
