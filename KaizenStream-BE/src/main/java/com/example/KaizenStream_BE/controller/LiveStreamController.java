@@ -8,6 +8,7 @@ import com.example.KaizenStream_BE.enums.Status;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
+import com.example.KaizenStream_BE.service.UserPreferencesService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class LiveStreamController {
     private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
 
     @Autowired
+    private UserPreferencesService userPreferencesService;
     private MinioService minioService;
 
     @PostMapping
@@ -222,9 +224,28 @@ public class LiveStreamController {
         }
     }
 
+    @PostMapping("/{streamId}/view")
+    public ResponseEntity<ApiResponse<String>> updateUserView(
+            @PathVariable String streamId,
+            @RequestParam String userId) {
 
-
-
+        try {
+            userPreferencesService.updateViewCount(userId);
+            log.info("✅ Đã cập nhật viewCount cho user: {}", userId);
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .result("View count updated")
+                    .status("SUCCESS")
+                    .message("User view tracked")
+                    .build());
+        } catch (Exception e) {
+            log.error("❌ Lỗi khi cập nhật view count: {}", e.getMessage());
+            return ResponseEntity.status(500).body(ApiResponse.<String>builder()
+                    .result("Failed")
+                    .status("FAILURE")
+                    .message("Error: " + e.getMessage())
+                    .build());
+        }
+    }
 
 
     public void generateMultiQualityHLS(String streamId) throws IOException, InterruptedException {
@@ -313,9 +334,5 @@ public class LiveStreamController {
             System.out.println("🧹 Đã dọn thư mục tạm temp/hls/" + streamId);
         }
     }
-
-
-
-
 
 }
