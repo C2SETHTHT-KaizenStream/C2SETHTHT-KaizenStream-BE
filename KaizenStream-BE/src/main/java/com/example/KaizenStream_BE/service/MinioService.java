@@ -8,7 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,16 +48,16 @@ public class MinioService {
                 .contentType("application/x-mpegURL")
                 .build());
     }
-    public String getPresignedM3u8Url(String streamId, int expireInSeconds) throws Exception {
-        String objectName = "hls/" + streamId + "/playlist.m3u8";
-
-        return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-                .method(Method.GET)
-                .bucket(bucketName)
-                .object(objectName)
-                .expiry(expireInSeconds)
-                .build());
-    }
+//    public String getPresignedM3u8Url(String streamId, int expireInSeconds) throws Exception {
+//        String objectName = "hls/" + streamId + "/playlist.m3u8";
+//
+//        return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+//                .method(Method.GET)
+//                .bucket(bucketName)
+//                .object(objectName)
+//                .expiry(expireInSeconds)
+//                .build());
+//    }
 
     public List<String> listTsFiles(String streamId) throws Exception {
         List<String> segmentFiles = new ArrayList<>();
@@ -86,5 +93,69 @@ public class MinioService {
         return segmentFiles;
     }
 
+
+
+
+
+    public void downloadHlsToLocal(String streamId) throws Exception {
+        String prefix = "hls/" + streamId + "/";
+        String basePath = System.getProperty("user.dir");
+        String localPath = basePath + "/temp/hls/" + streamId + "/";
+        Files.createDirectories(Paths.get(localPath));
+
+        Iterable<Result<Item>> items = minioClient.listObjects(ListObjectsArgs.builder()
+                .bucket(bucketName)
+                .prefix(prefix)
+                .build());
+
+        for (Result<Item> result : items) {
+            String objectName = result.get().objectName();
+            if (objectName.endsWith(".ts")) {
+                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .build());
+
+                // Lấy tên file cuối cùng
+                String fileName = objectName.substring(objectName.lastIndexOf("/") + 1);
+                Path localFilePath = Paths.get(localPath, fileName);
+                System.out.println("downloadHlsToLocal\n"+ fileName);
+                System.out.println("localFilePath\n"+ localFilePath);
+
+                Files.copy(stream, localFilePath, StandardCopyOption.REPLACE_EXISTING);
+                stream.close();
+            }
+        }
+    }
+
+    public void uploadMultiQualityHLS(String streamId) throws Exception {
+        String dir = "temp/hls/" + streamId + "/";
+        File[] files = new File(dir).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    try (InputStream is = new FileInputStream(file)) {
+                        minioClient.putObject(PutObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object("hls/" + streamId + "/" + file.getName())
+                                .stream(is, file.length(), -1)
+                                .contentType(file.getName().endsWith(".m3u8") ? "application/x-mpegURL" : "video/MP2T")
+                                .build());
+                    }
+                }
+            }
+        }
+    }
+
+    public String getPresignedM3u8Url(String streamId, int expireSeconds) throws Exception {
+        return minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                        .bucket(bucketName)
+                        .object("hls/" + streamId + "/master.m3u8")
+                        .method(Method.GET)
+                        .expiry(expireSeconds)
+                        .build()
+        );
+    }
 
 }
