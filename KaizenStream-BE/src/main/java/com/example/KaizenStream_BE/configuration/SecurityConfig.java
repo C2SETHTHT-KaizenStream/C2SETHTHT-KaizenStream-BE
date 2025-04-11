@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.configuration;
 
+import com.example.KaizenStream_BE.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,9 +58,12 @@ public class SecurityConfig {
     // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
     private CustomJwtDecoder customJwtDecoder;
+    private  CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
+
+    public SecurityConfig(CustomJwtDecoder customJwtDecoder, CustomOAuth2UserService customOAuth2UserService) {
         this.customJwtDecoder = customJwtDecoder;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
@@ -79,12 +83,21 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
+
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("http://localhost:8080/auth/oauth2/success", true)
+                        .failureUrl("http://localhost:3000/login?error=true")
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 );
+
+
+
 
         return http.build();
     }
