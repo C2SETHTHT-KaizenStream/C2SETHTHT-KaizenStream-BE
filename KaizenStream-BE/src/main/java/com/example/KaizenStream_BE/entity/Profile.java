@@ -51,7 +51,7 @@ public class Profile {
     @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
 
-    @Column(columnDefinition = "nvarchar(1000)")
+    @Column(columnDefinition = "nvarchar(max)")
     private String description;
 
 
