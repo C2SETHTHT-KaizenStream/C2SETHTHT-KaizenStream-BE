@@ -18,11 +18,15 @@ public class PaymentService {
     private final WalletRepository walletRepository;
 
     public void handlePaymentSuccess(String sessionId, String userId, double amount, String type) {
+        // Tìm user theo userId
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        int points = (int) (amount * 10);
+        // Tính số điểm: 1 USD = 100 điểm
+        // Lấy số tiền thanh toán từ tham số `amount` và tính số điểm tương ứng
+        int points = (int) (amount * 100);
 
+        // Tạo đối tượng Purchase và gán giá trị
         Purchase purchase = new Purchase();
         purchase.setUser(user);
         purchase.setAmount(amount);
@@ -30,18 +34,21 @@ public class PaymentService {
         purchase.setPointReceived(points);
         purchase.setPurchaseDate(LocalDateTime.now());
 
+        // Lưu thông tin vào bảng `purchases`
         purchaseRepository.save(purchase);
 
+        // Cập nhật số dư ví
         Wallet wallet = walletRepository.findByUser(user).orElse(null);
         if (wallet == null) {
             wallet = new Wallet();
             wallet.setUser(user);
-            wallet.setBalance(points);
+            wallet.setBalance(points); // Tạo mới ví và gán điểm vào
         } else {
-            wallet.setBalance(wallet.getBalance() + points);
+            wallet.setBalance(wallet.getBalance() + points); // Cộng điểm vào ví
         }
 
-        walletRepository.save(wallet);
+        // Lưu cập nhật ví vào cơ sở dữ liệu
+        walletRepository.save(wallet); // Gọi phương thức `save` của `WalletRepository`
     }
 
 //    public void handlePaymentSuccess(String sessionId, String userId, double amount) {

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StripeRespone {
+public class StripeResponse {
     private String status;
     private String message;
     private String sessionId;

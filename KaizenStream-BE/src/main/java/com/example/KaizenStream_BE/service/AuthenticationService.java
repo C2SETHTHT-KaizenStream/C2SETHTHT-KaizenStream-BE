@@ -219,4 +219,9 @@ public class AuthenticationService {
         }
         return stringJoiner.toString();
     }
+
+    public String generateToken(User user) {
+        return generateToken(user, VALID_DURATION);
+    }
+
 }

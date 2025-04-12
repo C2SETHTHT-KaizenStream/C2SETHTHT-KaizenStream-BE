@@ -46,4 +46,13 @@ public class UserService {
     public void deleteUser(String userId) {
         userRepository.deleteById(userId);
     }
+
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

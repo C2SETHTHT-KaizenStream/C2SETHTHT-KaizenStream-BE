@@ -45,14 +45,13 @@ public class Profile {
     private Date dateOfBirth;
 
 
-
-
     @Column(columnDefinition = "nvarchar(255)")
     private String bankAccountNumber;
 
     @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
 
+    @Column(columnDefinition = "nvarchar(max)")
     private String description;
 
 

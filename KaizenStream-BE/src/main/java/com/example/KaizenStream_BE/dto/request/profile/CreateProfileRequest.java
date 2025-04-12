@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class CreateProfileRequest {
     private String userId;
+    private String channelName; // Tên kênh ở bảng users
     private String fullName;
     private String phoneNumber;
     private String address;
