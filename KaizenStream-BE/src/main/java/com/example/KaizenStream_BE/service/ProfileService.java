@@ -47,7 +47,15 @@ public class ProfileService {
         // Lưu profile vào cơ sở dữ liệu
         profileRepository.save(profile);
 
-        return profileMapper.toProfileRespone(profile); // Trả về thông tin profile đã được tạo
+        // Tạo response với ProfileResponse
+        ProfileResponse response = profileMapper.toProfileRespone(profile);
+        
+        // Manually set profileId if it's not being mapped correctly
+        if (response.getProfileId() == null) {
+            response.setProfileId(profile.getProfileId());
+        }
+
+        return response; // Trả về thông tin profile đã được tạo
     }
 
     // Cập nhật profile + channel_name trong user
@@ -66,7 +74,15 @@ public class ProfileService {
         user.setChannelName(updateProfileRequest.getChannelName());
         userRepository.save(user); // Cập nhật thông tin user
 
-        return profileMapper.toProfileRespone(profile); // Trả về thông tin profile đã được cập nhật
+        // Tạo response với ProfileResponse
+        ProfileResponse response = profileMapper.toProfileRespone(profile);
+        
+        // Manually set profileId if it's not being mapped correctly
+        if (response.getProfileId() == null) {
+            response.setProfileId(profile.getProfileId());
+        }
+
+        return response; // Trả về thông tin profile đã được cập nhật
     }
 
     public void deleteProfile(String profileId) {
@@ -75,7 +91,6 @@ public class ProfileService {
 
         profileRepository.delete(profile);
     }
-
 
     public ApiResponse<ProfileResponse> getProfileById(String id) {
         // Tìm user theo userId
@@ -99,6 +114,11 @@ public class ProfileService {
         // Thêm channelName và userName từ User vào response
         response.setChannelName(user.getChannelName());
         response.setUserName(user.getUserName());
+        
+        // Manually set profileId if it's not being mapped correctly
+        if (response.getProfileId() == null) {
+            response.setProfileId(profile.getProfileId());
+        }
 
         // Trả về ApiResponse
         return ApiResponse.<ProfileResponse>builder()
