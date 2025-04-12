@@ -27,8 +27,4 @@ public class ProfileResponse {
     private String bankName;
     private String description;
     private Integer balance;    // balance từ Wallet
-    boolean existsByUser_UserId(String userId) {
-        return false;
-    }
-
 }
