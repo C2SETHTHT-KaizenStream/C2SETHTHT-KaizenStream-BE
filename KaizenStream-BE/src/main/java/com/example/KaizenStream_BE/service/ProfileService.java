@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.service;
 
+import com.cloudinary.Cloudinary;
 import com.example.KaizenStream_BE.dto.request.profile.CreateProfileRequest;
 import com.example.KaizenStream_BE.dto.request.profile.UpdateProfileRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
@@ -15,6 +16,11 @@ import com.example.KaizenStream_BE.repository.WalletRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,16 +46,17 @@ public class ProfileService {
         user.setChannelName(request.getChannelName());
         userRepository.save(user); // Lưu lại user với channelName mới
 
-        // Tạo mới profile
+        // Tạo mới profile với avatarUrl mặc định
         Profile profile = profileMapper.toProfile(request);
         profile.setUser(user);
+        profile.setAvatarUrl("https://api.dicebear.com/9.x/adventurer/svg?seed=Amaya"); // Avatar mặc định
 
         // Lưu profile vào cơ sở dữ liệu
         profileRepository.save(profile);
 
         // Tạo response với ProfileResponse
         ProfileResponse response = profileMapper.toProfileRespone(profile);
-        
+
         // Manually set profileId if it's not being mapped correctly
         if (response.getProfileId() == null) {
             response.setProfileId(profile.getProfileId());
@@ -58,26 +65,109 @@ public class ProfileService {
         return response; // Trả về thông tin profile đã được tạo
     }
 
-    // Cập nhật profile + channel_name trong user
-    public ProfileResponse updateProfile(String profileId, @Valid UpdateProfileRequest updateProfileRequest) {
 
+    // Cập nhật profile + channel_name trong user
+    public ProfileResponse updateProfile(String profileId, @Valid UpdateProfileRequest updateProfileRequest, MultipartFile avatarFile) {
+        try {
+            // Log the update request safely
+            System.out.println("Update request for profileId: " + profileId);
+            System.out.println("Request details: channelName=" + updateProfileRequest.getChannelName() 
+                + ", gender=" + updateProfileRequest.getGender()
+                + ", dateOfBirth=" + updateProfileRequest.getDateOfBirth()
+                + ", phoneNumber=" + updateProfileRequest.getPhoneNumber());
+            
+            // Lấy thông tin profile hiện tại
+            var profile = profileRepository.findById(profileId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
+    
+            // Log basic profile info before update
+            System.out.println("Profile before update: id=" + profile.getProfileId() 
+                + ", avatarUrl=" + profile.getAvatarUrl()
+                + ", gender=" + profile.getGender());
+            
+            // Cập nhật profile
+            profileMapper.updateProfile(profile, updateProfileRequest);
+    
+            // Log basic profile info after update
+            System.out.println("Profile after update: id=" + profile.getProfileId() 
+                + ", avatarUrl=" + profile.getAvatarUrl()
+                + ", gender=" + profile.getGender());
+            
+            // Lưu thông tin profile đã cập nhật
+            profileRepository.save(profile);
+            System.out.println("Profile updated successfully in database");
+    
+            // Cập nhật thông tin channelName trong bảng users
+            if (profile.getUser() != null && updateProfileRequest.getChannelName() != null) {
+                User user = profile.getUser();
+                user.setChannelName(updateProfileRequest.getChannelName());
+                userRepository.save(user); // Cập nhật thông tin user
+                System.out.println("User channelName updated to: " + updateProfileRequest.getChannelName());
+            }
+    
+            // Tạo response với ProfileResponse
+            ProfileResponse response = profileMapper.toProfileRespone(profile);
+            
+            // Đảm bảo rằng profileId được gán đúng
+            if (response.getProfileId() == null) {
+                response.setProfileId(profile.getProfileId());
+            }
+            
+            System.out.println("Returning profile response with profileId: " + response.getProfileId());
+    
+            return response; // Trả về thông tin profile đã được cập nhật
+        } catch (Exception e) {
+            System.err.println("Error updating profile: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // Thêm phương thức mới chỉ dành cho cập nhật avatar
+    public ProfileResponse updateProfileAvatar(String profileId, MultipartFile avatarFile) {
         // Lấy thông tin profile hiện tại
         var profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
 
-        // Cập nhật profile
-        profileMapper.updateProfile(profile, updateProfileRequest);
-        profileRepository.save(profile);
+        // Kiểm tra và upload avatar
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            // Kiểm tra loại file
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("File phải là định dạng ảnh (JPEG, PNG, v.v.)");
+            }
 
-        // Cập nhật thông tin channelName trong bảng users
-        User user = profile.getUser();
-        user.setChannelName(updateProfileRequest.getChannelName());
-        userRepository.save(user); // Cập nhật thông tin user
+            try {
+                System.out.println("Attempting to upload avatar file: " + avatarFile.getOriginalFilename() 
+                    + ", size: " + avatarFile.getSize() 
+                    + ", content type: " + avatarFile.getContentType());
+                
+                // Sử dụng CloudinaryService để upload ảnh
+                String avatarUrl = cloudinaryService.uploadImage(avatarFile);
+                
+                if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                    System.out.println("Successfully uploaded to Cloudinary: " + avatarUrl);
+                    profile.setAvatarUrl(avatarUrl);  // Cập nhật avatarUrl trong profile
+                } else {
+                    System.err.println("Failed to get URL from Cloudinary");
+                }
+            } catch (IOException e) {
+                System.err.println("Error uploading avatar to Cloudinary: " + e.getMessage());
+                e.printStackTrace();
+                throw new AppException(ErrorCode.IMAGE_UPLOAD_FAILED);
+            }
+        } else {
+            throw new IllegalArgumentException("Avatar file is required");
+        }
+
+        // Lưu thông tin profile đã cập nhật
+        profileRepository.save(profile);
+        System.out.println("Profile avatar updated, new URL: " + profile.getAvatarUrl());
 
         // Tạo response với ProfileResponse
         ProfileResponse response = profileMapper.toProfileRespone(profile);
         
-        // Manually set profileId if it's not being mapped correctly
+        // Đảm bảo rằng profileId được gán đúng
         if (response.getProfileId() == null) {
             response.setProfileId(profile.getProfileId());
         }

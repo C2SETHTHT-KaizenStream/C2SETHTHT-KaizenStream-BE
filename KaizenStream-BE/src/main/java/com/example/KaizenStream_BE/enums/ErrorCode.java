@@ -31,7 +31,10 @@ public enum ErrorCode {
     INSUFFICIENT_BALANCE(1011,"Your wallet is not enough money", HttpStatus.OK),
     PROFILES_NOT_EXIST(1004,"Profile_id is not exist", HttpStatus.BAD_REQUEST),
     LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST),
-    SCHEDULE_NOT_EXIST(1002, "Schedule does not exist",HttpStatus.NOT_FOUND );
+    SCHEDULE_NOT_EXIST(1002, "Schedule does not exist",HttpStatus.NOT_FOUND ),
+
+    IMAGE_UPLOAD_FAILED(1006, "Avatar upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
