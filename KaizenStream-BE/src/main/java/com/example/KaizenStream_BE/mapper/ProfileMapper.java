@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
 
+    @Mapping(source = "profileId", target = "profileId")
     ProfileResponse toProfileRespone(Profile profile);
 
     @Mapping(target = "user", ignore = true) // Set trong service/controller

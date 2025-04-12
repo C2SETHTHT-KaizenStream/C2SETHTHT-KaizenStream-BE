@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class ProfileResponse {
 
+    private String profileId;
     private String fullName;
     private String channelName;  // channelName từ User
     private String userName;     // userName từ User
