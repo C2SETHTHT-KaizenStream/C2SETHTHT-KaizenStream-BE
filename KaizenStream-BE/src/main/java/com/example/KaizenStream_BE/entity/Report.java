@@ -1,6 +1,8 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.example.KaizenStream_BE.enums.ReportStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,8 +32,20 @@ public class Report {
     private List<String> images;
     private LocalDateTime createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stream_id", referencedColumnName = "livestreamsID", nullable = false)
+    private Livestream stream;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReportStatus status = ReportStatus.PENDING;
+
+
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false) // Dùng cột 'userID' để ánh xạ với bảng 'users'
     @JsonBackReference(value = "user-reports")
     private User user;
+
+
 }
