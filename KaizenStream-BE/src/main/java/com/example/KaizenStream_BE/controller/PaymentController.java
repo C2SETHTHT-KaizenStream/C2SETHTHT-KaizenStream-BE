@@ -1,7 +1,9 @@
 package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.request.purchase.PurchaseRequest;
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.StripeResponse;
+import com.example.KaizenStream_BE.dto.respone.purchase.PurchaseResponse;
 //import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.PaymentService;
 import com.example.KaizenStream_BE.service.StripeService;
@@ -10,9 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/payment")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final StripeService stripeService;
@@ -50,7 +55,12 @@ public class PaymentController {
         paymentService.handlePaymentSuccess(sessionId, userId, amount, type);
         return ResponseEntity.ok("Payment successful for user: " + userId);
     }
-
+    
+    // Endpoint để lấy lịch sử mua điểm của một user
+    @GetMapping("/history/{userId}")
+    public ApiResponse<List<PurchaseResponse>> getPurchaseHistory(@PathVariable String userId) {
+        return paymentService.getPurchaseHistory(userId);
+    }
 }
 
 //package com.example.KaizenStream_BE.controller;
