@@ -33,8 +33,8 @@ public enum ErrorCode {
     LIVESTREAM_NOT_EXIST(1012, "Livestream is not exist", HttpStatus.BAD_REQUEST),
     SCHEDULE_NOT_EXIST(1002, "Schedule does not exist",HttpStatus.NOT_FOUND ),
 
-    IMAGE_UPLOAD_FAILED(1006, "Avatar upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
-
+    IMAGE_UPLOAD_FAILED(1006, "Avatar upload failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    REPORT_NOT_EXIST(1013, "Report is not exist", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
