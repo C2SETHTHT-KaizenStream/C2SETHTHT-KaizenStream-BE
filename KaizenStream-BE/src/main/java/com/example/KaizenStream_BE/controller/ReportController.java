@@ -3,6 +3,8 @@ package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.request.report.ReportRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.report.ReportDetailResponse;
+import com.example.KaizenStream_BE.dto.respone.report.ReportListResponse;
 import com.example.KaizenStream_BE.entity.Report;
 import com.example.KaizenStream_BE.service.ReportService;
 import lombok.AccessLevel;
@@ -13,14 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/report")
@@ -35,11 +35,12 @@ public class ReportController {
             @RequestParam("reportType") String reportType,
             @RequestParam("description") String description,
             @RequestParam("userId") String userId,
+            @RequestParam("livestreamId") String livestreamId,
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
         // Tạo Logger
         Logger logger = LoggerFactory.getLogger(getClass());
         try {
-            Report report = reportService.createReport(reportType, description, userId, images);
+            Report report = reportService.createReport(reportType, description, userId,livestreamId, images);
 
             return ResponseEntity.ok(
                     ApiResponse.<Report>builder()
@@ -69,5 +70,24 @@ public class ReportController {
     @SendTo("/topic/adminNotifications")
     public String sendMessage(String message){
         return message;
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<ReportListResponse>> getAllReport(){
+        return ApiResponse.<List<ReportListResponse>>builder()
+                .code(200)
+                .message("Get all reports successfully !")
+                .result(reportService.getAllReport())
+                .build();
+    }
+
+    @GetMapping("/detail/{reportId}")
+    public ApiResponse<ReportDetailResponse> getReportDetail(@PathVariable String reportId) {
+        ReportDetailResponse response = reportService.getReportDetail(reportId);
+        return ApiResponse.<ReportDetailResponse>builder()
+                .code(200)
+                .message("Get report detail successfully !")
+                .result(response)
+                .build();
     }
 }
