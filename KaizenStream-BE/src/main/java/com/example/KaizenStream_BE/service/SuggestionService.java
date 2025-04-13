@@ -91,25 +91,31 @@ public class SuggestionService {
         double tagScore = 0.0;
         double categoryScore = 0.0;
 
+        // Lấy danh sách tên tag và category từ livestream
         Set<String> tagNames = livestream.getTags().stream().map(t -> t.getName()).collect(Collectors.toSet());
         Set<String> categoryNames = livestream.getCategories().stream().map(c -> c.getName()).collect(Collectors.toSet());
 
+        // Tính toán điểm cho tags
         for (String preferredTag : preferences.getPreferredTags()) {
             if (tagNames.contains(preferredTag)) {
                 tagScore += 1.0;
             }
         }
 
+        // Tính toán điểm cho categories
         for (String preferredCategory : preferences.getPreferredCategories()) {
             if (categoryNames.contains(preferredCategory)) {
                 categoryScore += 1.0;
             }
         }
 
-        int viewerCount = livestream.getViewerCount();
+        // Lấy viewerCount của livestream và xử lý null
+        int viewerCount = Optional.ofNullable(livestream.getViewerCount()).orElse(0);
 
+        // Tính toán điểm tổng cộng với các trọng số
         return tagScore * preferences.getTagWeight()
                 + categoryScore * preferences.getCategoryWeight()
                 + viewerCount * preferences.getViewerCountWeight();
     }
+
 }

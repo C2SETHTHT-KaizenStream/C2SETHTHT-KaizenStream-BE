@@ -21,11 +21,9 @@ public class UserPreferences {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     private User user;
-
 
     @ElementCollection
     @CollectionTable(name = "user_preferred_tags", joinColumns = @JoinColumn(name = "preferences_id"))
@@ -53,7 +51,8 @@ public class UserPreferences {
     private Double categoryWeight = 0.3;
 
     @Column(name = "view_count")
-    private Integer viewCount;
+    @Builder.Default
+    private Integer viewCount = 0;  // Sử dụng giá trị mặc định là 0 nếu không có giá trị
 
     @Column(name = "last_viewed")
     private Date lastViewed;
@@ -63,6 +62,7 @@ public class UserPreferences {
 
     @Column(name = "updated_at")
     private Date updatedAt;
+    
 
     @PrePersist
     protected void onCreate() {
