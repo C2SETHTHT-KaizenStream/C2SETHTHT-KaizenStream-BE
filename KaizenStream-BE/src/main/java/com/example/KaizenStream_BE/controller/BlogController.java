@@ -3,6 +3,7 @@ package com.example.KaizenStream_BE.controller;
 import com.example.KaizenStream_BE.dto.request.blog.BlogCreateRequest;
 import com.example.KaizenStream_BE.dto.request.blog.BlogUpdateRequest;
 import com.example.KaizenStream_BE.dto.respone.BlogResponse;
+import com.example.KaizenStream_BE.dto.respone.blogLike.BlogLikeResponse;
 import com.example.KaizenStream_BE.entity.Blog;
 import com.example.KaizenStream_BE.mapper.BlogMapper;
 import com.example.KaizenStream_BE.service.BlogService;
@@ -120,6 +121,14 @@ public class BlogController {
         List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
         return ResponseEntity.ok(blogs);
     }
+
+
+    @PutMapping("/{id}/like")
+    public ResponseEntity<BlogLikeResponse> toggleLikeBlog(@PathVariable String id, @RequestParam String userId) {
+        return ResponseEntity.ok(blogService.toggleLikeBlog(id, userId));
+    }
+
+
 
 
 
