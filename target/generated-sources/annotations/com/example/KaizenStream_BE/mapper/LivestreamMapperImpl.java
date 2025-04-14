@@ -30,6 +30,7 @@ public class LivestreamMapperImpl implements LivestreamMapper {
         livestreamRespone.viewerCount( livestream.getViewerCount() );
         livestreamRespone.endTime( livestream.getEndTime() );
         livestreamRespone.status( livestream.getStatus() );
+        livestreamRespone.duration( livestream.getDuration() );
 
         return livestreamRespone.build();
     }
