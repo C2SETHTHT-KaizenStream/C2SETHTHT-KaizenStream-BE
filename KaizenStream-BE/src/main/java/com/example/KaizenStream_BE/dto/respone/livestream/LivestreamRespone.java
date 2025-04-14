@@ -23,6 +23,10 @@ public class LivestreamRespone {
 
     Date endTime;
     String status;
+    int duration;
+    String streamerId;
+    String streamerImgUrl;
+    String channelName;
     private List<String> categories;
     private List<String> tags;
 }

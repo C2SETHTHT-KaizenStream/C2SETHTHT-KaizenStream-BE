@@ -28,6 +28,9 @@ public class Livestream {
     private String description;
     private String thumbnail;
     private int viewerCount;
+    @Column(nullable = true, columnDefinition = "int default 0")
+    private int duration; // Duration of the video in seconds
+
     private Date startTime;
     private Date endTime;
 
