@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class ProfileResponse {
 
+    private String profileId;
     private String fullName;
     private String channelName;  // channelName từ User
     private String userName;     // userName từ User
@@ -26,8 +27,4 @@ public class ProfileResponse {
     private String bankName;
     private String description;
     private Integer balance;    // balance từ Wallet
-    boolean existsByUser_UserId(String userId) {
-        return false;
-    }
-
 }

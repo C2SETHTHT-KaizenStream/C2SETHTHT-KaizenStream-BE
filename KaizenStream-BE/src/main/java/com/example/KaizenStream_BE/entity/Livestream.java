@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
 import com.example.KaizenStream_BE.enums.Status;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,6 +67,10 @@ public class Livestream {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
+
+    @OneToMany(mappedBy = "stream", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Report> reports;
 
 
 }
