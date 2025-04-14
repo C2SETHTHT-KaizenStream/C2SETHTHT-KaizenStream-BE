@@ -28,6 +28,7 @@ package com.example.KaizenStream_BE.configuration;
 
 import com.example.KaizenStream_BE.service.StreamWebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,6 +63,9 @@ import java.util.Map;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
     @Value("${fe-url}")
     protected String feUrl;
+    @Autowired
+    private StreamWebSocketHandler streamWebSocketHandler;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic", "/queue","/watch"); // Serve gửi tin nhắn tới client
@@ -94,7 +98,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, WebSoc
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new StreamWebSocketHandler(), "/stream")
+        registry.addHandler(streamWebSocketHandler, "/stream")
                 .setAllowedOrigins(feUrl) // Chỉ định URL frontend
                 .addInterceptors(new HandshakeInterceptor() {
                     @Override

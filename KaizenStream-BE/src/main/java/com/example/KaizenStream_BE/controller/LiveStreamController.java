@@ -9,24 +9,17 @@ import com.example.KaizenStream_BE.mapper.LivestreamMapper;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,6 +37,8 @@ public class LiveStreamController {
     // private final Map<String, Process> syncProcesses = new HashMap<>();
     private static Process syncProcess = null; // Chỉ có một tiến trình đồng bộ HLS
     private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
+    @Autowired
+    private RedisTemplate<String, Integer> redisTemplate;
 
     @Autowired
     private MinioService minioService;
@@ -171,8 +166,7 @@ public class LiveStreamController {
 
             String m3u8Content = generateM3u8Content(tsFiles,streamId);
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
-            //Thread.sleep(7000); // Chờ 10 giây (10,000 milliseconds)
-
+            log.warn("minioService");
             livestreamService.updateStatus(streamId, Status.ENDED);
 
 
