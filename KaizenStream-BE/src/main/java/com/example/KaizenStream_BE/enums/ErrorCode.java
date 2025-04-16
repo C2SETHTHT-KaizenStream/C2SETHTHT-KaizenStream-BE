@@ -35,7 +35,7 @@ public enum ErrorCode {
 
     IMAGE_UPLOAD_FAILED(1006, "Avatar upload failed", HttpStatus.INTERNAL_SERVER_ERROR),
     REPORT_NOT_EXIST(1013, "Report is not exist", HttpStatus.BAD_REQUEST),
-
+    
     IMAGE_NOT_FOUND(1014, "Image not found", HttpStatus.NOT_FOUND),
 
     BLOG_NOT_FOUND(2001, "Blog does not exist", HttpStatus.NOT_FOUND),
@@ -44,9 +44,10 @@ public enum ErrorCode {
     BLOG_REQUIRED_TITLE(2004, "Blog title is required", HttpStatus.BAD_REQUEST),
     BLOG_REQUIRED_CONTENT(2005, "Blog content is required", HttpStatus.BAD_REQUEST),
 
-    COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND);
+    COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND),
 
 
+    ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
         this.code = code;

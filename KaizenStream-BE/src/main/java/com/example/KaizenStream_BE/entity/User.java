@@ -1,6 +1,8 @@
 package com.example.KaizenStream_BE.entity;
 
 
+import com.example.KaizenStream_BE.enums.AccountStatus;
+import com.example.KaizenStream_BE.enums.ReportStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,8 +51,8 @@ public class User {
     private Date updatedAt;
 
 
-    @Column(columnDefinition = "nvarchar(255)")
-    private String status;
+//    @Column(columnDefinition = "nvarchar(255)")
+//    private String status;
 
 
 
@@ -99,5 +101,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "user-blogs")
     private List<Blog> blogs;
-
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountStatus status = AccountStatus.ACTIVE;
 }
