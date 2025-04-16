@@ -15,8 +15,9 @@ public class ProfileResponse {
 
     private String profileId;
     private String fullName;
-    private String channelName;  // channelName từ User
-    private String userName;     // userName từ User
+    private String channelName; // channelName từ User
+    private String userName;    // userName từ User
+    private int followerCount;       // follower từ User
     private String phoneNumber;
     private String address;
     private String bio;

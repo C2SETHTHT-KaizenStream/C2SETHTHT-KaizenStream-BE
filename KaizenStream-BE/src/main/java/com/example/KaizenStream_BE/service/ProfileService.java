@@ -180,6 +180,7 @@ public class ProfileService {
         profileRepository.delete(profile);
     }
 
+    // Get profileId by UserId
     public ApiResponse<ProfileResponse> getProfileById(String id) {
         // Tìm user theo userId
         var user = userRepository.findById(id)
@@ -199,9 +200,10 @@ public class ProfileService {
         // Thêm balance từ wallet vào response
         response.setBalance(walletOfUser.getBalance());
 
-        // Thêm channelName và userName từ User vào response
+        // Thêm channelName,followerCount và userName từ User vào response
         response.setChannelName(user.getChannelName());
         response.setUserName(user.getUserName());
+        response.setFollowerCount(user.getFollowerCount());
         
         // Manually set profileId if it's not being mapped correctly
         if (response.getProfileId() == null) {
@@ -214,4 +216,5 @@ public class ProfileService {
                 .result(response)
                 .build();
     }
+    
 }

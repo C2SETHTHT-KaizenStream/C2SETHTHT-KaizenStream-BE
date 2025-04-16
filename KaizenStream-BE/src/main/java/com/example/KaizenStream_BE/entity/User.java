@@ -100,5 +100,4 @@ public class User {
     @JsonManagedReference(value = "user-blogs")
     private List<Blog> blogs;
 
-
 }
