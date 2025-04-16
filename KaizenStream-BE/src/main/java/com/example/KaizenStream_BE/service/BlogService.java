@@ -152,6 +152,18 @@ public class BlogService {
     }
 
 
+    public Page<BlogResponse> searchBlogs(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Blog> blogPage = blogRepository.findByTitleContainingIgnoreCase(query, pageable);
+        if (blogPage.isEmpty()) {
+            blogPage = blogRepository.findByContentContainingIgnoreCase(query, pageable);
+        }
+
+        return blogPage.map(blogMapper::toBlogResponse);
+    }
+
+
 
 
 }

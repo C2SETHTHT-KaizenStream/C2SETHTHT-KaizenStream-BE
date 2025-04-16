@@ -128,12 +128,17 @@ public class BlogController {
         return ResponseEntity.ok(blogService.toggleLikeBlog(id, userId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<BlogResponse>> searchBlogs(@RequestParam String query,
+                                                          @RequestParam int page,
+                                                          @RequestParam int size) {
+        Page<BlogResponse> blogResponses = blogService.searchBlogs(query, page, size);
+        return ResponseEntity.ok(blogResponses);
+    }
 
 
 
 
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-//    }
+
+
 }
