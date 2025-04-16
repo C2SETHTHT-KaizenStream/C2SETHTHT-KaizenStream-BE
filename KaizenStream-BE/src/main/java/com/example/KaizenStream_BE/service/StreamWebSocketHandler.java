@@ -254,6 +254,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -273,7 +274,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class StreamWebSocketHandler extends BinaryWebSocketHandler {
     private final Map<String, Process> ffmpegProcesses = new HashMap<>();
     private final Map<String, OutputStream> ffmpegOutputs = new HashMap<>();
@@ -281,8 +282,9 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
     private final ScheduledExecutorService pingScheduler = Executors.newScheduledThreadPool(1);
     private final Map<String, Boolean> streamEnded = new HashMap<>();
 
-    LivestreamService livestreamService;
-
+    final LivestreamService livestreamService;
+    @Value("${rtmp-url}")
+    protected String rtmpUrl;
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         session.setTextMessageSizeLimit(10024288);
@@ -336,7 +338,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                     "-b:a", "128k",
                     "-ar", "44100",
                     "-f", "flv",
-                    "rtmp://localhost:1936/live/" + streamKey
+                    rtmpUrl + streamKey
             );
             Process ffmpegProcess = rtmpPB.start();
             OutputStream ffmpegOutput = ffmpegProcess.getOutputStream();

@@ -22,6 +22,7 @@ public class ProfileMapperImpl implements ProfileMapper {
 
         ProfileResponse.ProfileResponseBuilder profileResponse = ProfileResponse.builder();
 
+        profileResponse.profileId( profile.getProfileId() );
         profileResponse.fullName( profile.getFullName() );
         profileResponse.phoneNumber( profile.getPhoneNumber() );
         profileResponse.address( profile.getAddress() );
@@ -64,15 +65,32 @@ public class ProfileMapperImpl implements ProfileMapper {
             return;
         }
 
-        profile.setFullName( request.getFullName() );
-        profile.setPhoneNumber( request.getPhoneNumber() );
-        profile.setAddress( request.getAddress() );
-        profile.setBio( request.getBio() );
-        profile.setAvatarUrl( request.getAvatarUrl() );
-        profile.setGender( request.getGender() );
-        profile.setDateOfBirth( request.getDateOfBirth() );
-        profile.setBankAccountNumber( request.getBankAccountNumber() );
-        profile.setBankName( request.getBankName() );
-        profile.setDescription( request.getDescription() );
+        if ( request.getFullName() != null ) {
+            profile.setFullName( request.getFullName() );
+        }
+        if ( request.getPhoneNumber() != null ) {
+            profile.setPhoneNumber( request.getPhoneNumber() );
+        }
+        if ( request.getAddress() != null ) {
+            profile.setAddress( request.getAddress() );
+        }
+        if ( request.getBio() != null ) {
+            profile.setBio( request.getBio() );
+        }
+        if ( request.getGender() != null ) {
+            profile.setGender( request.getGender() );
+        }
+        if ( request.getDateOfBirth() != null ) {
+            profile.setDateOfBirth( request.getDateOfBirth() );
+        }
+        if ( request.getBankAccountNumber() != null ) {
+            profile.setBankAccountNumber( request.getBankAccountNumber() );
+        }
+        if ( request.getBankName() != null ) {
+            profile.setBankName( request.getBankName() );
+        }
+        if ( request.getDescription() != null ) {
+            profile.setDescription( request.getDescription() );
+        }
     }
 }
