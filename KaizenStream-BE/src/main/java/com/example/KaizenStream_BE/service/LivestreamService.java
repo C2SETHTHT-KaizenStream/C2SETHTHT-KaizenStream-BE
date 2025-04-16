@@ -19,8 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +37,8 @@ public class LivestreamService {
     CategoryRepository categoryRepository;
     ScheduleRepository scheduleRepository;
     TagRepository tagRepository;
+    ProfileRepository profileRepository;
+
     public LivestreamRespone createLivestream( CreateLivestreamRequest request) {
         User user=userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
         List<Category> categoryEntities = request.getCategories().stream()
@@ -107,7 +110,20 @@ public class LivestreamService {
             List<String> tagList=livestream.getTags().stream().map(c->c.getName()).toList();
             livestreamRespone.setCategories(categoryList);
             livestreamRespone.setTags(tagList);
+            User streamer=livestream.getUser();
+            log.warn("streamer: "+streamer.getUserId());
+//            Profile profile=profileRepository.findByUser_UserId(streamer.getUserId()).orElseThrow(()-> new RuntimeException("PROFILE_NOT_EXITS"));
+//
+//            livestreamRespone.setStreamerImgUrl(profile.getAvatarUrl());
+            livestreamRespone.setStreamerImgUrl("http://res.cloudinary.com/dpu7db88i/image/upload/v1744616662/zsjs39hx6rdtojm4i9jt.webp");
+            log.warn("setStreamerImgUrl: "+livestreamRespone.getStreamerImgUrl());
+
+            livestreamRespone.setStreamerId(streamer.getUserId());
+            log.warn("streamer: "+livestreamRespone.getStreamerId());
+
+
             return  livestreamRespone;
+
         }).toList();
     }
 
@@ -162,6 +178,34 @@ public class LivestreamService {
         live.setStatus(status.getDescription());
         log.warn("updateStatus: "+live.getStatus());
         System.out.println("updateStatus:updateStatus:"+live.getStatus());
+        System.out.println("viewcount:"+live.getViewerCount());
+        System.out.println("duration :"+live.getDuration());
+
+
+        livestreamRepository.save(live);
+    }
+    public void updateLiveStreamDuration(String streamId, int duration ) {
+        var live=livestreamRepository.findById(streamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        System.out.println("duration :"+duration);
+
+        live.setDuration(duration);
+        livestreamRepository.save(live);
+        System.out.println("duration :"+live.getDuration());
+        livestreamRepository.flush(); // ép Hibernate ghi xuống DB ngay
+
+
+    }
+    public void updateLiveStreamViewCount(String streamId, int viewCount) {
+        var live=livestreamRepository.findById(streamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        live.setViewerCount(viewCount);
+
+        livestreamRepository.save(live);
+    }
+    public void updateLiveStreamDuration(String streamId, Status status, int viewCount, int duration ) {
+        var live=livestreamRepository.findById(streamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
+        live.setStatus(status.getDescription());
+        live.setViewerCount(viewCount);
+        live.setDuration(duration);
         livestreamRepository.save(live);
     }
 
@@ -174,15 +218,30 @@ public class LivestreamService {
             LivestreamRespone response = livestreamMapper.toLivestreamRespone(livestream);
             response.setCategories(livestream.getCategories().stream().map(c -> c.getName()).toList());
             response.setTags(livestream.getTags().stream().map(t -> t.getName()).toList());
+            User streamer=livestream.getUser();
+            log.warn("streamer: "+streamer.getUserId());
+//            Profile profile=profileRepository.findByUser_UserId(streamer.getUserId()).orElseThrow(()-> new RuntimeException("PROFILE_NOT_EXITS"));
+//
+//            livestreamRespone.setStreamerImgUrl(profile.getAvatarUrl());
+            response.setStreamerImgUrl("http://res.cloudinary.com/dpu7db88i/image/upload/v1744616662/zsjs39hx6rdtojm4i9jt.webp");
+            log.warn("setStreamerImgUrl: "+response.getStreamerImgUrl());
+
+            response.setStreamerId(streamer.getUserId());
+            log.warn("streamer: "+response.getStreamerId());
+            response.setChannelName("DTHHH");
             return response;
         });
     }
 
 
-    public void stopLive(String livestreamId, Integer viewCount) {
+    public void stopLive(String livestreamId, int viewCount) {
+        log.warn("stopLivestopLivestopLivestopLivestopLive: "+viewCount);
         var live=livestreamRepository.findById(livestreamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
         live.setViewerCount(viewCount);
         livestreamRepository.save(live);
+        log.warn("setViewerCountsetViewerCount: "+live.getViewerCount());
+        livestreamRepository.flush(); // ép Hibernate ghi xuống DB ngay
+
 
     }
 }

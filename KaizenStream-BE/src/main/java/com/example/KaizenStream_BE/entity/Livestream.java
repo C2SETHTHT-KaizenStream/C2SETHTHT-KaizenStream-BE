@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
 import com.example.KaizenStream_BE.enums.Status;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,6 +30,9 @@ public class Livestream {
     private String description;
     private String thumbnail;
     private int viewerCount;
+    @Column(nullable = true, columnDefinition = "int default 0")
+    private int duration; // Duration of the video in seconds
+
     private Date startTime;
     private Date endTime;
 
@@ -68,6 +72,10 @@ public class Livestream {
     @OneToMany(mappedBy = "stream", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Report> reports;
+
+    @OneToMany(mappedBy = "livestream", cascade = CascadeType.ALL)
+    @JsonBackReference // để tránh vòng lặp khi Livestream chứa List<Notification>
+    private List<Notification> notifications;
 
 
 }

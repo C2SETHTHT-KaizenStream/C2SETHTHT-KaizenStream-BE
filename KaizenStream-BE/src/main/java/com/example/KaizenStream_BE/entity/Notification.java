@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,7 +23,17 @@ public class Notification {
     private boolean isRead;
     private LocalDateTime createAt;
 
+    private String senderAvatar;
+    private String senderName;
+
     @ManyToOne
     @JoinColumn(name = "userID", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "livestream_id")
+    @JsonManagedReference // giữ lại để được serialize
+    private Livestream livestream;
+
+
 }

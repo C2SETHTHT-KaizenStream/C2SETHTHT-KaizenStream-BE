@@ -15,4 +15,5 @@ public class AuthenticationResponse {
     String userName;
 
     boolean authenticated;
+
 }

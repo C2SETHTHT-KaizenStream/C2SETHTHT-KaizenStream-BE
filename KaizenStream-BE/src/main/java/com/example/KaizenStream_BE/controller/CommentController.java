@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.controller;
 
 
+import com.example.KaizenStream_BE.dto.request.comment.CommentRequest;
 import com.example.KaizenStream_BE.dto.respone.CommentRespone;
 import com.example.KaizenStream_BE.entity.Comment;
 import com.example.KaizenStream_BE.service.CommentService;
@@ -8,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +23,14 @@ public class CommentController {
     CommentService commentService;
 
 
-@PostMapping("/blog/{blogId}")
-public ResponseEntity<CommentRespone> createComment(
-        @PathVariable String blogId,
-        @RequestBody Comment comment) {
-    CommentRespone createdCommentRespone = commentService.createComment(blogId, comment);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdCommentRespone);
-}
-
+    @PostMapping(value = "/blog/{blogId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CommentRespone> createComment(
+            @PathVariable String blogId,
+            @RequestBody CommentRequest commentRequest) {
+        System.out.println("Request Comment: " + commentRequest);
+        CommentRespone createdCommentRespone = commentService.createComment(blogId, commentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCommentRespone);
+    }
 
 
 
@@ -44,8 +46,5 @@ public ResponseEntity<CommentRespone> createComment(
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
+
 }
