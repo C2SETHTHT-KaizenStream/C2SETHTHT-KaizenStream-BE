@@ -17,6 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPreferences {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -50,9 +51,10 @@ public class UserPreferences {
     @Builder.Default
     private Double categoryWeight = 0.3;
 
-    @Column(name = "view_count")
+    @NotNull(message = "View count cannot be null")
+    @Column(name = "view_count", nullable = false)
     @Builder.Default
-    private Integer viewCount = 0;  // Sử dụng giá trị mặc định là 0 nếu không có giá trị
+    private Integer viewCount = 0;  // fix null triệt để
 
     @Column(name = "last_viewed")
     private Date lastViewed;
@@ -62,16 +64,22 @@ public class UserPreferences {
 
     @Column(name = "updated_at")
     private Date updatedAt;
-    
 
     @PrePersist
     protected void onCreate() {
         createdAt = new Date();
         updatedAt = new Date();
+        // phòng khi data lỗi null vẫn force về 0
+        if (viewCount == null) {
+            viewCount = 0;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = new Date();
+        if (viewCount == null) {
+            viewCount = 0;
+        }
     }
 }
