@@ -1,12 +1,15 @@
 package com.example.KaizenStream_BE.controller;
 
 
-import com.example.KaizenStream_BE.dto.request.report.ReportRequest;
+import com.example.KaizenStream_BE.dto.request.email.EmailRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.report.ReportActionResponse;
 import com.example.KaizenStream_BE.dto.respone.report.ReportDetailResponse;
 import com.example.KaizenStream_BE.dto.respone.report.ReportListResponse;
 import com.example.KaizenStream_BE.entity.Report;
+import com.example.KaizenStream_BE.service.EmailService;
 import com.example.KaizenStream_BE.service.ReportService;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,9 +20,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,6 +31,7 @@ import java.util.List;
 public class ReportController {
 
     ReportService reportService;
+    EmailService emailService;
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Report>> createReport(
@@ -66,11 +69,7 @@ public class ReportController {
             );
         }
     }
-    @MessageMapping("/reportNotifications")
-    @SendTo("/topic/adminNotifications")
-    public String sendMessage(String message){
-        return message;
-    }
+
 
     @GetMapping("/all")
     public ApiResponse<List<ReportListResponse>> getAllReport(){
@@ -90,4 +89,43 @@ public class ReportController {
                 .result(response)
                 .build();
     }
+
+    @PostMapping("/warn/{reportId}")
+    public ApiResponse<ReportActionResponse> warn(@PathVariable String reportId){
+        return ApiResponse.<ReportActionResponse>builder()
+                .code(200)
+                .message("Warn user successfully !")
+                .result(reportService.warn(reportId))
+                .build();
+    }
+    @PostMapping("/reject/{reportId}")
+    public ApiResponse<ReportActionResponse> reject(@PathVariable String reportId){
+        return ApiResponse.<ReportActionResponse>builder()
+                .code(200)
+                .message("Reject user successfully !")
+                .result(reportService.reject(reportId))
+                .build();
+    }
+
+    @PostMapping("/ban/{reportId}")
+    public ApiResponse<ReportActionResponse> ban(@PathVariable String reportId) throws MessagingException{
+        ReportActionResponse result = reportService.ban(reportId);
+        emailService.sendHtmlEmail(reportId);
+        return ApiResponse.<ReportActionResponse>builder()
+                .code(200)
+                .message("User has been banned successfully !")
+                .result(result)
+                .build();
+    }
+
+    // API gửi email HTML
+    @PostMapping("/send-html/{reportId}")
+    public String sendHtmlEmail(@PathVariable String reportId) throws MessagingException {
+
+        emailService.sendHtmlEmail(reportId);
+        return "Email HTML đã được gửi!";
+    }
+
+
+
 }

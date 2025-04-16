@@ -1,10 +1,14 @@
 package com.example.KaizenStream_BE.service;
 
+import com.example.KaizenStream_BE.dto.respone.notification.NotificationResponse;
+import com.example.KaizenStream_BE.dto.respone.report.ReportActionResponse;
 import com.example.KaizenStream_BE.dto.respone.report.ReportDetailResponse;
 import com.example.KaizenStream_BE.dto.respone.report.ReportListResponse;
 import com.example.KaizenStream_BE.dto.respone.report.ReportResponse;
 import com.example.KaizenStream_BE.entity.*;
+import com.example.KaizenStream_BE.enums.AccountStatus;
 import com.example.KaizenStream_BE.enums.ErrorCode;
+import com.example.KaizenStream_BE.enums.ReportStatus;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.repository.*;
 import lombok.AccessLevel;
@@ -92,6 +96,7 @@ public class ReportService {
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXIST));
 
         return ReportDetailResponse.builder()
+                .livestreamId(report.getStream().getLivestreamId())
                 .description(report.getDescription())
                 .createdAt(report.getCreatedAt())
                 .streamerName(report.getStream().getUser().getUserName())
@@ -99,4 +104,66 @@ public class ReportService {
                 .images(report.getImages())
                 .build();
     }
+
+    public ReportActionResponse warn(String reportId) {
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
+        report.setStatus(ReportStatus.WARNED);
+        reportRepository.save(report);
+        String streamer = report.getStream().getUser().getUserId();
+
+        // Lưu nội dung cảnh báo
+        Notification notification = new Notification();
+        notification.setUser(report.getStream().getUser());
+        notification.setContent( report.getReportType());
+        notification.setSenderAvatar("https://res.cloudinary.com/dpu7db88i/image/upload/v1744612916/v8fmrupdsepa3zqomxfa.png");
+        notification.setCreateAt(LocalDateTime.now());
+        notification.setRead(false);
+        notification.setLivestream(report.getStream());
+        notification.setSenderName("Admin");
+        notificationRepository.save(notification);
+
+        //Tạo 1 thông báo gửi đến streamer
+        NotificationResponse notify = new NotificationResponse();
+        notify.setSenderName("Admin");
+        notify.setSenderAvatar("https://res.cloudinary.com/dpu7db88i/image/upload/v1744612916/v8fmrupdsepa3zqomxfa.png");
+        notify.setContent(report.getReportType());
+        notify.setCreateAt(LocalDateTime.now());
+        notify.setRead(false);
+        notify.setLivestreamId(report.getStream().getLivestreamId());
+
+        //Gửi thông báo đến streamer
+        messagingTemplate.convertAndSend("/topic/report/" + streamer, notify);
+
+        ReportActionResponse response = new ReportActionResponse();
+        response.setReportId(report.getReportId());
+        response.setStatus(report.getStatus());
+        return response;
+    }
+
+    public ReportActionResponse reject(String reportId) {
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
+        report.setStatus(ReportStatus.REJECTED);
+        reportRepository.save(report);
+        ReportActionResponse response = new ReportActionResponse();
+        response.setReportId(report.getReportId());
+        response.setStatus(report.getStatus());
+        return response;
+    }
+
+    public ReportActionResponse ban(String reportId) {
+        Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
+        report.setStatus(ReportStatus.BANNED);
+        reportRepository.save(report);
+        //Khóa tài khoản vĩnh viễn
+        User user = userRepository.findById(report.getStream().getUser().getUserId()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+        user.setStatus(AccountStatus.BANNED);
+        userRepository.save(user);
+
+        ReportActionResponse response = new ReportActionResponse();
+        response.setReportId(report.getReportId());
+        response.setStatus(report.getStatus());
+        return response;
+    }
+
+
 }
