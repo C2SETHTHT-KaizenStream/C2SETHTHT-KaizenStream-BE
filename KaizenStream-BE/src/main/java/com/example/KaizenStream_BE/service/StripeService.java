@@ -17,8 +17,12 @@ public class StripeService {
     // Inject giá trị từ .env
     @Value("${STRIPE_SECRET_KEY}")
     private String stripeSecretKey;
-    @Value("${FE_URL}")
+    @Value("${fe-url}")
     private String frontendUrl;
+    @Value("${stripe.cancel-url.path}")
+    private String cancelUrlPath;
+    @Value("${stripe.success-url.path}")
+    private String successUrlPath;
 
     private final UserRepository userRepository;
     private final PurchaseRepository purchaseRepository;
@@ -26,6 +30,7 @@ public class StripeService {
 
     public StripeResponse checkoutPurchase(PurchaseRequest request) {
         Stripe.apiKey = stripeSecretKey;
+
 
         // Stripe yêu cầu số tiền phải là cent (100 = 1 USD)
         long unitAmount = (long) (request.getAmount() * 100);
@@ -53,11 +58,10 @@ public class StripeService {
         // Tạo parameters cho session thanh toán
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)  // Chế độ thanh toán
-                .setSuccessUrl(frontendUrl + "/payment-success?sessionId={CHECKOUT_SESSION_ID}&userId=" + request.getUserId() + "&amount=" + request.getAmount() + "&type=" + request.getType())  // Điều hướng sau khi thanh toán thành công
-                .setCancelUrl(frontendUrl + "/payment-cancel")  // Điều hướng khi thanh toán bị hủy
+                .setSuccessUrl(frontendUrl + successUrlPath + "?sessionId={CHECKOUT_SESSION_ID}&userId=" + request.getUserId() + "&amount=" + request.getAmount() + "&type=" + request.getType())  // Điều hướng sau khi thanh toán thành công
+                .setCancelUrl(frontendUrl + cancelUrlPath)  // Điều hướng khi thanh toán bị hủy
                 .addLineItem(lineItem)  // Thêm line item vào session
                 .build();
-
 
         try {
             Session session = Session.create(params);
