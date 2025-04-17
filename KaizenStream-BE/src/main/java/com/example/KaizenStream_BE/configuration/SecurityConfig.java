@@ -50,6 +50,8 @@ public class SecurityConfig {
             "/tag/**",
             "/payment/**",
             "/report/**",
+            "/leaderboard/**",
+            "/report/**",
             "notification/**",
             "/users/**"
     };

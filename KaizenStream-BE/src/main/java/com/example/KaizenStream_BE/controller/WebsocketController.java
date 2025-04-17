@@ -3,6 +3,7 @@ package com.example.KaizenStream_BE.controller;
 import com.example.KaizenStream_BE.dto.respone.ChatResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamViewCountRespone;
 import com.example.KaizenStream_BE.service.ChatService;
+import com.example.KaizenStream_BE.service.LivestreamRedisService;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class WebsocketController {
     ChatService chatService;
     SimpMessagingTemplate messagingTemplate;
     LivestreamService livestreamService;
+    LivestreamRedisService livestreamRedisService;
 //        @MessageMapping("/chat/{livestreamId}")
 //    public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
 //        chatResponse.setLivestreamId(livestreamId);
@@ -101,7 +103,6 @@ public class WebsocketController {
 
         // Lấy giá trị mới để gửi cho người dùng
         sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
-
         // In log cho việc tham gia
         System.out.println("User joined, livestreamId: " + livestreamId);
         log.warn("User joined, livestreamId: " + livestreamId);
@@ -134,9 +135,9 @@ public class WebsocketController {
             redisTemplate.opsForValue().set(livestreamId, -1);
 
             log.warn("stopLivestopLivestopLivestopLivestopLive: " + viewCount);
+            log.warn("set viewcount: " + viewCount);
 
-            livestreamService.stopLive(livestreamId, viewCount);
-
+            livestreamRedisService.saveOrUpdateViewCounts(livestreamId,viewCount);
             messagingTemplate.convertAndSend("/watch/stop/" + livestreamId, "Stop Live");
         }
 
