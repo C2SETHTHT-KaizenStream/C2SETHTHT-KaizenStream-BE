@@ -12,4 +12,5 @@ public class LeaderboardRespone {
     private Integer totalViewers;
     private BigDecimal totalDonations;
     private String type;
+    private  String imgUrl;
 }

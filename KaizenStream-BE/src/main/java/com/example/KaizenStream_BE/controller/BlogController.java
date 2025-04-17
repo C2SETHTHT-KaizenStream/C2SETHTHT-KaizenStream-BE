@@ -1,7 +1,11 @@
 package com.example.KaizenStream_BE.controller;
 
+import com.example.KaizenStream_BE.dto.request.blog.BlogCreateRequest;
+import com.example.KaizenStream_BE.dto.request.blog.BlogUpdateRequest;
 import com.example.KaizenStream_BE.dto.respone.BlogResponse;
+import com.example.KaizenStream_BE.dto.respone.blogLike.BlogLikeResponse;
 import com.example.KaizenStream_BE.entity.Blog;
+import com.example.KaizenStream_BE.mapper.BlogMapper;
 import com.example.KaizenStream_BE.service.BlogService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BlogController {
      BlogService blogService;
+     BlogMapper blogMapper;
 
 
 //     @CrossOrigin(origins = "http://localhost:5173")
@@ -42,32 +47,64 @@ public class BlogController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BlogResponse> getBlogById(@PathVariable String id) {
-        Blog blog = blogService.getBlogById(id);
-        return ResponseEntity.ok(new BlogResponse(blog));
+//        Blog blog = blogService.getBlogById(id);
+//        return ResponseEntity.ok(new BlogResponse(blog));
+        BlogResponse blog = blogService.getBlogById(id);
+        return ResponseEntity.ok(blog);
     }
 
-//    @PostMapping
-//    public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
-//        Blog createdBlog = blogService.createBlog(blog);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(createdBlog);
+
+
+//    @PostMapping(value = "/create", consumes = {"multipart/form-data", "application/json"})
+//    public ResponseEntity<BlogResponse> createBlog(
+//            @RequestPart(value = "blog", required = false) BlogCreateRequest blogRequestJson,
+//            @RequestBody(required = false) BlogCreateRequest blogRequestBody,
+//            @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+//
+//        BlogCreateRequest blogRequest = blogRequestJson != null ? blogRequestJson : blogRequestBody;
+//
+//        if (blogRequest == null) {
+//            throw new IllegalArgumentException("Blog request is required");
+//        }
+//
+//        Blog blog = blogService.createBlogWithImage(blogRequest, image);
+//        BlogResponse blogResponse = blogMapper.toBlogResponse(blog);
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(blogResponse);
 //    }
 
 
-    @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<Blog> createBlogWithImage(
-            @RequestPart("blog") Blog blog,
+    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
+    public ResponseEntity<BlogResponse> createBlog(
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam("userId") String userId,
             @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
-        Blog createdBlog = blogService.createBlogWithImage(blog, image);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBlog);
+
+        BlogCreateRequest blogRequest = new BlogCreateRequest();
+        blogRequest.setUserId(userId);
+        blogRequest.setTitle(title);
+        blogRequest.setContent(content);
+
+        Blog blog = blogService.createBlogWithImage(blogRequest, image);
+        BlogResponse blogResponse = blogMapper.toBlogResponse(blog);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(blogResponse);
     }
 
 
-
-
     @PutMapping("/{id}")
-    public ResponseEntity<Blog> updateBlog(@PathVariable String id, @RequestBody Blog blogDetails, @RequestParam(value = "image", required = false) MultipartFile image) throws Exception {
-        Blog updatedBlog = blogService.updateBlog(id, blogDetails, image );
-        return ResponseEntity.ok(updatedBlog);
+//    public ResponseEntity<Blog> updateBlog(@PathVariable String id, @RequestBody Blog blogDetails, @RequestParam(value = "image", required = false) MultipartFile image) throws Exception {
+//        Blog updatedBlog = blogService.updateBlog(id, blogDetails, image );
+//        return ResponseEntity.ok(updatedBlog);
+//    }
+    public ResponseEntity<BlogResponse> updateBlog(
+            @PathVariable String id,
+            @RequestBody BlogUpdateRequest blogRequest,
+            @RequestParam(value = "image", required = false) MultipartFile image) throws Exception {
+        Blog updatedBlog = blogService.updateBlog(id, blogRequest, image);
+        BlogResponse blogResponse = blogMapper.toBlogResponse(updatedBlog);
+        return ResponseEntity.ok(blogResponse);
     }
 
 
@@ -86,9 +123,22 @@ public class BlogController {
     }
 
 
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    @PutMapping("/{id}/like")
+    public ResponseEntity<BlogLikeResponse> toggleLikeBlog(@PathVariable String id, @RequestParam String userId) {
+        return ResponseEntity.ok(blogService.toggleLikeBlog(id, userId));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<BlogResponse>> searchBlogs(@RequestParam String query,
+                                                          @RequestParam int page,
+                                                          @RequestParam int size) {
+        Page<BlogResponse> blogResponses = blogService.searchBlogs(query, page, size);
+        return ResponseEntity.ok(blogResponses);
+    }
+
+
+
+
+
+
 }

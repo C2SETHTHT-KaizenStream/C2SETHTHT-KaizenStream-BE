@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface LeaderboardRepository extends JpaRepository<Leaderboard, Long> {
     Optional<Leaderboard> findByUserUserIdAndTypeAndTimeFrameStart(String userId, String type, LocalDate timeFrameStart);
     List<Leaderboard> findTop20ByTypeOrderByTotalDonationsDesc(String type);
+    List<Leaderboard> findTop20ByTypeOrderByTotalViewersDesc(String type);
 
 
 }

@@ -2,8 +2,13 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.respone.LeaderboardRespone;
 import com.example.KaizenStream_BE.entity.Leaderboard;
+import com.example.KaizenStream_BE.entity.Profile;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.enums.ErrorCode;
+import com.example.KaizenStream_BE.exception.AppException;
+import com.example.KaizenStream_BE.mapper.ProfileMapper;
 import com.example.KaizenStream_BE.repository.LeaderboardRepository;
+import com.example.KaizenStream_BE.repository.ProfileRepository;
 import com.example.KaizenStream_BE.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +33,7 @@ public class LeaderboardInitService {
      LeaderboardRepository leaderboardRepository;
 
      UserRepository userRepository;
+     ProfileRepository profileRepository;
 
     public void initializeLeaderboardForAllUsers() {
         List<User> users = userRepository.findAll();
@@ -71,15 +77,23 @@ public class LeaderboardInitService {
     }
 
     public List<LeaderboardRespone> getTop20ByType(String type) {
-        return leaderboardRepository.findTop20ByTypeOrderByTotalDonationsDesc(type)
+        return leaderboardRepository.findTop20ByTypeOrderByTotalViewersDesc(type)
                 .stream()
-                .map(l -> LeaderboardRespone.builder()
-                        .userId(l.getUser().getUserId())
-                        .userName(l.getUser().getUserName())
-                        .totalViewers(l.getTotalViewers())
-                        .totalDonations(l.getTotalDonations())
-                        .type(l.getType())
-                        .build())
+                .map(l -> {
+                    String userId = l.getUser().getUserId();
+
+                    String avatarUrl = profileRepository.findByUser_UserId(userId)
+                            .map(Profile::getAvatarUrl)
+                            .orElse(null);
+                    return LeaderboardRespone.builder()
+                            .userId(userId)
+                            .userName(l.getUser().getUserName())
+                            .totalViewers(l.getTotalViewers())
+                            .totalDonations(l.getTotalDonations())
+                            .type(l.getType())
+                            .imgUrl(avatarUrl)
+                            .build();
+                })
                 .toList();
     }
 

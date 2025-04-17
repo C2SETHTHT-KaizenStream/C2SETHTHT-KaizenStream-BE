@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -45,6 +46,7 @@ public class Report {
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false) // Dùng cột 'userID' để ánh xạ với bảng 'users'
     @JsonBackReference(value = "user-reports")
+    @ToString.Exclude
     private User user;
 
 

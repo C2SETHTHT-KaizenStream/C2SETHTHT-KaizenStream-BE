@@ -283,6 +283,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
     private final Map<String, Boolean> streamEnded = new HashMap<>();
 
     final LivestreamService livestreamService;
+    final  LivestreamRedisService livestreamRedisService;
     @Value("${rtmp-url}")
     protected String rtmpUrl;
     @Override
@@ -381,7 +382,8 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                                             log.warn("timeInSeconds: " + timeInSeconds);
                                             if (streamId != null) {
                                                 log.warn("storeStreamEndTime: " + timeInSeconds);
-                                                livestreamService.updateLiveStreamDuration(streamId,timeInSeconds);
+
+                                                livestreamRedisService.saveOrUpdateDuration(streamId,timeInSeconds);
                                                // log.warn("storeStreamEndTime: " + streamService.getStreamEndTime(streamId));
 
                                             }

@@ -3,12 +3,14 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.authen.AuthenticationRequest;
 import com.example.KaizenStream_BE.dto.request.authen.IntrospectRequest;
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.authen.AuthenticationResponse;
 import com.example.KaizenStream_BE.dto.respone.authen.IntrospectRespone;
 import com.example.KaizenStream_BE.entity.InvalidatedToken;
 import com.example.KaizenStream_BE.entity.Permission;
 import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.enums.AccountStatus;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.repository.InvalidatedRepository;
@@ -87,15 +89,20 @@ public class AuthenticationService {
 
         var user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-
+        //Nếu tài khoản đã bị khóa
+        if(user.getStatus() == AccountStatus.BANNED){
+            return AuthenticationResponse.builder()
+                    .authenticated(false)
+                    .build();
+        }
         // Kiểm tra mật khẩu đã mã hóa trong cơ sở dữ liệu với mật khẩu người dùng nhập vào
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         // Nếu mật khẩu không khớp, ném lỗi UNAUTHENTICATED
         if (!authenticated) {
-
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+
 
         // Generate tokens
         var accessToken = generateToken(user, VALID_DURATION);
@@ -173,6 +180,16 @@ public class AuthenticationService {
         if (expirationTime.before(new Date())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+        //  Check user status when account has been banned (WILL USE DON'T DELETE)
+//        String userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
+//
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+//
+//        if (user.getStatus() == AccountStatus.BANNED) {
+//            throw new AppException(ErrorCode.UNAUTHENTICATED);
+//
+//        }
 
         return signedJWT;
     }

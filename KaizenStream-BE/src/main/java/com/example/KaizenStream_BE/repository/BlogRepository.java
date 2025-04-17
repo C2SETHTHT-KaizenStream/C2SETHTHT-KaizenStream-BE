@@ -9,9 +9,10 @@ import java.util.List;
 
 public interface BlogRepository extends JpaRepository<Blog, String> {
 
-    // find by title and content
-    Page<Blog> findByTitleContaining(String title, Pageable pageable);
-    Page<Blog> findByContentContaining(String content, Pageable pageable);
+
+
+    Page<Blog> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Blog> findByContentContainingIgnoreCase(String content, Pageable pageable);
 
     // find by users
     Page<Blog> findByUser_UserId(String userId, Pageable pageable);
