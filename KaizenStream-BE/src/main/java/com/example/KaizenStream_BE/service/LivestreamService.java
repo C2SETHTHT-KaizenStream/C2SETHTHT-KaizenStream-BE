@@ -178,9 +178,6 @@ public class LivestreamService {
         live.setStatus(status.getDescription());
         log.warn("updateStatus: "+live.getStatus());
         System.out.println("updateStatus:updateStatus:"+live.getStatus());
-        System.out.println("viewcount:"+live.getViewerCount());
-        System.out.println("duration :"+live.getDuration());
-
 
         livestreamRepository.save(live);
     }
@@ -201,11 +198,12 @@ public class LivestreamService {
 
         livestreamRepository.save(live);
     }
-    public void updateLiveStreamDuration(String streamId, Status status, int viewCount, int duration ) {
+    public void updateLiveStream(String streamId, int viewCount, int duration ) {
         var live=livestreamRepository.findById(streamId).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
-        live.setStatus(status.getDescription());
         live.setViewerCount(viewCount);
         live.setDuration(duration);
+        System.out.println("viewcount:"+live.getViewerCount());
+        System.out.println("duration :"+live.getDuration());
         livestreamRepository.save(live);
     }
 
