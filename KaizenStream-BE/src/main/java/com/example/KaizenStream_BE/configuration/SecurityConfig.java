@@ -51,7 +51,8 @@ public class SecurityConfig {
             "/payment/**",
             "/report/**",
             "notification/**",
-            "/users/**"
+            "/users/**",
+            "/search/**",
     };
 
     @Value("${fe-url}")
