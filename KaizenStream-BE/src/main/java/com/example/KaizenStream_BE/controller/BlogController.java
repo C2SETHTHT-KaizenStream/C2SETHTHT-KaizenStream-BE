@@ -122,6 +122,13 @@ public class BlogController {
         return ResponseEntity.ok(blogs);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByUserId(@PathVariable String userId) {
+        List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
+        return ResponseEntity.ok(blogs);
+    }
+
+
 
     @PutMapping("/{id}/like")
     public ResponseEntity<BlogLikeResponse> toggleLikeBlog(@PathVariable String id, @RequestParam String userId) {
