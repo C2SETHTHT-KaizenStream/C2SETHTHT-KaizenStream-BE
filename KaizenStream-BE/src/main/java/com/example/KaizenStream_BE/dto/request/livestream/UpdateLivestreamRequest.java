@@ -43,5 +43,4 @@ public class UpdateLivestreamRequest {
     private List<String> categories;
     private List<String> tags;
 
-
 }

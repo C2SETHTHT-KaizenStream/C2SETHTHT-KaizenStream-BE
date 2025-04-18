@@ -360,7 +360,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.err.println(name + " LOGGGG: " + line);
+//                    System.err.println(name + " LOGGGG: " + line);
                     if(streamEnded.containsKey(streamId)&&streamEnded.get(streamId)==true) {
                         if (line.contains("frame=") && line.contains("time=")) {
                             String frameStr = extractFrameFromLog(line);
