@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.configuration;
 
+import com.example.KaizenStream_BE.dto.request.livestream.LivestreamRedisData;
 import com.example.KaizenStream_BE.dto.respone.ChatResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -84,5 +85,26 @@ public class RedisCacheConfig {
 
         return template;
     }
+    @Bean
+    public RedisTemplate<String, Object> livestreamRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.findAndRegisterModules();
+
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(mapper);
+
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(serializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(serializer);
+        template.afterPropertiesSet();
+
+        return template;
+    }
+
+
 
 }

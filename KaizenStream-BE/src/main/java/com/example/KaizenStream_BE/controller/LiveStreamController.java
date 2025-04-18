@@ -1,11 +1,13 @@
 package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamRequest;
+import com.example.KaizenStream_BE.dto.request.livestream.LivestreamRedisData;
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
 import com.example.KaizenStream_BE.enums.Status;
 import com.example.KaizenStream_BE.mapper.LivestreamMapper;
+import com.example.KaizenStream_BE.service.LivestreamRedisService;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import com.example.KaizenStream_BE.service.MinioService;
 import jakarta.validation.Valid;
@@ -48,6 +50,9 @@ public class LiveStreamController {
     @Autowired
     private MinioService minioService;
 
+
+    @Autowired
+    private LivestreamRedisService livestreamRedisService;
     @PostMapping
     ApiResponse<LivestreamRespone> createLivestream(@RequestBody @Valid CreateLivestreamRequest request){
 
@@ -145,8 +150,6 @@ public class LiveStreamController {
             }
         }
         generateM3u8File(streamKey);
-        //Thread.sleep(5000); // Chờ 10 giây (10,000 milliseconds)
-        // livestreamService.updateStatus(streamKey, Status.ENDED);
 
         return ResponseEntity.ok("Stream ended");
     }
@@ -178,8 +181,15 @@ public class LiveStreamController {
             String m3u8Content = generateM3u8Content(tsFiles,streamId);
             minioService.uploadM3u8ToMinIO(streamId, m3u8Content);
             log.warn("minioService");
-            livestreamService.updateStatus(streamId, Status.ENDED);
 
+            livestreamService.updateStatus(streamId, Status.ENDED);
+            Thread.sleep(10000); // Chờ 10 giây (10,000 milliseconds)
+            LivestreamRedisData data = livestreamRedisService.getData(streamId);
+            Integer viewCount = data.getViewCount() != null ? data.getViewCount() : 0;
+            Integer duration = data.getDuration() != null ? data.getDuration() : 0;
+            log.warn("LivestreamRedisData ", viewCount, "\n",duration);
+
+            livestreamService.updateLiveStream(streamId, viewCount, duration);
 
             return ResponseEntity.ok("Đã tạo và lưu playlist.m3u8 thành công.");
         } catch (Exception e) {

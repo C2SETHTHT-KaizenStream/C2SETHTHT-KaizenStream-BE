@@ -1,6 +1,8 @@
 package com.example.KaizenStream_BE.repository;
 
 import com.example.KaizenStream_BE.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUserName(String userName);
 
     Optional<User> findByEmail(String email);
+
+    Page<User> findByChannelNameContainingIgnoreCase(String query, Pageable pageable);
 
     //Optional<List<User>> findByUserName(String userName);
 }
