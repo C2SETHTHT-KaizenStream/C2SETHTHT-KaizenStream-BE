@@ -90,11 +90,12 @@ public class WebsocketController {
         messagingTemplate.convertAndSend("/live/streamer/" + livestreamId, respone);
         messagingTemplate.convertAndSend("/topic/livestream/watch/" + livestreamId, respone);
     }
-    @MessageMapping("/join/watch/{livestreamId}")
-    public void joinStream(@DestinationVariable String livestreamId) {
+    @MessageMapping("/join/watch/{livestreamId}/{userId}")
+    public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
         String keyViewCount = "livestream:viewCount:" + livestreamId;
         String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
-
+        System.out.println("{userId}"+userId);
+        log.warn("{userId}"+userId);
         // Tăng số lượt xem tổng thể (viewCount)
         redisTemplate.opsForValue().increment(keyViewCount, 1);
 
