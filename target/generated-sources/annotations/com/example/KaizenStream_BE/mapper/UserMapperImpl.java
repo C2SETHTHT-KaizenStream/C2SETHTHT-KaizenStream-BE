@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.mapper;
 
 import com.example.KaizenStream_BE.dto.request.authen.RegisterRequest;
+import com.example.KaizenStream_BE.dto.respone.channel.ChannelResponse;
 import com.example.KaizenStream_BE.entity.User;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
@@ -25,5 +26,20 @@ public class UserMapperImpl implements UserMapper {
         user.email( registerRequest.getEmail() );
 
         return user.build();
+    }
+
+    @Override
+    public ChannelResponse toChannelResponse(User user) {
+        if ( user == null ) {
+            return null;
+        }
+
+        ChannelResponse.ChannelResponseBuilder channelResponse = ChannelResponse.builder();
+
+        channelResponse.userId( user.getUserId() );
+        channelResponse.userName( user.getUserName() );
+        channelResponse.channelName( user.getChannelName() );
+
+        return channelResponse.build();
     }
 }
