@@ -21,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,6 +40,9 @@ public class LiveStreamController {
     LivestreamMapper livestreamMapper;
     // private final Map<String, Process> syncProcesses = new HashMap<>();
     private static Process syncProcess = null; // Chỉ có một tiến trình đồng bộ HLS
+    @Autowired
+//    private HistoryService historyService;
+
     private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
     @Autowired
     private RedisTemplate<String, Integer> redisTemplate;
@@ -111,6 +116,12 @@ public class LiveStreamController {
                 ProcessBuilder pb = new ProcessBuilder("powershell", "-ExecutionPolicy", "Bypass", "-File",
                         syncHlsUrl, processName);
                 syncProcess = pb.start(); // Khởi tạo tiến trình đồng bộ
+                BufferedReader reader = new BufferedReader(new InputStreamReader(syncProcess.getErrorStream()));
+                String line;
+                System.out.println("✅ Script đồng bộ HLS đang chạy trong nền, log output:");
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("📜 [SYNC LOG] " + line);
+                }
                 System.out.println("✅ Script đồng bộ HLS đang chạy trong nền ");
             } catch (IOException e) {
                 System.err.println("❌ Lỗi khi chạy PowerShell script: " + e.getMessage());

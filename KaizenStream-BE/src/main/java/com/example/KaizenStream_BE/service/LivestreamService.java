@@ -39,6 +39,8 @@ public class LivestreamService {
     TagRepository tagRepository;
     ProfileRepository profileRepository;
 
+
+
     public LivestreamRespone createLivestream( CreateLivestreamRequest request) {
         User user=userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
         List<Category> categoryEntities = request.getCategories().stream()
@@ -164,6 +166,7 @@ public class LivestreamService {
         livestreamRespone.setCategories(categoryList);
         return livestreamRespone;
     }
+
 
 
     public String deleteById(String id) {

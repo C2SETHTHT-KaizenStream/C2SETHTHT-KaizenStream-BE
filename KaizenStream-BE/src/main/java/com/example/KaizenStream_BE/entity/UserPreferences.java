@@ -17,15 +17,14 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPreferences {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     private User user;
-
 
     @ElementCollection
     @CollectionTable(name = "user_preferred_tags", joinColumns = @JoinColumn(name = "preferences_id"))
@@ -52,8 +51,10 @@ public class UserPreferences {
     @Builder.Default
     private Double categoryWeight = 0.3;
 
-    @Column(name = "view_count")
-    private Integer viewCount;
+    @NotNull(message = "View count cannot be null")
+    @Column(name = "view_count", nullable = false)
+    @Builder.Default
+    private Integer viewCount = 0;  // fix null triệt để
 
     @Column(name = "last_viewed")
     private Date lastViewed;
@@ -68,10 +69,17 @@ public class UserPreferences {
     protected void onCreate() {
         createdAt = new Date();
         updatedAt = new Date();
+        // phòng khi data lỗi null vẫn force về 0
+        if (viewCount == null) {
+            viewCount = 0;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = new Date();
+        if (viewCount == null) {
+            viewCount = 0;
+        }
     }
 }

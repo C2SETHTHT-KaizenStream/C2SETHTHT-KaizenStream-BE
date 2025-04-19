@@ -33,6 +33,7 @@ public class SuggestionController {
 
         // Debug log
         suggestions.forEach(s -> System.out.println("Suggest: " + s.getStreamerName() + " - Score: " + s.getScore()));
+        suggestions.forEach(s -> System.out.println("Endtime:" + s.getEndTime()));
 
         return ResponseEntity.ok(ApiResponse.<List<SuggestionResponse>>builder()
                 .result(suggestions)
