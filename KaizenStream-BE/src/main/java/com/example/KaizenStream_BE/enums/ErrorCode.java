@@ -46,10 +46,12 @@ public enum ErrorCode {
 
     COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND),
     BLOG_NOT_OWNER(3002, "You are not the owner of this blog", HttpStatus.FORBIDDEN),
+    ALREADY_FOLLOWING(1002,"Already_following",HttpStatus.OK),
 
     LIVESTREAM_NOT_FOUND(4001, "Livestream does not exist", HttpStatus.NOT_FOUND),
 
     ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK);
+
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
         this.code = code;
