@@ -43,7 +43,8 @@ public class User {
     private int point;
 
 
-
+    @Column(name = "avatar_img", columnDefinition = "nvarchar(255)")
+    private String avatarImg;
 
 
     private Date createdAt;

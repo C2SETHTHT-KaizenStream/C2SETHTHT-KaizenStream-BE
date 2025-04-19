@@ -3,9 +3,11 @@ package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.respone.BlogResponse;
 import com.example.KaizenStream_BE.dto.respone.channel.ChannelResponse;
+import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
 import com.example.KaizenStream_BE.dto.respone.search.SearchResultResponse;
 import com.example.KaizenStream_BE.service.BlogService;
 import com.example.KaizenStream_BE.service.ChannelService;
+import com.example.KaizenStream_BE.service.LivestreamService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +27,7 @@ import java.util.List;
 public class SearchController {
     BlogService blogService;
     ChannelService channelService;
+    LivestreamService livestreamService;
 
     @GetMapping
     public ResponseEntity<SearchResultResponse> searchAll(@RequestParam String query,
@@ -32,12 +35,14 @@ public class SearchController {
                                                           @RequestParam(defaultValue = "10") int size) {
         List<BlogResponse> blogs = blogService.searchBlogs(query, page, size).getContent();
         List<ChannelResponse> channel = channelService.searchChannels(query, page, size).getContent();
+        List<LivestreamRespone>livestream = livestreamService.searchLivestreams(query, page, size).getContent();
 
 
 
         SearchResultResponse result = SearchResultResponse.builder()
                 .blogResponseList(blogs)
                 .channelResponseList(channel)
+                .livestreamResponseList(livestream)
 
                 .build();
 

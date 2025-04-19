@@ -45,7 +45,9 @@ public enum ErrorCode {
     BLOG_REQUIRED_CONTENT(2005, "Blog content is required", HttpStatus.BAD_REQUEST),
 
     COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND),
+    BLOG_NOT_OWNER(3002, "You are not the owner of this blog", HttpStatus.FORBIDDEN),
 
+    LIVESTREAM_NOT_FOUND(4001, "Livestream does not exist", HttpStatus.NOT_FOUND),
 
     ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
