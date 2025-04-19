@@ -10,10 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -86,8 +83,11 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Chat> chats;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Follower> followers;
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follower> following = new ArrayList<>();
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follower> followers = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Report> reports;
