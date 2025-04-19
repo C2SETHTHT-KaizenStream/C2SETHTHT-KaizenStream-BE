@@ -109,8 +109,8 @@ public class BlogController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBlog(@PathVariable String id) {
-        blogService.deleteBlog(id);
+    public ResponseEntity<Void> deleteBlogOwner(@PathVariable String id, @RequestParam String userId) {
+        blogService.deleteBlogOwner(id, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -121,6 +121,7 @@ public class BlogController {
         List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
         return ResponseEntity.ok(blogs);
     }
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<BlogResponse>> getBlogsByUserId(@PathVariable String userId) {
