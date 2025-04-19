@@ -109,8 +109,8 @@ public class BlogController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBlog(@PathVariable String id) {
-        blogService.deleteBlog(id);
+    public ResponseEntity<Void> deleteBlogOwner(@PathVariable String id, @RequestParam String userId) {
+        blogService.deleteBlogOwner(id, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -123,18 +123,26 @@ public class BlogController {
     }
 
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByUserId(@PathVariable String userId) {
+        List<BlogResponse> blogs = blogService.getBlogsByUserId(userId);
+        return ResponseEntity.ok(blogs);
+    }
+
+
+
     @PutMapping("/{id}/like")
     public ResponseEntity<BlogLikeResponse> toggleLikeBlog(@PathVariable String id, @RequestParam String userId) {
         return ResponseEntity.ok(blogService.toggleLikeBlog(id, userId));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<BlogResponse>> searchBlogs(@RequestParam String query,
-                                                          @RequestParam int page,
-                                                          @RequestParam int size) {
-        Page<BlogResponse> blogResponses = blogService.searchBlogs(query, page, size);
-        return ResponseEntity.ok(blogResponses);
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<Page<BlogResponse>> searchBlogs(@RequestParam String query,
+//                                                          @RequestParam int page,
+//                                                          @RequestParam int size) {
+//        Page<BlogResponse> blogResponses = blogService.searchBlogs(query, page, size);
+//        return ResponseEntity.ok(blogResponses);
+//    }
 
 
 

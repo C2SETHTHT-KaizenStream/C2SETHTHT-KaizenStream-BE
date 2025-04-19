@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.mapper;
 
 import com.example.KaizenStream_BE.dto.request.authen.RegisterRequest;
+import com.example.KaizenStream_BE.dto.respone.channel.ChannelResponse;
 import com.example.KaizenStream_BE.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,4 +25,5 @@ public interface UserMapper {
     @Mapping(target = "status", ignore = true)
 
     User toUser(RegisterRequest registerRequest);
+    ChannelResponse toChannelResponse(User user);
 }

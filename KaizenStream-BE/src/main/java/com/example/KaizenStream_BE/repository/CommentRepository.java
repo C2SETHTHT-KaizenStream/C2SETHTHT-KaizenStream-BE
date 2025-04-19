@@ -9,4 +9,6 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment,String> {
 
     List<Comment> findByBlog_BlogId(String blogID);
+
+    List <Comment> deleteByBlog_BlogId(String blogID);
 }

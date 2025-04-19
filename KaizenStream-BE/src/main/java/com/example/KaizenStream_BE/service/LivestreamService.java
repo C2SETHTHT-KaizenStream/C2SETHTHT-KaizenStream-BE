@@ -39,6 +39,8 @@ public class LivestreamService {
     TagRepository tagRepository;
     ProfileRepository profileRepository;
 
+
+
     public LivestreamRespone createLivestream( CreateLivestreamRequest request) {
         User user=userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
         List<Category> categoryEntities = request.getCategories().stream()
@@ -166,6 +168,7 @@ public class LivestreamService {
     }
 
 
+
     public String deleteById(String id) {
         var live=livestreamRepository.findById(id).orElseThrow(()-> new RuntimeException("LIVESTREAM_NOT_EXITS"));
 
@@ -242,4 +245,57 @@ public class LivestreamService {
 
 
     }
+    public Page<LivestreamRespone> getLivestreamsByUserId(String userId, Pageable pageable) {
+        Page<Livestream> livestreamPage = livestreamRepository.findByUser_UserId(userId, pageable);
+
+        return livestreamPage.map(livestream -> {
+            LivestreamRespone response = livestreamMapper.toLivestreamRespone(livestream);
+
+            response.setCategories(livestream.getCategories().stream()
+                    .map(Category::getName)
+                    .collect(Collectors.toList()));
+
+            response.setTags(livestream.getTags().stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toList()));
+
+            User streamer = livestream.getUser();
+            response.setStreamerId(streamer.getUserId());
+
+            response.setStreamerImgUrl("http://res.cloudinary.com/dpu7db88i/image/upload/v1744616662/zsjs39hx6rdtojm4i9jt.webp");
+
+            return response;
+        });
+    }
+
+    public Page<LivestreamRespone> searchLivestreams(String title, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Livestream> livestreamPage = livestreamRepository.findByTitleContainingIgnoreCase(title, pageable);
+        if (livestreamPage.isEmpty()) {
+            livestreamPage = livestreamRepository.findByDescriptionContainingIgnoreCase(title, pageable);
+        }
+
+
+        return livestreamPage.map(livestream -> {
+            LivestreamRespone response = livestreamMapper.toLivestreamRespone(livestream);
+
+            response.setCategories(livestream.getCategories().stream()
+                    .map(Category::getName)
+                    .collect(Collectors.toList()));
+
+            response.setTags(livestream.getTags().stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toList()));
+
+            User streamer = livestream.getUser();
+            response.setStreamerId(streamer.getUserId());
+
+            response.setStreamerImgUrl("http://res.cloudinary.com/dpu7db88i/image/upload/v1744616662/zsjs39hx6rdtojm4i9jt.webp");
+
+            return response;
+        });
+    }
+
+
+
 }

@@ -9,10 +9,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
+@Builder
 public class LivestreamRespone {
     String livestreamId;
     String title;

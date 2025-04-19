@@ -15,13 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,6 +42,9 @@ public class LiveStreamController {
     LivestreamMapper livestreamMapper;
     // private final Map<String, Process> syncProcesses = new HashMap<>();
     private static Process syncProcess = null; // Chỉ có một tiến trình đồng bộ HLS
+    @Autowired
+//    private HistoryService historyService;
+
     private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
     @Autowired
     private RedisTemplate<String, Integer> redisTemplate;
@@ -111,6 +118,12 @@ public class LiveStreamController {
                 ProcessBuilder pb = new ProcessBuilder("powershell", "-ExecutionPolicy", "Bypass", "-File",
                         syncHlsUrl, processName);
                 syncProcess = pb.start(); // Khởi tạo tiến trình đồng bộ
+                BufferedReader reader = new BufferedReader(new InputStreamReader(syncProcess.getErrorStream()));
+                String line;
+                System.out.println("✅ Script đồng bộ HLS đang chạy trong nền, log output:");
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("📜 [SYNC LOG] " + line);
+                }
                 System.out.println("✅ Script đồng bộ HLS đang chạy trong nền ");
             } catch (IOException e) {
                 System.err.println("❌ Lỗi khi chạy PowerShell script: " + e.getMessage());
@@ -221,4 +234,20 @@ public class LiveStreamController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
         }
     }
+
+
+
+    @GetMapping("/user/{userId}")
+    public ApiResponse<Page<LivestreamRespone>> getLivestreamsByUserId(
+            @PathVariable("userId") String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+
+        Page<LivestreamRespone> response = livestreamService.getLivestreamsByUserId(userId, PageRequest.of(page, size, Sort.by("startTime").descending()));
+
+        return ApiResponse.<Page<LivestreamRespone>>builder()
+                .result(response)
+                .build();
+    }
+
 }
