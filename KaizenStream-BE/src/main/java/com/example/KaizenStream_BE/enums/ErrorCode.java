@@ -49,7 +49,7 @@ public enum ErrorCode {
     ALREADY_FOLLOWING(1002,"Already_following",HttpStatus.OK),
 
     LIVESTREAM_NOT_FOUND(4001, "Livestream does not exist", HttpStatus.NOT_FOUND),
-    
+
     ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK),
 
     // **Các lỗi liên quan đến yêu cầu rút tiền**
