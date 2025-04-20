@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -232,4 +234,20 @@ public class LiveStreamController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
         }
     }
+
+
+
+    @GetMapping("/user/{userId}")
+    public ApiResponse<Page<LivestreamRespone>> getLivestreamsByUserId(
+            @PathVariable("userId") String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+
+        Page<LivestreamRespone> response = livestreamService.getLivestreamsByUserId(userId, PageRequest.of(page, size, Sort.by("startTime").descending()));
+
+        return ApiResponse.<Page<LivestreamRespone>>builder()
+                .result(response)
+                .build();
+    }
+
 }
