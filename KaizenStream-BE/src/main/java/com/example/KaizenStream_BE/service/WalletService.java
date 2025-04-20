@@ -2,6 +2,8 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.respone.wallet.WalletBalanceResponse;
 import com.example.KaizenStream_BE.entity.Wallet;
+import com.example.KaizenStream_BE.enums.ErrorCode;
+import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,4 +28,10 @@ public class WalletService {
                 .build();
     }
 
+    public Integer getBalanceUser(String userId) {
+        Wallet wallet = walletRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXIST));
+
+        return wallet.getBalance();
+    }
 }

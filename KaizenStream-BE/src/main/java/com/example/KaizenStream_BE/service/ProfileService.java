@@ -16,9 +16,11 @@ import com.example.KaizenStream_BE.repository.WalletRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -158,6 +160,14 @@ public class ProfileService {
             throw new IllegalArgumentException("Avatar file is required");
         }
 
+        // Cập nhật avatarImg trong bảng User sau khi avatarUrl ở bảng Profile đã được cập nhật
+        User user = profile.getUser();  // Lấy thông tin User từ Profile
+        if (user != null) {
+            user.setAvatarImg(profile.getAvatarUrl());  // Cập nhật avatarImg trong User
+            userRepository.save(user);  // Lưu thông tin User đã cập nhật
+            System.out.println("User avatarImg also updated to: " + profile.getAvatarUrl());
+        }
+
         // Lưu thông tin profile đã cập nhật
         profileRepository.save(profile);
         System.out.println("Profile avatar updated, new URL: " + profile.getAvatarUrl());
@@ -173,6 +183,28 @@ public class ProfileService {
         return response; // Trả về thông tin profile đã được cập nhật
     }
 
+    // Thêm phương thức để đồng bộ avatarUrl trong Profile với avatarImg trong User
+    @Transactional
+    public void initAvatarForUsers() {
+        // Lấy tất cả các Profile
+        List<Profile> profiles = profileRepository.findAll();
+
+        for (Profile profile : profiles) {
+            // Lấy User liên kết với Profile
+            User user = profile.getUser();
+            if (user != null) {
+                String avatarUrl = profile.getAvatarUrl();
+                if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                    // Cập nhật avatarImg của User
+                    user.setAvatarImg(avatarUrl);  // Đồng bộ avatarImg với avatarUrl
+                    userRepository.save(user);  // Lưu thông tin User đã được cập nhật
+                    System.out.println("Updated avatarImg for user: " + user.getUserName());
+                }
+            }
+        }
+    }
+
+    // Phương thức delete Profile
     public void deleteProfile(String profileId) {
         var profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILES_NOT_EXIST));
