@@ -26,7 +26,7 @@ public class EmailService {
     ReportRepository reportRepository;
 
     // Gửi email với nội dung HTML
-    public void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException {
+    public void sendHtmlEmail(String to, String subject, String htmlContent, String banReason, LocalDateTime banDuration) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -72,7 +72,7 @@ public class EmailService {
     }
 
     private String getHtmlContent(String username, String lockedAt, String reason) {
-        String lockDuration = "Forever";
+        String lockDuration = lockedAt;
         return """
         <!DOCTYPE html>
         <html lang="en">
@@ -153,14 +153,14 @@ public class EmailService {
     }
 
     @Async
-    public void sendHtmlEmail(String reportId) throws MessagingException {
+    public void sendHtmlEmail(String reportId, String banReason, LocalDateTime banDuration) throws MessagingException {
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formattedDateTime = now.format(formatter);
         String subject = "KaizenStream - Banning Account notification";
-        String content = getHtmlContent(report.getStream().getUser().getUserName(), formattedDateTime, report.getReportType());
+        String content = getHtmlContent(report.getStream().getUser().getUserName(), banReason,banReason);
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

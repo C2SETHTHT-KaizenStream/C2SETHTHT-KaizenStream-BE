@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 
 
 @Data
-
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class ChatResponse {
     String chatId;
