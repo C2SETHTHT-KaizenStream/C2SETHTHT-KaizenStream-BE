@@ -1,11 +1,14 @@
 package com.example.KaizenStream_BE.service;
 
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.withdraw.WithdrawResponse;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.entity.Wallet;
 import com.example.KaizenStream_BE.entity.Withdraw;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.enums.WithdrawStatus;
 import com.example.KaizenStream_BE.exception.AppException;
+import com.example.KaizenStream_BE.repository.UserRepository;
 import com.example.KaizenStream_BE.repository.WithdrawRepository;
 import com.example.KaizenStream_BE.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,9 @@ public class WithdrawService {
     private final WithdrawRepository withdrawRepo;
     private final WalletRepository walletRepo;
      private final UserService userService;  // Thêm service để lấy thông tin user
+    private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
+    private final WithdrawRepository withdrawRepository;
 
     // Tạo yêu cầu rút tiền
     public Withdraw createWithdrawRequest(User user, int pointsRequested, String bankName, String bankAccount) {
@@ -83,6 +91,10 @@ public class WithdrawService {
             throw new AppException(ErrorCode.ALREADY_PROCESSED);
         }
 
+        // Cập nhật trạng thái và thời gian updatedAt
+        withdraw.setStatus(WithdrawStatus.APPROVED);
+        withdraw.setUpdatedAt(LocalDateTime.now());  // Cập nhật thời gian
+
         // Lấy ví của người dùng
         Wallet wallet = walletRepo.findByUser(withdraw.getUser())
                 .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
@@ -130,6 +142,7 @@ public class WithdrawService {
 
         withdraw.setStatus(WithdrawStatus.REJECTED);
         withdraw.setNote(note);
+        withdraw.setUpdatedAt(LocalDateTime.now());  // Cập nhật thời gian
 
         // Cập nhật trạng thái từ chối
         return withdrawRepo.save(withdraw);
@@ -139,4 +152,42 @@ public class WithdrawService {
     public List<Withdraw> getAllWithdrawRequests() {
         return withdrawRepo.findAll();
     }
+
+    public ApiResponse<List<WithdrawResponse>> getWithdrawHistory(String userId) {
+        // Tìm user theo userId
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        // Lấy wallet của user để xem số dư
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXIST));
+
+        // Lấy danh sách các withdraw của user, sắp xếp theo thời gian mới nhất
+        List<Withdraw> withdraws = withdrawRepository.findByUserOrderByCreatedAtDesc(user);
+
+        // Chuyển đổi từ Withdraw sang WithdrawResponse
+        List<WithdrawResponse> withdrawResponses = withdraws.stream()
+                .map(withdraw -> {
+                    return WithdrawResponse.builder()
+                            .withdrawId(withdraw.getWithdrawId())
+                            .userId(user.getUserId())
+                            .pointsRequested(withdraw.getPointsRequested())
+                            .usdExpected(withdraw.getUsdExpected())
+                            .bankName(withdraw.getBankName())
+                            .bankAccount(withdraw.getBankAccount())
+                            .status(withdraw.getStatus())
+                            .note(withdraw.getNote())
+                            .createdAt(withdraw.getCreatedAt())
+                            .updatedAt(withdraw.getUpdatedAt())  // Thêm updatedAt
+                            .balance(wallet.getBalance())  // Lấy số dư trong ví của người dùng
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return ApiResponse.<List<WithdrawResponse>>builder()
+                .message("Withdraw history retrieved successfully")
+                .result(withdrawResponses)
+                .build();
+    }
+
 }
