@@ -1,5 +1,6 @@
 package com.example.KaizenStream_BE.controller;
 
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.withdraw.WithdrawResponse;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.entity.Wallet;
@@ -150,5 +151,12 @@ public class WithdrawController {
         response.put("balance", wallet.getBalance());
 
         return ResponseEntity.ok(response);
+    }
+
+    // Endpoint để lấy lịch sử rút tiền của một user
+    @GetMapping("/withdraw-history/{userId}")
+    public ApiResponse<List<WithdrawResponse>> getWithdrawHistory(@PathVariable String userId) {
+        // Gọi service để lấy lịch sử rút tiền
+        return withdrawService.getWithdrawHistory(userId);
     }
 }
