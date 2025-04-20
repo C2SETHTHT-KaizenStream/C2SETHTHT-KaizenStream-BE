@@ -2,16 +2,23 @@ package com.example.KaizenStream_BE.controller;
 
 import com.example.KaizenStream_BE.dto.respone.withdraw.WithdrawResponse;
 import com.example.KaizenStream_BE.entity.User;
+import com.example.KaizenStream_BE.entity.Wallet;
 import com.example.KaizenStream_BE.entity.Withdraw;
+import com.example.KaizenStream_BE.enums.ErrorCode;
+import com.example.KaizenStream_BE.exception.AppException;
+import com.example.KaizenStream_BE.repository.WalletRepository;
 import com.example.KaizenStream_BE.service.UserService;
 import com.example.KaizenStream_BE.service.WithdrawService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +28,7 @@ public class WithdrawController {
 
     private final WithdrawService withdrawService;
     private final UserService userService;
+    private final WalletRepository walletRepository;
 
     // Tạo yêu cầu rút tiền (User)
     @PostMapping
@@ -47,6 +55,10 @@ public class WithdrawController {
         // Gọi withdraw service với user đã lấy được
         Withdraw withdraw = withdrawService.createWithdrawRequest(user, pointsRequested, bankName, bankAccount);
 
+        // Trả về response như cũ, thêm thông tin balance
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
+
         // Trả về response như cũ
         return WithdrawResponse.builder()
                 .withdrawId(withdraw.getWithdrawId())
@@ -58,6 +70,7 @@ public class WithdrawController {
                 .status(withdraw.getStatus())
                 .note(withdraw.getNote())
                 .createdAt(withdraw.getCreatedAt())
+                .balance(wallet.getBalance())  // Trả về số dư ví của người dùng
                 .build();
     }
 
@@ -123,5 +136,19 @@ public class WithdrawController {
                         .createdAt(withdraw.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/balance/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserBalance(@PathVariable String userId) {
+        User user = userService.getUserById(userId);
+
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", userId);
+        response.put("balance", wallet.getBalance());
+
+        return ResponseEntity.ok(response);
     }
 }

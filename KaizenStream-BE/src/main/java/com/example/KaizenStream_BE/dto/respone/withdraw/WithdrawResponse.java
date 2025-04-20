@@ -22,4 +22,6 @@ public class WithdrawResponse {
     private String note;
     private LocalDateTime createdAt;
 
+    // Thêm trường balance để chứa số điểm trong ví
+    private int balance;  // Số điểm trong ví của người dùng
 }
