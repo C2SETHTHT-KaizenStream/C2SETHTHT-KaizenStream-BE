@@ -3,6 +3,7 @@ package com.example.KaizenStream_BE.controller;
 import com.example.KaizenStream_BE.dto.respone.ChatResponse;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamViewCountRespone;
 import com.example.KaizenStream_BE.service.ChatService;
+import com.example.KaizenStream_BE.service.HistoryService;
 import com.example.KaizenStream_BE.service.LivestreamRedisService;
 import com.example.KaizenStream_BE.service.LivestreamService;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ public class WebsocketController {
     SimpMessagingTemplate messagingTemplate;
     LivestreamService livestreamService;
     LivestreamRedisService livestreamRedisService;
+    private final HistoryService historyService;
 //        @MessageMapping("/chat/{livestreamId}")
 //    public void sendMessage(@DestinationVariable String livestreamId, ChatResponse chatResponse) {
 //        chatResponse.setLivestreamId(livestreamId);
@@ -90,24 +92,48 @@ public class WebsocketController {
         messagingTemplate.convertAndSend("/live/streamer/" + livestreamId, respone);
         messagingTemplate.convertAndSend("/topic/livestream/watch/" + livestreamId, respone);
     }
-    @MessageMapping("/join/watch/{livestreamId}/{userId}")
-    public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
-        String keyViewCount = "livestream:viewCount:" + livestreamId;
-        String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
-        System.out.println("{userId}"+userId);
-        log.warn("{userId}"+userId);
-        // Tăng số lượt xem tổng thể (viewCount)
-        redisTemplate.opsForValue().increment(keyViewCount, 1);
+//    @MessageMapping("/join/watch/{livestreamId}/{userId}")
+//    public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
+//        String keyViewCount = "livestream:viewCount:" + livestreamId;
+//        String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
+//        System.out.println("{userId}"+userId);
+//        log.warn("{userId}"+userId);
+//        // Tăng số lượt xem tổng thể (viewCount)
+//        redisTemplate.opsForValue().increment(keyViewCount, 1);
+//
+//        // Tăng số người xem trực tiếp (currentViewers)
+//        redisTemplate.opsForValue().increment(keyCurrentViewers, 1);
+//
+//        // Lấy giá trị mới để gửi cho người dùng
+//        sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
+//        // In log cho việc tham gia
+//        System.out.println("User joined, livestreamId: " + livestreamId);
+//        log.warn("User joined, livestreamId: " + livestreamId);
+//    }
+@MessageMapping("/join/watch/{livestreamId}/{userId}")
+public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
+    String keyViewCount = "livestream:viewCount:" + livestreamId;
+    String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
+    System.out.println("{userId}"+userId);
+    log.warn("{userId}"+userId);
 
-        // Tăng số người xem trực tiếp (currentViewers)
-        redisTemplate.opsForValue().increment(keyCurrentViewers, 1);
+    // Tăng số lượt xem tổng thể (viewCount)
+    redisTemplate.opsForValue().increment(keyViewCount, 1);
 
-        // Lấy giá trị mới để gửi cho người dùng
-        sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
-        // In log cho việc tham gia
-        System.out.println("User joined, livestreamId: " + livestreamId);
-        log.warn("User joined, livestreamId: " + livestreamId);
-    }
+    // Tăng số người xem trực tiếp (currentViewers)
+    redisTemplate.opsForValue().increment(keyCurrentViewers, 1);
+
+    // Lấy giá trị mới để gửi cho người dùng
+    sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
+
+    // Gọi HistoryService để lưu thông tin lịch sử khi người dùng tham gia livestream
+    historyService.saveViewHistory(userId, livestreamId, 0);  // Ban đầu, thời gian xem là 0 giây
+
+    // In log cho việc tham gia
+    System.out.println("User joined, livestreamId: " + livestreamId);
+    log.warn("User joined, livestreamId: " + livestreamId);
+}
+
 
 
     @MessageMapping("/join/live/{livestreamId}")
