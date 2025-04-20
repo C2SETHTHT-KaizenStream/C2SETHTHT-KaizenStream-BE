@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -106,4 +106,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountStatus status = AccountStatus.ACTIVE;
+
+    @Column(name = "ban_until")
+    private LocalDateTime banUntil; // Thêm trường banUntil để lưu thời gian kết thúc cấm
 }

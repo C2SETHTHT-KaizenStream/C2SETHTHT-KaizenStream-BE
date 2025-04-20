@@ -2,10 +2,9 @@ package com.example.KaizenStream_BE.controller;
 
 
 import com.example.KaizenStream_BE.dto.request.email.EmailRequest;
+import com.example.KaizenStream_BE.dto.request.report.BanRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportActionResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportDetailResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportListResponse;
+import com.example.KaizenStream_BE.dto.respone.report.*;
 import com.example.KaizenStream_BE.entity.Report;
 import com.example.KaizenStream_BE.service.EmailService;
 import com.example.KaizenStream_BE.service.ReportService;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -34,39 +34,35 @@ public class ReportController {
     EmailService emailService;
 
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse<Report>> createReport(
+    public ApiResponse<ReportFormResponse> createReport(
             @RequestParam("reportType") String reportType,
             @RequestParam("description") String description,
             @RequestParam("userId") String userId,
             @RequestParam("livestreamId") String livestreamId,
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
-        // Tạo Logger
-        Logger logger = LoggerFactory.getLogger(getClass());
-        try {
-            Report report = reportService.createReport(reportType, description, userId,livestreamId, images);
 
-            return ResponseEntity.ok(
-                    ApiResponse.<Report>builder()
+        try {
+            ReportFormResponse report = reportService.createReport(reportType, description, userId,livestreamId, images);
+
+            return
+                    ApiResponse.<ReportFormResponse>builder()
                             .code(1000)
                             .message("true")
                             .result(report)
-                            .build()
-            );
+                            .build();
+
 
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<Report>builder()
+            return ApiResponse.<ReportFormResponse>builder()
                             .code(4000)
                             .message(e.getMessage())
-                            .build()
-            );
+                            .build();
+
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(
-                    ApiResponse.<Report>builder()
+            return ApiResponse.<ReportFormResponse>builder()
                             .code(5000)
                             .message("Error uploading images: " + e.getMessage())
-                            .build()
-            );
+                            .build();
         }
     }
 
@@ -108,9 +104,12 @@ public class ReportController {
     }
 
     @PostMapping("/ban/{reportId}")
-    public ApiResponse<ReportActionResponse> ban(@PathVariable String reportId) throws MessagingException{
-        ReportActionResponse result = reportService.ban(reportId);
-        emailService.sendHtmlEmail(reportId);
+    public ApiResponse<ReportActionResponse> ban(@PathVariable String reportId, @RequestBody BanRequest banRequest) throws MessagingException{
+        // Lấy dữ liệu từ BanRequest
+        String banReason = banRequest.getBanReason();
+        LocalDateTime banDuration = banRequest.getBanDuration();
+        ReportActionResponse result = reportService.ban(reportId, banDuration);
+        emailService.sendHtmlEmail(reportId,banReason, banDuration);
         return ApiResponse.<ReportActionResponse>builder()
                 .code(200)
                 .message("User has been banned successfully !")
@@ -118,13 +117,31 @@ public class ReportController {
                 .build();
     }
 
-    // API gửi email HTML
-    @PostMapping("/send-html/{reportId}")
-    public String sendHtmlEmail(@PathVariable String reportId) throws MessagingException {
 
-        emailService.sendHtmlEmail(reportId);
-        return "Email HTML đã được gửi!";
+
+    //Lấy notification report for admin
+    @GetMapping("/notify")
+    public ApiResponse<List<ReportNotifyResponse>> getNotifications(){
+        List<ReportNotifyResponse> report = reportService.getNotifications();
+        return ApiResponse.<List<ReportNotifyResponse>>builder()
+                .code(200)
+                .message("Get all report notification successfully !")
+                .result(report)
+                .build();
     }
+
+    @GetMapping("/ban-duration/{id}")
+    public ApiResponse<LocalDateTime> getdurationBan(@PathVariable String id){
+        return ApiResponse.<LocalDateTime>builder()
+                .code(200)
+                .message("Succcessfully")
+                .result(reportService.getDurationban(id))
+                .build();
+    }
+
+
+
+
 
 
 

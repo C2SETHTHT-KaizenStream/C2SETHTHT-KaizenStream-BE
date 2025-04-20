@@ -1,6 +1,5 @@
 package com.example.KaizenStream_BE.service;
 
-import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.entity.Wallet;
 import com.example.KaizenStream_BE.entity.Withdraw;
@@ -12,6 +11,7 @@ import com.example.KaizenStream_BE.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +22,7 @@ public class WithdrawService {
 
     private final WithdrawRepository withdrawRepo;
     private final WalletRepository walletRepo;
+     private final UserService userService;  // Thêm service để lấy thông tin user
 
     // Tạo yêu cầu rút tiền
     public Withdraw createWithdrawRequest(User user, int pointsRequested, String bankName, String bankAccount) {
@@ -57,14 +58,21 @@ public class WithdrawService {
 
     // Duyệt yêu cầu rút tiền
     public Withdraw approveWithdraw(String withdrawId) {
-        // Lấy thông tin người dùng từ context (Spring Security)
+        // Lấy JWT token từ context và trích xuất userId
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
+        String userId = null;
 
-        // Kiểm tra nếu người dùng là admin
-        if (!currentUser.getRoles().contains(Role.ADMIN)) {
-            throw new AppException(ErrorCode.PERMISSION_DENIED);
+        if (authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            userId = jwt.getSubject(); // Lấy userId từ JWT token
         }
+
+        if (userId == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXIST);
+        }
+
+        // Lấy thông tin người dùng từ service
+        User currentUser = userService.getUserById(userId);
 
         // Tìm yêu cầu rút tiền
         Withdraw withdraw = withdrawRepo.findById(withdrawId)
@@ -95,6 +103,23 @@ public class WithdrawService {
 
     // Từ chối yêu cầu rút tiền
     public Withdraw rejectWithdraw(String withdrawId, String note) {
+        // Lấy JWT token từ context và trích xuất userId
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = null;
+
+        if (authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            userId = jwt.getSubject(); // Lấy userId từ JWT token
+        }
+
+        if (userId == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXIST);
+        }
+
+        // Lấy thông tin người dùng từ service
+        User currentUser = userService.getUserById(userId);
+
+        // Tìm yêu cầu rút tiền
         Withdraw withdraw = withdrawRepo.findById(withdrawId)
                 .orElseThrow(() -> new AppException(ErrorCode.WITHDRAW_REQUEST_NOT_FOUND));
 
