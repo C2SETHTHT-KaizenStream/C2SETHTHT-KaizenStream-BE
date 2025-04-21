@@ -56,6 +56,9 @@ public class User {
 
 
     private int followerCount;
+//    @Column(name = "flowing_count", nullable = false)
+//    private Integer flowingCount = 0;
+
 
     @ManyToMany
     @JoinTable(

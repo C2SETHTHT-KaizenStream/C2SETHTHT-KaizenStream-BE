@@ -108,6 +108,7 @@ public class BlogService {
             throw new AppException(ErrorCode.BLOG_NOT_OWNER);
         }
 
+        blogLikeRepository.deleteByBlogId(id);
         // Xóa tất cả comment liên quan đến blog
         commentRepository.deleteByBlog_BlogId(id);
 
