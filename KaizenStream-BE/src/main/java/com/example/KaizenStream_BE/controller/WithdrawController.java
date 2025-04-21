@@ -35,7 +35,8 @@ public class WithdrawController {
     @PostMapping
     public WithdrawResponse createWithdrawRequest(@RequestParam int pointsRequested,
                                                   @RequestParam String bankName,
-                                                  @RequestParam String bankAccount) {
+                                                  @RequestParam String bankAccount,
+                                                  @RequestParam String bankHolder) {
         // Lấy JWT token từ context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -54,13 +55,12 @@ public class WithdrawController {
         User user = userService.getUserById(userId);
 
         // Gọi withdraw service với user đã lấy được
-        Withdraw withdraw = withdrawService.createWithdrawRequest(user, pointsRequested, bankName, bankAccount);
+        Withdraw withdraw = withdrawService.createWithdrawRequest(user, pointsRequested, bankName, bankAccount, bankHolder);
 
         // Trả về response như cũ, thêm thông tin balance
         Wallet wallet = walletRepository.findByUser(user)
                 .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
 
-        // Trả về response như cũ
         return WithdrawResponse.builder()
                 .withdrawId(withdraw.getWithdrawId())
                 .userId(withdraw.getUser().getUserId())
@@ -68,9 +68,11 @@ public class WithdrawController {
                 .usdExpected(withdraw.getUsdExpected())
                 .bankName(withdraw.getBankName())
                 .bankAccount(withdraw.getBankAccount())
+                .bankHolder(withdraw.getBankHolder()) // Trả về tên chủ tài khoản ngân hàng
                 .status(withdraw.getStatus())
                 .note(withdraw.getNote())
                 .createdAt(withdraw.getCreatedAt())
+                .updatedAt(withdraw.getUpdatedAt())
                 .balance(wallet.getBalance())  // Trả về số dư ví của người dùng
                 .build();
     }
@@ -90,9 +92,11 @@ public class WithdrawController {
                     .usdExpected(withdraw.getUsdExpected())
                     .bankName(withdraw.getBankName())
                     .bankAccount(withdraw.getBankAccount())
+                    .bankHolder(withdraw.getBankHolder())  // Trả về tên chủ tài khoản ngân hàng
                     .status(withdraw.getStatus())
                     .note(withdraw.getNote())
                     .createdAt(withdraw.getCreatedAt())
+                    .updatedAt(withdraw.getUpdatedAt())
                     .build();
         } catch (Exception e) {
             System.err.println("Error approving withdraw: " + e.getMessage());
@@ -113,9 +117,11 @@ public class WithdrawController {
                 .usdExpected(withdraw.getUsdExpected())
                 .bankName(withdraw.getBankName())
                 .bankAccount(withdraw.getBankAccount())
+                .bankHolder(withdraw.getBankHolder())  // Trả về tên chủ tài khoản ngân hàng
                 .status(withdraw.getStatus())
                 .note(withdraw.getNote())
                 .createdAt(withdraw.getCreatedAt())
+                .updatedAt(withdraw.getUpdatedAt())
                 .build();
     }
 
@@ -132,9 +138,11 @@ public class WithdrawController {
                         .usdExpected(withdraw.getUsdExpected())
                         .bankName(withdraw.getBankName())
                         .bankAccount(withdraw.getBankAccount())
+                        .bankHolder(withdraw.getBankHolder())  // Trả về tên chủ tài khoản ngân hàng
                         .status(withdraw.getStatus())
                         .note(withdraw.getNote())
                         .createdAt(withdraw.getCreatedAt())
+                        .updatedAt(withdraw.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

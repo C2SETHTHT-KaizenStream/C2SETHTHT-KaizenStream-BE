@@ -29,6 +29,9 @@ public class Withdraw {
     private double usdExpected;
 
     @Column(columnDefinition = "nvarchar(255)")
+    private String bankHolder; // tên chủ tài khoản ngân hàng
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String bankName;
 
     @Column(columnDefinition = "nvarchar(255)")
