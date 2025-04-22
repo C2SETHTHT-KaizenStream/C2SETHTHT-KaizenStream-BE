@@ -28,6 +28,29 @@ public interface LivestreamRepository extends JpaRepository<Livestream, String> 
     Page<Livestream> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     Page<Livestream> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 
+    @Query(value =
+            "SELECT FORMAT(DATEADD(MONTH, MONTH(start_time)-1, '2025-01-01'), 'MMM') AS month, " +
+                    "SUM(viewer_count) AS total_view_count " +
+                    "FROM livestreams " +
+                    "WHERE YEAR(start_time) = YEAR(GETDATE()) " +
+                    "GROUP BY MONTH(start_time) " +
+                    "ORDER BY MONTH(start_time)",
+            nativeQuery = true)
+    List<Object[]> getMonthlyViewerCounts();
 
+    @Query(value =
+            "SELECT TOP 4 " +
+                    "u.userID, " +
+                    "u.user_name, " +
+                    "p.avatar_url, " +
+                    "SUM(l.viewer_count) AS total_view_count " +
+                    "FROM livestreams l " +
+                    "JOIN users u ON l.userID = u.userID " +
+                    "JOIN profiles p ON p.userID = u.userID " +
+                    "WHERE YEAR(l.start_time) = YEAR(GETDATE()) " +   // Lọc các livestreams trong năm hiện tại
+                    "GROUP BY u.user_name, u.userID, p.avatar_url " +  // Nhóm theo người dùng (userID)
+                    "ORDER BY total_view_count DESC",
+            nativeQuery = true)
+    List<Object[]> getTopUsersByViewCount();
 
 }
