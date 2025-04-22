@@ -152,7 +152,7 @@ public class EmailService {
         """.formatted(username, lockedAt, username, lockDuration, reason);
     }
 
-    @Async
+//    @Async
     public void sendHtmlEmail(String reportId, String banReason, LocalDateTime banDuration) throws MessagingException {
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
 
@@ -165,8 +165,9 @@ public class EmailService {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-//            helper.setTo(report.getStream().getUser().getEmail());
-            helper.setTo("ahuyahihi4@gmail.com");
+            helper.setTo(report.getStream().getUser().getEmail());
+
+//            helper.setTo("huaphuminhhieu@gmail.com");
             helper.setSubject(subject);
             helper.setText(content, true); // true: gửi HTML
             helper.setFrom("viethuy03.tech@gmail.com");

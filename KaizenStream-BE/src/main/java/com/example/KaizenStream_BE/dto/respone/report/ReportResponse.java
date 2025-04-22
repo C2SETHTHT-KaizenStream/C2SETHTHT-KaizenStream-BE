@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReportResponse {
+    String reportId;
     String userAvatar;
     String userName;       // Tên của người gửi báo cáo
     LocalDateTime timestamp; // Thời gian gửi báo cáo

@@ -4,10 +4,13 @@ package com.example.KaizenStream_BE.controller;
 import com.example.KaizenStream_BE.dto.request.email.EmailRequest;
 import com.example.KaizenStream_BE.dto.request.report.BanRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.notification.NotificationResponse;
 import com.example.KaizenStream_BE.dto.respone.report.*;
 import com.example.KaizenStream_BE.entity.Report;
 import com.example.KaizenStream_BE.service.EmailService;
 import com.example.KaizenStream_BE.service.ReportService;
+
+import com.example.KaizenStream_BE.service.ResendService;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -32,6 +36,7 @@ public class ReportController {
 
     ReportService reportService;
     EmailService emailService;
+
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ApiResponse<ReportFormResponse> createReport(
@@ -117,6 +122,25 @@ public class ReportController {
                 .build();
     }
 
+    @PostMapping("/send")
+    public ResponseEntity<String> sendEmail(
+            @RequestParam String reportId,
+            @RequestParam String banReason,
+            @RequestParam String banDuration) {
+        try {
+            // Parse banDuration từ String sang LocalDateTime nếu cần
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            LocalDateTime parsedBanDuration = LocalDateTime.parse(banDuration, formatter);
+
+            // Gọi service gửi email
+            emailService.sendHtmlEmail(reportId, banReason, parsedBanDuration);
+
+            return ResponseEntity.ok("Email sent successfully");
+        } catch (Exception e) {
+            // Xử lý lỗi
+            return ResponseEntity.status(500).body("Error sending email: " + e.getMessage());
+        }
+    }
 
 
     //Lấy notification report for admin
@@ -139,9 +163,14 @@ public class ReportController {
                 .build();
     }
 
-
-
-
+    @GetMapping("/list-report")
+    public ApiResponse<List<ReportResponse>> getListReport(){
+        return ApiResponse.<List<ReportResponse>>builder()
+                .code(200)
+                .message("Get list report successfully !")
+                .result(reportService.getListReport())
+                .build();
+    }
 
 
 
