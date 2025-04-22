@@ -29,6 +29,7 @@ public class FollowerController {
         return ApiResponse.<String>builder().result("Unfollowed successfully!").build();
     }
 
+    //
     @GetMapping("/{userId}/followers")
     public ApiResponse<List<FollowRespone>> getFollowers(@PathVariable String userId) {
         return ApiResponse.<List<FollowRespone>>builder().result(followerService.getFollowers(userId)).build();

@@ -44,11 +44,12 @@ public class FollowerService {
                 .build();
         followerRepository.save(f);
 
-        following.setFollowerCount(following.getFollowerCount() + 1);
-        userRepository.save(following);
+//        following.setFollowerCount(following.getFollowerCount() + 1);
+//        userRepository.save(following);
 
-//        follower.setFlowingCount(follower.getFlowingCount() + 1);
+//       follower.setFollowingCount(follower.getFollowingCount() + 1);
 //        userRepository.save(follower);
+
     }
 
     public void unfollow(String followerId, String followingId) {

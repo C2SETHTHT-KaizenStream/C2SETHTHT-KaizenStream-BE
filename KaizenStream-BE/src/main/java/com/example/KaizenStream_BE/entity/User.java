@@ -5,10 +5,8 @@ import com.example.KaizenStream_BE.enums.AccountStatus;
 import com.example.KaizenStream_BE.enums.ReportStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -18,6 +16,8 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class User {
 
 
@@ -56,8 +56,7 @@ public class User {
 
 
     private int followerCount;
-//    @Column(name = "flowing_count", nullable = false)
-//    private Integer flowingCount = 0;
+
 
 
     @ManyToMany
@@ -112,4 +111,7 @@ public class User {
 
     @Column(name = "ban_until")
     private LocalDateTime banUntil; // Thêm trường banUntil để lưu thời gian kết thúc cấm
+
+//    @Column(name = "following_count")
+//    private Integer followingCount;
 }
