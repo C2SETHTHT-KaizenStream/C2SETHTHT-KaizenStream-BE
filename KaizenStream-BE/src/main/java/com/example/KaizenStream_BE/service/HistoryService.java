@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,14 +25,11 @@ public class HistoryService {
         Livestream livestream = livestreamRepository.findById(livestreamId)
                 .orElseThrow(() -> new RuntimeException("Livestream not found"));
 
-        History history = History.builder()
-                .user(user)
-                .livestream(livestream)
-                .action("VIEW")
-                .actionTime(new Date())
-                .watchDuration(durationSeconds)
-                .build();
-
+      History history = new History();
+      history.setUser(user );
+      history.setLivestream(livestream);
+      history.setActionTime(new Date());
+      history.setWatchDuration(0);
         historyRepository.save(history);
     }
 }
