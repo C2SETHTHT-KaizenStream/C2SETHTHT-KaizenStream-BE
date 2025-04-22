@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,8 +44,16 @@ public class FollowerService {
                 .followedAt(LocalDateTime.now())
                 .build();
         followerRepository.save(f);
+
+//        following.setFollowerCount(following.getFollowerCount() + 1);
+//        userRepository.save(following);
+
+//       follower.setFollowingCount(follower.getFollowingCount() + 1);
+//        userRepository.save(follower);
+
     }
 
+    @Transactional
     public void unfollow(String followerId, String followingId) {
         User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
