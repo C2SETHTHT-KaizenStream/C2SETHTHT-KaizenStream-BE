@@ -91,12 +91,29 @@ public class BlogService {
     }
 
 
+//    @Transactional
+//    public void deleteBlog(String id) {
+//        if (!blogRepository.existsById(id)) {
+//            throw new AppException(ErrorCode.BLOG_NOT_FOUND);
+//        }
+//        blogRepository.deleteById(id);
+//    }
+
     @Transactional
-    public void deleteBlog(String id) {
-        if (!blogRepository.existsById(id)) {
-            throw new AppException(ErrorCode.BLOG_NOT_FOUND);
+    public void deleteBlogOwner(String id, String userId) {
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+
+        if (!Objects.equals(blog.getUser().getUserId(), userId)) {
+            throw new AppException(ErrorCode.BLOG_NOT_OWNER);
         }
-        blogRepository.deleteById(id);
+
+        blogLikeRepository.deleteByBlogId(id);
+        // Xóa tất cả comment liên quan đến blog
+        commentRepository.deleteByBlog_BlogId(id);
+
+        // Xóa blog
+        blogRepository.delete(blog);
     }
 
     public List <BlogResponse> getBlogsByUserId(String userId) {

@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/C2SETHTHT-KaizenStream-BE.iml" filepath="$PROJECT_DIR$/.idea/C2SETHTHT-KaizenStream-BE.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/KaizenStream-BE.iml" filepath="$PROJECT_DIR$/.idea/KaizenStream-BE.iml" />
+        <module fileurl="file://$PROJECT_DIR$/KaizenStream-BE/KaizenStream-BE.iml" filepath="$PROJECT_DIR$/KaizenStream-BE/KaizenStream-BE.iml" />
     </modules>
   </component>
 </project>

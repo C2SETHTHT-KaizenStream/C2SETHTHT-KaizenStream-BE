@@ -40,6 +40,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -91,6 +92,14 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
         //Nếu tài khoản đã bị khóa
         if(user.getStatus() == AccountStatus.BANNED){
+            LocalDateTime currentTime = LocalDateTime.now();
+
+            if(user.getBanUntil() != null && user.getBanUntil().isBefore(currentTime)){
+                user.setStatus(AccountStatus.ACTIVE);
+                user.setBanUntil(null);
+                userRepository.save(user);
+
+            }
             return AuthenticationResponse.builder()
                     .authenticated(false)
                     .build();

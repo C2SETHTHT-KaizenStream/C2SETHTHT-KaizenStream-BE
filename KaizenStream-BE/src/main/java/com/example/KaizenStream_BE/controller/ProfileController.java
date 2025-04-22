@@ -129,6 +129,26 @@ public class ProfileController {
         }
     }
 
+    // Endpoint để đồng bộ avatar cho tất cả người dùng
+    @PutMapping("/sync-avatar")
+    public ApiResponse<String> syncAvatar() {
+        try {
+            // Gọi phương thức để đồng bộ avatar
+            profileService.initAvatarForUsers();
+            return ApiResponse.<String>builder()
+                    .message("Avatar synchronization completed successfully")
+                    .result("Avatar sync completed successfully")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<String>builder()
+                    .message("Error occurred during avatar sync: " + e.getMessage())
+                    .result("Error occurred during avatar sync")
+                    .build();
+        }
+    }
+
+    // Endpoint xóa thông tin người dùng
     @DeleteMapping("/{profileId}")
     public ApiResponse<String> deleteProfile(@PathVariable String profileId) {
         profileService.deleteProfile(profileId);

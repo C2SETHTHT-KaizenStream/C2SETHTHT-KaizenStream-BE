@@ -55,6 +55,8 @@ public class SecurityConfig {
             "notification/**",
             "/users/**",
             "/search/**",
+            "/withdraw",
+            "follow/**",
     };
 
     @Value("${fe-url}")

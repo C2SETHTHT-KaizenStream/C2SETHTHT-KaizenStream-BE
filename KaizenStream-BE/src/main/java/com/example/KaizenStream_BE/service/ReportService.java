@@ -1,10 +1,8 @@
 package com.example.KaizenStream_BE.service;
 
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.notification.NotificationResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportActionResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportDetailResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportListResponse;
-import com.example.KaizenStream_BE.dto.respone.report.ReportResponse;
+import com.example.KaizenStream_BE.dto.respone.report.*;
 import com.example.KaizenStream_BE.entity.*;
 import com.example.KaizenStream_BE.enums.AccountStatus;
 import com.example.KaizenStream_BE.enums.ErrorCode;
@@ -40,7 +38,7 @@ public class ReportService {
     /**
      * Tạo một report mới
      */
-    public Report createReport(String reportType, String description, String userId, String livestreamId,MultipartFile[] images) throws IOException {
+    public ReportFormResponse createReport(String reportType, String description, String userId, String livestreamId, MultipartFile[] images) throws IOException {
 
         //Upload nhiều ảnh và lấy URL
         List<String> imageUrls = images != null && images.length > 0
@@ -52,22 +50,35 @@ public class ReportService {
         messagingTemplate.convertAndSend("/topic/adminNotifications", notification);
         Livestream stream = livestreamRepository.findById(livestreamId)
                 .orElseThrow(() -> new AppException(ErrorCode.LIVESTREAM_NOT_EXIST));
+        LocalDateTime now = LocalDateTime.now();
         // Tạo và lưu Report
         Report report = new Report();
         report.setReportType(reportType);
         report.setDescription(description);
         report.setImages(imageUrls);
         report.setStream(stream);
-        report.setUser(user); // Gán User cho Report
-        report.setCreatedAt(LocalDateTime.now());
+        report.setUser(user);
+        report.setCreatedAt(now);
+
         //Tạo và lưu thông baó
         Notification notify = new Notification();
         notify.setUser(user);
-        notify.setCreateAt(LocalDateTime.now());
+        notify.setCreateAt(now);
         notify.setRead(false);
         notify.setContent(reportType);
         notificationRepository.save(notify);
-        return reportRepository.save(report);
+        reportRepository.save(report);
+
+        // Tạo ReportFormResponse để trả về
+        ReportFormResponse ref = new ReportFormResponse();
+        ref.setReportId(report.getReportId());
+        ref.setReportType(reportType);
+        ref.setDescription(description);
+        ref.setImages(imageUrls);
+        ref.setLivestreamId(stream.getLivestreamId());
+        ref.setUserId(user.getUserId());
+        ref.setCreatedAt(now);
+        return ref;
     }
 
 
@@ -150,13 +161,14 @@ public class ReportService {
         return response;
     }
 
-    public ReportActionResponse ban(String reportId) {
+    public ReportActionResponse ban(String reportId, LocalDateTime banDuration) {
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
         report.setStatus(ReportStatus.BANNED);
         reportRepository.save(report);
         //Khóa tài khoản vĩnh viễn
         User user = userRepository.findById(report.getStream().getUser().getUserId()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
         user.setStatus(AccountStatus.BANNED);
+        user.setBanUntil(banDuration);
         userRepository.save(user);
 
         ReportActionResponse response = new ReportActionResponse();
@@ -166,4 +178,25 @@ public class ReportService {
     }
 
 
+    public List<ReportNotifyResponse> getNotifications() {
+        List<Report> reports = reportRepository.findAll();
+        return reports.stream()
+                .map(report -> {
+                    Profile profile = profileRepository.findByUser_UserId(report.getUser().getUserId()).orElseThrow(()-> new AppException(ErrorCode.PROFILES_NOT_EXIST));
+                    String avatarUrl = profile != null ? profile.getAvatarUrl() : null;
+                    return new ReportNotifyResponse(
+                            report.getReportId(),
+                            avatarUrl,
+                            report.getUser().getUserName(),
+                            report.getCreatedAt()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    public LocalDateTime getDurationban(String id) {
+        User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+        LocalDateTime duration = user.getBanUntil();
+        return duration;
+    }
 }

@@ -45,16 +45,29 @@ public enum ErrorCode {
     BLOG_REQUIRED_CONTENT(2005, "Blog content is required", HttpStatus.BAD_REQUEST),
 
     COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND),
+    BLOG_NOT_OWNER(3002, "You are not the owner of this blog", HttpStatus.FORBIDDEN),
     ALREADY_FOLLOWING(1002,"Already_following",HttpStatus.OK),
 
+    LIVESTREAM_NOT_FOUND(4001, "Livestream does not exist", HttpStatus.NOT_FOUND),
 
-    ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK);
+    ACCOUNT_BANNED(1014, "This account has been banned", HttpStatus.OK),
+
+    // **Các lỗi liên quan đến yêu cầu rút tiền**
+    MINIMUM_WITHDRAW_POINTS(5001, "The minimum points for withdrawal is 5000.", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_POINTS(5002, "Insufficient points for withdrawal.", HttpStatus.BAD_REQUEST),
+    WITHDRAW_REQUEST_NOT_FOUND(5003, "Withdraw request not found.", HttpStatus.NOT_FOUND),
+    PERMISSION_DENIED(5004, "You do not have permission to approve withdrawal requests.", HttpStatus.FORBIDDEN),
+    ALREADY_PROCESSED(5005, "This withdraw request has already been processed.", HttpStatus.BAD_REQUEST),
+    WALLET_NOT_FOUND(5006, "Wallet not found.", HttpStatus.BAD_REQUEST),
+    PENDING_WITHDRAW_REQUEST (5007, "You have an ongoing withdraw request that is pending approval.",HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;
         this.code = code;
         this.statusCode=statusCode;
     }
+
+
 
     private  int code;
     private  String message;

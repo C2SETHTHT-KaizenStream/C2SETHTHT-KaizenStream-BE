@@ -6,6 +6,7 @@ import com.example.KaizenStream_BE.entity.Profile;
 import com.example.KaizenStream_BE.entity.Role;
 import com.example.KaizenStream_BE.entity.User;
 import com.example.KaizenStream_BE.entity.Wallet;
+import com.example.KaizenStream_BE.enums.AccountStatus;
 import com.example.KaizenStream_BE.enums.ErrorCode;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.mapper.UserMapper;
@@ -58,6 +59,7 @@ public class RegisterService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         user.setRoles(Collections.singletonList(role));
+        user.setStatus(AccountStatus.ACTIVE);
 
         userRepository.save(user);
 
