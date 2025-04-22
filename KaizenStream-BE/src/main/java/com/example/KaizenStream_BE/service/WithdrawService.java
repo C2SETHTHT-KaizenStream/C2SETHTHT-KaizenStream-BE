@@ -33,7 +33,7 @@ public class WithdrawService {
     private final WithdrawRepository withdrawRepository;
 
     // Tạo yêu cầu rút tiền
-    public Withdraw createWithdrawRequest(User user, int pointsRequested, String bankName, String bankAccount) {
+    public Withdraw createWithdrawRequest(User user, int pointsRequested, String bankName, String bankAccount, String bankHolder) {
         // Kiểm tra đủ số điểm yêu cầu tối thiểu (5000 Points)
         if (pointsRequested < 5000) {
             throw new AppException(ErrorCode.MINIMUM_WITHDRAW_POINTS);
@@ -58,6 +58,7 @@ public class WithdrawService {
                 .usdExpected(usdExpected)
                 .bankName(bankName)
                 .bankAccount(bankAccount)
+                .bankHolder(bankHolder) // thông tin chủ tài khoản ngân hàng
                 .status(WithdrawStatus.PENDING)
                 .build();
 
@@ -153,6 +154,7 @@ public class WithdrawService {
         return withdrawRepo.findAll();
     }
 
+    // Lấy lịch sử yêu cầu rút tiền của user đó
     public ApiResponse<List<WithdrawResponse>> getWithdrawHistory(String userId) {
         // Tìm user theo userId
         User user = userRepository.findById(userId)
@@ -175,6 +177,7 @@ public class WithdrawService {
                             .usdExpected(withdraw.getUsdExpected())
                             .bankName(withdraw.getBankName())
                             .bankAccount(withdraw.getBankAccount())
+                            .bankHolder(withdraw.getBankHolder()) // Lấy thông tin chủ tài khoản ngân hàng
                             .status(withdraw.getStatus())
                             .note(withdraw.getNote())
                             .createdAt(withdraw.getCreatedAt())

@@ -18,11 +18,11 @@
         private double usdExpected;
         private String bankName;
         private String bankAccount;
+        private String bankHolder; // tên chủ tài khoản ngân hàng
         private WithdrawStatus status;
         private String note;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
-        // Thêm trường balance để chứa số điểm trong ví
         private Integer balance;  // Số điểm trong ví của người dùng
     }

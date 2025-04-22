@@ -1,5 +1,7 @@
 package com.example.KaizenStream_BE.entity;
 
+import com.example.KaizenStream_BE.entity.Livestream;
+import com.example.KaizenStream_BE.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "history")
@@ -17,8 +19,9 @@ import java.util.List;
 @Builder
 public class History {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String historyId;
+    @GeneratedValue(strategy = GenerationType.UUID)  // Đảm bảo Hibernate sẽ tạo UUID cho cột này
+    @Column(name = "historyid", nullable = false)  // Đảm bảo không NULL
+    private UUID historyId;
 
     private String action;
     private Date actionTime;
@@ -27,12 +30,9 @@ public class History {
     @JoinColumn(name = "userID", nullable = false)
     private User user;
 
-    // Thêm trường để theo dõi livestream đã xem
     @ManyToOne
     @JoinColumn(name = "livestreamID")
     private Livestream livestream;
 
-    // Thêm trường để lưu thời gian xem
     private Integer watchDuration; // Tính bằng giây
 }
-
