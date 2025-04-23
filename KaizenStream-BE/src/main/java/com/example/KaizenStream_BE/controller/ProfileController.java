@@ -65,38 +65,38 @@ public class ProfileController {
         }
     }
     
-    // Keep the multipart version as well for backward compatibility
-    @PutMapping(value = "/{profileId}/form", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ProfileResponse> updateProfileMultipart(
-            @RequestParam(value = "request") String updateRequestJson,
-            @PathVariable String profileId) throws IOException {
-        
-        System.out.println("Received multipart request to update profile for profileId: " + profileId);
-        System.out.println("Request data: " + updateRequestJson);
-        
-        try {
-            // Convert JSON string to UpdateProfileRequest object
-            UpdateProfileRequest request = objectMapper.readValue(updateRequestJson, UpdateProfileRequest.class);
-            
-            System.out.println("Deserialized request object: " + request);
-            
-            // Gọi service để cập nhật profile (không bao gồm avatar)
-            ProfileResponse response = profileService.updateProfile(profileId, request, null);
-            
-            return ApiResponse.<ProfileResponse>builder()
-                    .message("Profile updated successfully")
-                    .result(response)
-                    .build();
-        } catch (Exception e) {
-            System.err.println("Error processing profile update: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Return a more specific error response
-            return ApiResponse.<ProfileResponse>builder()
-                    .message("Failed to update profile: " + e.getMessage())
-                    .build();
-        }
-    }
+//    // Keep the multipart version as well for backward compatibility
+//    @PutMapping(value = "/{profileId}/form", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ApiResponse<ProfileResponse> updateProfileMultipart(
+//            @RequestParam(value = "request") String updateRequestJson,
+//            @PathVariable String profileId) throws IOException {
+//
+//        System.out.println("Received multipart request to update profile for profileId: " + profileId);
+//        System.out.println("Request data: " + updateRequestJson);
+//
+//        try {
+//            // Convert JSON string to UpdateProfileRequest object
+//            UpdateProfileRequest request = objectMapper.readValue(updateRequestJson, UpdateProfileRequest.class);
+//
+//            System.out.println("Deserialized request object: " + request);
+//
+//            // Gọi service để cập nhật profile (không bao gồm avatar)
+//            ProfileResponse response = profileService.updateProfile(profileId, request, null);
+//
+//            return ApiResponse.<ProfileResponse>builder()
+//                    .message("Profile updated successfully")
+//                    .result(response)
+//                    .build();
+//        } catch (Exception e) {
+//            System.err.println("Error processing profile update: " + e.getMessage());
+//            e.printStackTrace();
+//
+//            // Return a more specific error response
+//            return ApiResponse.<ProfileResponse>builder()
+//                    .message("Failed to update profile: " + e.getMessage())
+//                    .build();
+//        }
+//    }
     
     // Endpoint chỉ để cập nhật avatar của profile
     @PutMapping(value = "/{profileId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
