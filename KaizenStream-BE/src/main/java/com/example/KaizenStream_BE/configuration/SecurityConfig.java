@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,17 +29,11 @@ public class SecurityConfig {
             "/auth/**",
             "/blogs/**",
             "/users/**",
-            "comments/**",
-            "*",
-            "/ws",
+            "/comments/**",
             "/ws/**",
-            "/ws/*/*",
             "/topic/notifications",
             "/api/stream/ws/info",
-            "/item/*",
-            "/item/update/**",
-            "/item/update/*",
-            "/api/stream/ws/info",
+            "/item/**",
             "/livestream/**",
             "/category/**",
             "/topic/**",
@@ -51,25 +44,18 @@ public class SecurityConfig {
             "/payment/**",
             "/report/**",
             "/leaderboard/**",
-            "/report/**",
-            "notification/**",
-            "/users/**",
+            "/notification/**",
             "/search/**",
-            "follow/**",
+            "/follow/**",
             "/withdraw",
-            "/chart/**",
-            "/chart/**/**"
+            "/chart/**"
     };
 
     @Value("${fe-url}")
     protected String feUrl;
-    //"/api/stream/blogs/**"
-    //"/api/stream/comments/**"
-    // private final String[] PUBLIC_ENDPOINTS = {"/auth/login", "/blogs/**","/comments/**", "/users/**"};
 
-    private CustomJwtDecoder customJwtDecoder;
-    private  CustomOAuth2UserService customOAuth2UserService;
-
+    private final CustomJwtDecoder customJwtDecoder;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder, CustomOAuth2UserService customOAuth2UserService) {
         this.customJwtDecoder = customJwtDecoder;
@@ -81,65 +67,52 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/ws/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
-
-
-
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl("http://localhost:8080/auth/oauth2/success", true)
                         .failureUrl("http://localhost:3000/login?error=true")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwtConfigurer -> jwtConfigurer
+                        .jwt(jwt -> jwt
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 );
-
-
-
 
         return http.build();
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+        converter.setAuthorityPrefix("");
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+        jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
+        return jwtConverter;
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(feUrl));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(feUrl));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Set-Cookie"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }
