@@ -50,4 +50,7 @@ public interface HistoryRepository extends JpaRepository<History, String> {
 
     // Lấy lịch sử xem gần đây nhất
     History findFirstByUser_UserIdAndActionOrderByActionTimeDesc(String userId, String action);
+
+
+    List<History> findByUser_UserId(String userId);
 }
