@@ -181,6 +181,10 @@ public void joinStream(@DestinationVariable String livestreamId, @DestinationVar
         // Lấy số lượt xem hiện tại và số người xem trực tiếp
         sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
 
+    }
+    @MessageMapping("/watch/report/{livestreamId}")
+    public void handleReportStream(@DestinationVariable String livestreamId) {
+        messagingTemplate.convertAndSend("/live/banned" + livestreamId, "Your live stream has been forcibly stopped for violating some platform regulations.");
 
     }
 
