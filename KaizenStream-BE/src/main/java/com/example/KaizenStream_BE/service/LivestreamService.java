@@ -2,6 +2,9 @@ package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
+import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.chart.MonthlyViewerCountDTO;
+import com.example.KaizenStream_BE.dto.respone.chart.TopUserDTO;
 import com.example.KaizenStream_BE.dto.respone.livestream.LivestreamRespone;
 import com.example.KaizenStream_BE.entity.*;
 import com.example.KaizenStream_BE.enums.ErrorCode;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -297,5 +301,91 @@ public class LivestreamService {
     }
 
 
+    // Phương thức lấy tổng lượt xem theo tháng
+    public ApiResponse<List<MonthlyViewerCountDTO>> getMonthlyViewerCounts() {
+        try {
+            // Lấy kết quả từ Repository
+            List<Object[]> results = livestreamRepository.getMonthlyViewerCounts();
 
+            // Nếu không có dữ liệu
+            if (results.isEmpty()) {
+                return ApiResponse.<List<MonthlyViewerCountDTO>>builder()
+                        .code(1001)
+                        .message("No data found")
+                        .result(null)
+                        .status("ERROR")
+                        .build();  // Trả về lỗi 1001 nếu không có kết quả
+            }
+
+            // Chuyển đổi kết quả thành DTO
+            List<MonthlyViewerCountDTO> viewerCounts = new ArrayList<>();
+            for (Object[] result : results) {
+                String month = (String) result[0];  // Tháng (Jan, Feb, Mar, ...)
+                int views = (int) result[1];        // Tổng số lượt xem trong tháng
+                viewerCounts.add(new MonthlyViewerCountDTO(month, views));
+            }
+
+            // Trả về dữ liệu thành công
+            return ApiResponse.<List<MonthlyViewerCountDTO>>builder()
+                    .code(1000)
+                    .message("Monthly viewer counts fetched successfully")
+                    .result(viewerCounts)
+                    .status("SUCCESS")
+                    .build();  // Trả về DTO
+
+        } catch (Exception e) {
+            // Trả về lỗi nếu gặp ngoại lệ
+            return ApiResponse.<List<MonthlyViewerCountDTO>>builder()
+                    .code(1002)
+                    .message("An error occurred: " + e.getMessage())
+                    .result(null)
+                    .status("ERROR")
+                    .build();  // Trả về lỗi khi có ngoại lệ
+        }
+    }
+
+    public ApiResponse<List<TopUserDTO>> getTopUsersByViewCount() {
+        try {
+            // Lấy kết quả từ Repository
+            List<Object[]> results = livestreamRepository.getTopUsersByViewCount();
+
+            // Nếu không có dữ liệu
+            if (results.isEmpty()) {
+                return ApiResponse.<List<TopUserDTO>>builder()
+                        .code(1001)
+                        .message("No data found")
+                        .result(null)
+                        .status("ERROR")
+                        .build();  // Trả về lỗi 1001 nếu không có kết quả
+            }
+
+            // Chuyển đổi kết quả thành DTO
+            List<TopUserDTO> topUsers = new ArrayList<>();
+            for (Object[] result : results) {
+                String userID = (String) result[0];  // userID
+                String userName = (String) result[1]; // user_name
+                String avatarUrl = (String) result[2]; // avatar_url
+                int totalViewCount = (int) result[3];  // total_view_count
+
+                topUsers.add(new TopUserDTO(userID, userName, avatarUrl, totalViewCount));
+            }
+
+            // Trả về dữ liệu thành công
+            return ApiResponse.<List<TopUserDTO>>builder()
+                    .code(1000)
+                    .message("Top users by view count fetched successfully")
+                    .result(topUsers)
+                    .status("SUCCESS")
+                    .build();  // Trả về DTO
+
+        } catch (Exception e) {
+            // Trả về lỗi nếu gặp ngoại lệ
+            return ApiResponse.<List<TopUserDTO>>builder()
+                    .code(1002)
+                    .message("An error occurred: " + e.getMessage())
+                    .result(null)
+                    .status("ERROR")
+                    .build();  // Trả về lỗi khi có ngoại lệ
+        }
+    }
 }

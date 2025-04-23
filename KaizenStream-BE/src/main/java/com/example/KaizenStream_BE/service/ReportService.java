@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
+import com.example.KaizenStream_BE.dto.respone.chart.MonthValue;
 import com.example.KaizenStream_BE.dto.respone.notification.NotificationResponse;
 import com.example.KaizenStream_BE.dto.respone.report.*;
 import com.example.KaizenStream_BE.entity.*;
@@ -12,6 +13,7 @@ import com.example.KaizenStream_BE.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -20,9 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -40,14 +45,14 @@ public class ReportService {
      */
     public ReportFormResponse createReport(String reportType, String description, String userId, String livestreamId, MultipartFile[] images) throws IOException {
 
+        log.warn("Tạo một report mới");
         //Upload nhiều ảnh và lấy URL
         List<String> imageUrls = images != null && images.length > 0
                 ? cloudinaryService.uploadMultipleImages(images)
                 : null;
         User user=userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));;
         Profile profile = profileRepository.findByUser_UserId(userId).orElseThrow(()-> new AppException(ErrorCode.PROFILES_NOT_EXIST));
-        ReportResponse notification = new ReportResponse(profile.getAvatarUrl(),user.getUserName(), LocalDateTime.now());
-        messagingTemplate.convertAndSend("/topic/adminNotifications", notification);
+
         Livestream stream = livestreamRepository.findById(livestreamId)
                 .orElseThrow(() -> new AppException(ErrorCode.LIVESTREAM_NOT_EXIST));
         LocalDateTime now = LocalDateTime.now();
@@ -59,6 +64,7 @@ public class ReportService {
         report.setStream(stream);
         report.setUser(user);
         report.setCreatedAt(now);
+        Report res = reportRepository.save(report);
 
         //Tạo và lưu thông baó
         Notification notify = new Notification();
@@ -67,7 +73,9 @@ public class ReportService {
         notify.setRead(false);
         notify.setContent(reportType);
         notificationRepository.save(notify);
-        reportRepository.save(report);
+
+        ReportResponse notification = new ReportResponse(res.getReportId(),profile.getAvatarUrl(),user.getUserName(), LocalDateTime.now());
+        messagingTemplate.convertAndSend("/topic/adminNotifications", notification);
 
         // Tạo ReportFormResponse để trả về
         ReportFormResponse ref = new ReportFormResponse();
@@ -198,5 +206,65 @@ public class ReportService {
         User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
         LocalDateTime duration = user.getBanUntil();
         return duration;
+    }
+
+    public List<ReportResponse> getListReport() {
+        List<Report> reports = reportRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+        return reports.stream()
+                .map(
+
+                        report->{
+                            Profile profile = profileRepository.findByUser_UserId(report.getUser().getUserId()).orElseThrow(()-> new AppException(ErrorCode.PROFILES_NOT_EXIST));
+                            return new ReportResponse(
+                                   report.getReportId(),
+                                    profile.getAvatarUrl(),
+                                    report.getUser().getUserName(),
+                                    report.getCreatedAt()
+                            );
+                        }
+                )
+                .collect(Collectors.toList());
+    }
+
+    public ApiResponse<List<MonthValue>> getReportCountByMonth() {
+        try {
+            // Lấy kết quả từ Repository
+            List<Object[]> results = reportRepository.findReportCountByMonth();
+
+            // Nếu không có dữ liệu
+            if (results.isEmpty()) {
+                return ApiResponse.<List<MonthValue>>builder()
+                        .code(1001)
+                        .message("No reports found")
+                        .result(null)
+                        .status("ERROR")
+                        .build();  // Trả về lỗi 1001 nếu không có kết quả
+            }
+
+            // Chuyển đổi List<Object[]> thành List<MonthValue>
+            List<MonthValue> monthValues = new ArrayList<>();
+            for (Object[] entry : results) {
+                String month = (String) entry[0];  // Lấy tên tháng
+                int value = (Integer) entry[1];    // Lấy số báo cáo
+                monthValues.add(new MonthValue(month, value));  // Thêm vào danh sách
+            }
+
+            // Trả về dữ liệu thành công
+            return ApiResponse.<List<MonthValue>>builder()
+                    .code(1000)
+                    .message("Reports fetched successfully")
+                    .result(monthValues)
+                    .status("SUCCESS")
+                    .build();  // Trả về kết quả thành công
+
+        } catch (Exception e) {
+            // Trả về lỗi nếu gặp ngoại lệ
+            return ApiResponse.<List<MonthValue>>builder()
+                    .code(1002)
+                    .message("An error occurred: " + e.getMessage())
+                    .result(null)
+                    .status("ERROR")
+                    .build();  // Trả về lỗi 1002 khi có ngoại lệ
+        }
     }
 }
