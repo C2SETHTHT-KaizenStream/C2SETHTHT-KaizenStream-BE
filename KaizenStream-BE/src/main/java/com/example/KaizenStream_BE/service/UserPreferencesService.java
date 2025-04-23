@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -39,38 +40,39 @@ public class UserPreferencesService {
     }
 
     // Cập nhật preferences thủ công (tags, categories truyền vào)
-    @Transactional
-    public void updatePreferences(String userId, Set<String> tags, Set<String> categories) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public UserPreferences updatePreferences(String userId, Set<String> tags, Set<String> categories) {
         log.info("Updating preferences for user: {}", userId);
 
         if (tags == null || categories == null) {
             log.warn("Tags or categories are null for user: {}", userId);
-            return;
+            return null;
         }
 
         // Kiểm tra nếu preferences đã tồn tại và cập nhật chúng
-        userPreferencesRepository.findByUser_UserId(userId)
-                .ifPresentOrElse(
-                        preferences -> {
-                            preferences.setPreferredTags(tags);  // Cập nhật tags
-                            preferences.setPreferredCategories(categories);  // Cập nhật categories
-                            preferences.setUpdatedAt(new Date());  // Cập nhật thời gian cập nhật
-                            userPreferencesRepository.save(preferences);  // Lưu lại sau khi cập nhật
-                        },
-                        () -> {
-                            log.warn("No preferences found for user: {}", userId);
-                            // Lấy đối tượng User từ userId
-                            User user = userRepository.findById(userId)
-                                    .orElseThrow(() -> new RuntimeException("User not found"));
-                            // Tạo mới UserPreferences nếu không tồn tại
-                            createNewPreferences(user, tags, categories);  // Gọi phương thức tạo mới nếu không có preferences
-                        }
-                );
+        return userPreferencesRepository.findByUser_UserId(userId)
+                .map(preferences -> {
+                    log.info("Update preferences");
+                    preferences.setPreferredTags(tags);  // Cập nhật tags
+                    preferences.setPreferredCategories(categories);  // Cập nhật categories
+                    preferences.setUpdatedAt(new Date());  // Cập nhật thời gian cập nhật
+                    return userPreferencesRepository.save(preferences);  // Lưu lại sau khi cập nhật
+                })
+                .orElseGet(() -> {
+                    log.warn("No preferences found for user: {}", userId);
+                    // Lấy đối tượng User từ userId
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+                    // Tạo mới UserPreferences nếu không tồn tại
+                    UserPreferences newPreferences = createNewPreferences(user, tags, categories);
+                    log.info("Create done");
+                    return userPreferencesRepository.save(newPreferences);  // Lưu lại preferences mới
+                });
     }
 
     // Cập nhật preferences tự động từ history xem nhiều nhất
-    @Transactional
-    public void updatePreferencesFromHistory(String userId) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public UserPreferences updatePreferencesFromHistory(String userId) {
         log.info("Updating preferences from history for user: {}", userId);
 
         // Lấy tất cả lịch sử của người dùng
@@ -92,7 +94,7 @@ public class UserPreferencesService {
         }
 
         // Cập nhật sở thích người dùng với tags và categories từ lịch sử
-        updatePreferences(userId, tags, categories);  // Gọi phương thức updatePreferences để lưu vào UserPreferences
+        return updatePreferences(userId, tags, categories);  // Gọi phương thức updatePreferences để lưu vào UserPreferences
     }
 
     // Update viewCount mỗi lần user xem livestream

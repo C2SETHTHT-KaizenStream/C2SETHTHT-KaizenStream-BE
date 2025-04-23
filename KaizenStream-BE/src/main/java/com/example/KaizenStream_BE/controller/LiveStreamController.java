@@ -20,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
@@ -42,7 +44,7 @@ public class LiveStreamController {
     LivestreamMapper livestreamMapper;
     // private final Map<String, Process> syncProcesses = new HashMap<>();
     private static Process syncProcess = null; // Chỉ có một tiến trình đồng bộ HLS
-    @Autowired
+//    @Autowired
 //    private HistoryService historyService;
 
     private static  final AtomicInteger activeStreams = new AtomicInteger(0); // Đếm số luồng đang stream
@@ -74,6 +76,19 @@ public class LiveStreamController {
     ) {
         return ApiResponse.<Page<LivestreamRespone>>builder()
                 .result(livestreamService.getAllPaginated(page, size))
+                .build();
+    }
+
+    @GetMapping("/get-streamer-top-viewer/{userId}")
+    public ApiResponse<Page<LivestreamRespone>> getStreamerTopViewer(
+            @PathVariable("userId") String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        auth.getPrincipal();
+        return ApiResponse.<Page<LivestreamRespone>>builder()
+                .result(livestreamService.getRecommendedLivestreams(userId, page, size))
                 .build();
     }
 

@@ -23,7 +23,6 @@ public class SuggestionController {
     public ResponseEntity<ApiResponse<List<SuggestionResponse>>> getSuggestions(
             @PathVariable String userId,
             @RequestParam(defaultValue = "10") @Valid Integer limit) {
-
         SuggestionRequest request = SuggestionRequest.builder()
                 .userId(userId)
                 .limit(limit)
