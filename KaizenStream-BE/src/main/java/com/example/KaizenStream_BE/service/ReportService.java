@@ -13,6 +13,7 @@ import com.example.KaizenStream_BE.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -43,6 +45,7 @@ public class ReportService {
      */
     public ReportFormResponse createReport(String reportType, String description, String userId, String livestreamId, MultipartFile[] images) throws IOException {
 
+        log.warn("Tạo một report mới");
         //Upload nhiều ảnh và lấy URL
         List<String> imageUrls = images != null && images.length > 0
                 ? cloudinaryService.uploadMultipleImages(images)
