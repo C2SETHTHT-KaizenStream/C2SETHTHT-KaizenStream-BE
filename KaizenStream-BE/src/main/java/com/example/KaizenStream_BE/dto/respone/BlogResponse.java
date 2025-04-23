@@ -19,6 +19,7 @@ public class BlogResponse {
     private String userName;
     private int commentCount;
     private String imageUrl;
+//    private boolean liked;
 
 //    public BlogResponse(Blog blog) {
 
@@ -48,5 +49,6 @@ public class BlogResponse {
         this.userName = blog.getUser() != null ? blog.getUser().getUserName() : null;
         this.commentCount = blog.getComments() != null ? blog.getComments().size() : 0;
         this.imageUrl = blog.getImageUrl();
+//        this.liked = blog.isLiked();
     }
 }
