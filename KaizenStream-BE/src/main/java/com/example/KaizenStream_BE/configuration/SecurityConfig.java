@@ -27,13 +27,21 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/auth/**",
-            //"/blogs/**",
-//            "/users/**",
-            "/comments/**",
+           // "/blogs/**",
+           // "/users/**",
+            "comments/**",
+            "*",
+            "/ws",
             "/ws/**",
+            "/ws/*/*",
             "/topic/notifications",
             "/api/stream/ws/info",
-            "/item/**",
+            "/item/*",
+            "/item/update/**",
+            "/item/update/*",
+            "/api/stream/ws/info",
+            "/api/stream/**",
+            "/profile/**",
             "/livestream/**",
             "/category/**",
             "/topic/**",
@@ -44,11 +52,14 @@ public class SecurityConfig {
             "/payment/**",
             "/report/**",
             "/leaderboard/**",
-            "/notification/**",
+            "/report/**",
+            "notification/**",
+            "/users/**",
             "/search/**",
-//            "/follow/**",
+           // "follow/**",
             "/withdraw",
-            "/chart/**"
+            "/chart/**",
+            "/chart/**/**"
     };
 
     @Value("${fe-url}")
@@ -69,6 +80,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
