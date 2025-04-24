@@ -21,10 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -45,10 +42,19 @@ public class RegisterService {
 
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
-        Role role = new Role("1","USER" );
+//        Role role = new Role("1","USER" );
+//        if (role == null) {
+//            throw new AppException(ErrorCode.INVALID_ROLE);
+//        }
+        // Kiểm tra xem Role đã tồn tại chưa, nếu chưa thì tạo mới
+        Role role = roleRepository.findByName("USER");
         if (role == null) {
-            throw new AppException(ErrorCode.INVALID_ROLE);
+            // Tạo mới Role nếu chưa có
+            role = new Role("1", "USER");
+            roleRepository.save(role);  // Lưu Role vào database
         }
+        Role role1 = new Role("1", "USER");
+        List<Role> roles = Arrays.asList(role1);
 
         // Kiểm tra username đã tồn tại chưa
         if (userRepository.existsByUserName(registerRequest.getUserName())) {
@@ -58,7 +64,7 @@ public class RegisterService {
         User user = userMapper.toUser(registerRequest);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
-        user.setRoles(Collections.singletonList(role));
+        user.setRoles(roles);
         user.setStatus(AccountStatus.ACTIVE);
 
         userRepository.save(user);

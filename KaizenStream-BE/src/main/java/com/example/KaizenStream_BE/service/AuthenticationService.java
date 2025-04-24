@@ -119,12 +119,13 @@ public class AuthenticationService {
 
         // Set refresh token in cookie
         addRefreshTokenCookie(response, refreshToken);
-
+        String role = user.getRoles().isEmpty() ? "No Role" : user.getRoles().get(0).getName();
         // Return minimal response without userName
         return AuthenticationResponse.builder()
                 .token(accessToken)
                 .userId(user.getUserId())
                 .userName(user.getUserName())
+                .role(role)
                 .authenticated(true)
                 .build();
     }
