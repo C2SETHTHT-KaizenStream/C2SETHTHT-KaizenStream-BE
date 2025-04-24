@@ -34,10 +34,13 @@ public class SuggestionService {
         int limit = adjustLimit(request.getLimit());
 
         // Step 1: Update preferences from history
-        userPreferencesService.updatePreferencesFromHistory(request.getUserId());
+        UserPreferences preferences = userPreferencesService.updatePreferencesFromHistory(request.getUserId());
 
+        if (preferences == null) {
+            throw new IllegalArgumentException("User preferences not found");
+        }
         // Step 2: Get latest preferences
-        UserPreferences preferences = getUserPreferences(request.getUserId());
+//        UserPreferences preferences = getUserPreferences(request.getUserId());
 
         // Step 3: Get livestreams active
         List<Livestream> livestreams = getActiveLivestreams(limit);

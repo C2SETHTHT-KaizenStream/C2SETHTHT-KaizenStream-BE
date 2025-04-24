@@ -25,6 +25,8 @@ public class User {
     @Column(name = "userID")
     @GeneratedValue(strategy = GenerationType.UUID)
     private String userId;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private UserPreferences userPreferences;
 
 
     @Column(columnDefinition = "nvarchar(255)")
