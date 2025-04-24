@@ -184,7 +184,7 @@ public void joinStream(@DestinationVariable String livestreamId, @DestinationVar
     }
     @MessageMapping("/watch/report/{livestreamId}")
     public void handleReportStream(@DestinationVariable String livestreamId) {
-        messagingTemplate.convertAndSend("/live/banned" + livestreamId, "Your live stream has been forcibly stopped for violating some platform regulations.");
+        messagingTemplate.convertAndSend("/live/banned/" + livestreamId, "Your live stream has been forcibly stopped for violating some platform regulations.");
 
     }
 
