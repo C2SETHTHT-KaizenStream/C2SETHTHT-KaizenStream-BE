@@ -47,6 +47,8 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(3001, "Comment does not exist", HttpStatus.NOT_FOUND),
     BLOG_NOT_OWNER(3002, "You are not the owner of this blog", HttpStatus.FORBIDDEN),
     ALREADY_FOLLOWING(1002,"Already_following",HttpStatus.OK),
+    BLOG_ALREADY_LIKED(3003, "You have already liked this blog", HttpStatus.BAD_REQUEST),
+    BLOG_NOT_LIKED(3004, "You have not liked this blog", HttpStatus.BAD_REQUEST),
 
     LIVESTREAM_NOT_FOUND(4001, "Livestream does not exist", HttpStatus.NOT_FOUND),
 
@@ -60,6 +62,7 @@ public enum ErrorCode {
     ALREADY_PROCESSED(5005, "This withdraw request has already been processed.", HttpStatus.BAD_REQUEST),
     WALLET_NOT_FOUND(5006, "Wallet not found.", HttpStatus.BAD_REQUEST),
     PENDING_WITHDRAW_REQUEST (5007, "You have an ongoing withdraw request that is pending approval.",HttpStatus.BAD_REQUEST);
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.message = message;

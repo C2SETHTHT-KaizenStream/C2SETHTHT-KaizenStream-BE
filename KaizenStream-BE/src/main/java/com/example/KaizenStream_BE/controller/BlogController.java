@@ -28,14 +28,6 @@ public class BlogController {
      BlogService blogService;
      BlogMapper blogMapper;
 
-
-//     @CrossOrigin(origins = "http://localhost:5173")
-//    @GetMapping
-//    public ResponseEntity<List<BlogResponse>> getAllBlogs() {
-//        List<BlogResponse> blogs = blogService.getAllBlogs();
-//        return ResponseEntity.ok(blogs);
-//    }
-
     @GetMapping
     public ResponseEntity<Page<BlogResponse>> getAllBlogs(
             @RequestParam(defaultValue = "0") int page,
@@ -47,31 +39,13 @@ public class BlogController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BlogResponse> getBlogById(@PathVariable String id) {
-//        Blog blog = blogService.getBlogById(id);
-//        return ResponseEntity.ok(new BlogResponse(blog));
         BlogResponse blog = blogService.getBlogById(id);
         return ResponseEntity.ok(blog);
     }
 
 
 
-//    @PostMapping(value = "/create", consumes = {"multipart/form-data", "application/json"})
-//    public ResponseEntity<BlogResponse> createBlog(
-//            @RequestPart(value = "blog", required = false) BlogCreateRequest blogRequestJson,
-//            @RequestBody(required = false) BlogCreateRequest blogRequestBody,
-//            @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
-//
-//        BlogCreateRequest blogRequest = blogRequestJson != null ? blogRequestJson : blogRequestBody;
-//
-//        if (blogRequest == null) {
-//            throw new IllegalArgumentException("Blog request is required");
-//        }
-//
-//        Blog blog = blogService.createBlogWithImage(blogRequest, image);
-//        BlogResponse blogResponse = blogMapper.toBlogResponse(blog);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(blogResponse);
-//    }
+
 
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
@@ -129,20 +103,39 @@ public class BlogController {
         return ResponseEntity.ok(blogs);
     }
 
+    @PostMapping("/{id}/like/{userId}")
+    public ResponseEntity<BlogLikeResponse> likeBlog(@PathVariable String id, @PathVariable String userId) {
+        blogService.likeBlog(id, userId);
 
+        BlogResponse blog = blogService.getBlogById(id);
+        BlogLikeResponse response = new BlogLikeResponse("Liked", true, blog.getLikeCount());
 
-    @PutMapping("/{id}/like")
-    public ResponseEntity<BlogLikeResponse> toggleLikeBlog(@PathVariable String id, @RequestParam String userId) {
-        return ResponseEntity.ok(blogService.toggleLikeBlog(id, userId));
+        return ResponseEntity.ok(response);
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<Page<BlogResponse>> searchBlogs(@RequestParam String query,
-//                                                          @RequestParam int page,
-//                                                          @RequestParam int size) {
-//        Page<BlogResponse> blogResponses = blogService.searchBlogs(query, page, size);
-//        return ResponseEntity.ok(blogResponses);
-//    }
+
+    @DeleteMapping("/{id}/unlike/{userId}")
+    public ResponseEntity<BlogLikeResponse> unlikeBlog(@PathVariable String id, @PathVariable String userId) {
+        System.out.println("Received userId: " + userId); // Debugging
+        blogService.unlikeBlog(id, userId);
+
+        BlogResponse blog = blogService.getBlogById(id);
+        BlogLikeResponse response = new BlogLikeResponse("Unliked", false, blog.getLikeCount());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/likes")
+    public ResponseEntity<List<BlogLikeResponse>> getLikes(@PathVariable String id) {
+        List<BlogLikeResponse> likes = blogService.getLikes(id);
+        return ResponseEntity.ok(likes);
+    }
+
+
+
+
+
+
 
 
 

@@ -29,10 +29,7 @@ import com.cloudinary.utils.ObjectUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,13 +88,6 @@ public class BlogService {
     }
 
 
-//    @Transactional
-//    public void deleteBlog(String id) {
-//        if (!blogRepository.existsById(id)) {
-//            throw new AppException(ErrorCode.BLOG_NOT_FOUND);
-//        }
-//        blogRepository.deleteById(id);
-//    }
 
     @Transactional
     public void deleteBlogOwner(String id, String userId) {
@@ -109,10 +99,8 @@ public class BlogService {
         }
 
         blogLikeRepository.deleteByBlogId(id);
-        // Xóa tất cả comment liên quan đến blog
         commentRepository.deleteByBlog_BlogId(id);
 
-        // Xóa blog
         blogRepository.delete(blog);
     }
 
@@ -135,38 +123,9 @@ public class BlogService {
         return (String) uploadResult.get("url");
     }
 
-    @Transactional
-    public void likeBlog(String blogId) {
-        Blog blog = blogRepository.findById(blogId)
-                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
 
-        blog.setLikeCount(blog.getLikeCount() + 1);
-        blogRepository.save(blog);
-    }
 
-    @Transactional
-    public BlogLikeResponse toggleLikeBlog(String blogId, String userId) {
-        Blog blog = blogRepository.findById(blogId)
-                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
 
-        boolean isLiked = blogLikeRepository.existsByUserIdAndBlogId(userId, blogId);
-
-        if (isLiked) {
-            blogLikeRepository.deleteByUserIdAndBlogId(userId, blogId);
-            blog.setLikeCount(blog.getLikeCount() - 1);
-        } else {
-            BlogLike blogLike = new BlogLike();
-            blogLike.setBlogId(blogId);
-            blogLike.setUserId(userId);
-            blogLike.setLikedAt(LocalDateTime.now());
-            blogLikeRepository.save(blogLike);
-            blog.setLikeCount(blog.getLikeCount() + 1);
-        }
-
-        blogRepository.save(blog);
-
-        return new BlogLikeResponse(isLiked ? "Unliked" : "Liked", !isLiked, blog.getLikeCount());
-    }
 
 
     public Page<BlogResponse> searchBlogs(String query, int page, int size) {
@@ -178,6 +137,106 @@ public class BlogService {
         }
 
         return blogPage.map(blogMapper::toBlogResponse);
+    }
+
+
+
+//    @Transactional
+//    public void likeBlog(String blogId, String userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+//
+//        // Kiểm tra blog
+//        Blog blog = blogRepository.findById(blogId)
+//                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+//
+//        // Kiểm tra xem người dùng đã thích blog này chưa
+//        Optional<BlogLike> existingLike = blogLikeRepository.findByUserAndBlog(user, blog);
+//        if (existingLike.isPresent()) {
+//            throw new AppException(ErrorCode.BLOG_ALREADY_LIKED); // Nếu đã like rồi
+//        }
+//
+//        // Tạo đối tượng BlogLike mới
+//        BlogLike blogLike = new BlogLike();
+//        blogLike.setUserId(userId);  // Gán userId
+//        blogLike.setBlogId(blogId);  // Gán blogId
+//        blogLike.setLikedAt(LocalDateTime.now());  // Gán thời gian
+//
+//        blogLikeRepository.save(blogLike);  // Lưu BlogLike vào cơ sở dữ liệu
+//
+//        // Cập nhật lại số lượng like của blog
+//        blog.setLikeCount(blog.getLikeCount() + 1);
+//        blogRepository.save(blog);
+//    }
+//
+//
+//
+//    // Unlike một blog
+//    @Transactional
+//    public void unlikeBlog(String blogId, String userId) {
+//        Blog blog = blogRepository.findById(blogId)
+//                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+//
+//        BlogLike blogLike = blogLikeRepository.findByUserAndBlog(user, blog)
+//                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_LIKED));
+//
+//        blogLikeRepository.delete(blogLike);
+//
+//        blog.setLikeCount(blog.getLikeCount() - 1);
+//        blogRepository.save(blog);
+//    }
+
+    @Transactional
+    public void likeBlog(String blogId, String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+
+        Optional<BlogLike> existingLike = blogLikeRepository.findByUserAndBlog(user, blog);
+        if (existingLike.isPresent()) {
+            throw new AppException(ErrorCode.BLOG_ALREADY_LIKED);
+        }
+
+        // Thực hiện like
+        BlogLike blogLike = new BlogLike();
+        blogLike.setUserId(userId);
+        blogLike.setBlogId(blogId);
+        blogLike.setLikedAt(LocalDateTime.now());
+
+        blogLikeRepository.save(blogLike);
+        blog.setLikeCount(blog.getLikeCount() + 1);
+        blogRepository.save(blog);
+    }
+
+    @Transactional
+    public void unlikeBlog(String blogId, String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+
+        BlogLike blogLike = blogLikeRepository.findByUserAndBlog(user, blog)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_LIKED));
+
+        blogLikeRepository.delete(blogLike);
+        blog.setLikeCount(blog.getLikeCount() - 1);
+        blogRepository.save(blog);
+    }
+
+
+    public List<BlogLikeResponse> getLikes(String blogId) {
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+
+        List<BlogLike> blogLikes = blogLikeRepository.findByBlog(blog);
+        return blogLikes.stream()
+                .map(blogLike -> new BlogLikeResponse("Liked", true, blog.getLikeCount()))
+                .collect(Collectors.toList());
     }
 
 
