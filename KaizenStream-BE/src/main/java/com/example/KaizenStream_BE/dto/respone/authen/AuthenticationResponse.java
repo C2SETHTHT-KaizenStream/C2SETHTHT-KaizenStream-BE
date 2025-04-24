@@ -13,7 +13,7 @@ public class AuthenticationResponse {
     String userId;
 
     String userName;
-
+    String role;
     boolean authenticated;
 
 }

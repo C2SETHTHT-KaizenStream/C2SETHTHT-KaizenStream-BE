@@ -121,6 +121,7 @@ public class ReportService {
                 .streamerName(report.getStream().getUser().getUserName())
                 .userName(report.getUser().getUserName())
                 .images(report.getImages())
+                .status(report.getStatus())
                 .build();
     }
 
@@ -179,9 +180,23 @@ public class ReportService {
         user.setBanUntil(banDuration);
         userRepository.save(user);
 
+        // Tìm tất cả các báo cáo khác của livestream có cùng streamId và set trạng thái BANNED
+        List<Report> relatedReports = reportRepository.findByStream_LivestreamId(report.getStream().getLivestreamId());
+        for (Report r : relatedReports) {
+            // Cập nhật trạng thái các báo cáo liên quan thành BANNED
+            if (r.getStatus() != ReportStatus.BANNED) {
+                r.setStatus(ReportStatus.BANNED);
+                reportRepository.save(r);
+            }
+        }
+
         ReportActionResponse response = new ReportActionResponse();
         response.setReportId(report.getReportId());
         response.setStatus(report.getStatus());
+
+        //dùng để gửi thông báo tới livestreams giúp tắt livestream đã bị banned
+        messagingTemplate.convertAndSend("/topic/live/banned/" + report.getStream().getLivestreamId(), "Your account has been banned !");
+        System.out.println("/topic/live/banned/" + report.getStream().getLivestreamId());
         return response;
     }
 
