@@ -26,14 +26,39 @@ import java.util.List;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
+
+//            "/auth/**",
+//            //"/blogs/**",
+////            "/users/**",
+//            "/comments/**",
+//            "/ws/**",
+//            "/topic/notifications",
+//            "/api/stream/ws/info",
+//            "/item/**",
+//            "/livestream/**",
+//            "/category/**",
+//            "/topic/**",
+//            "/chat/**",
+//            "/donation/**",
+//            "/schedule/**",
+//            "/tag/**",
+//            "/payment/**",
+//            "/report/**",
+//            "/leaderboard/**",
+//            "/notification/**",
+//            "/search/**",
+////            "/follow/**",
+//            "/withdraw",
+//            "/chart/**"
+
             "/auth/**",
-            "/blogs/**",
-            "/users/**",
-            "comments/**",
-            "*",
+           //"/blogs/**",
+            //"/users/**",
+            "/comments/**",
+//            "*",
             "/ws",
             "/ws/**",
-            "/ws/*/*",
+//            "/ws/*",
             "/topic/notifications",
             "/api/stream/ws/info",
             "/item/*",
@@ -53,13 +78,13 @@ public class SecurityConfig {
             "/report/**",
             "/leaderboard/**",
             "/report/**",
-            "notification/**",
+            "/notification/**",
             "/users/**",
             "/search/**",
-            "follow/**",
+            //"follow/**",
             "/withdraw",
             "/chart/**",
-            "/chart/**/**"
+//            "/chart/**"
     };
 
     @Value("${fe-url}")
@@ -73,7 +98,6 @@ public class SecurityConfig {
         this.customOAuth2UserService = customOAuth2UserService;
     }
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -81,15 +105,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:8080/auth/oauth2/success", true)
-                        .failureUrl("http://localhost:3000/login?error=true")
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .defaultSuccessUrl("http://localhost:8080/auth/oauth2/success", true)
+//                        .failureUrl("http://localhost:3000/login?error=true")
+//                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+//                )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .decoder(customJwtDecoder)
@@ -115,7 +139,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(feUrl));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Set-Cookie"));
 
@@ -129,4 +153,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
