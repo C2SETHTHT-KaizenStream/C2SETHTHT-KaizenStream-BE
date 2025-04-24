@@ -53,7 +53,7 @@ public class SecurityConfig {
 
             "/auth/**",
            //"/blogs/**",
-            //"/users/**",
+            "/users/**",
             "/comments/**",
 //            "*",
             "/ws",
