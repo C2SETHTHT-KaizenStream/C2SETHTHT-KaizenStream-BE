@@ -284,8 +284,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
 
     final LivestreamService livestreamService;
     final  LivestreamRedisService livestreamRedisService;
-    @Value("${rtmp-url}")
-    protected String rtmpUrl;
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         session.setTextMessageSizeLimit(10024288);
@@ -339,7 +338,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                     "-b:a", "128k",
                     "-ar", "44100",
                     "-f", "flv",
-                    rtmpUrl + streamKey
+                    "rtmp://localhost:1936/live/" + streamKey
             );
             Process ffmpegProcess = rtmpPB.start();
             OutputStream ffmpegOutput = ffmpegProcess.getOutputStream();
@@ -363,7 +362,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-//                    System.err.println(name + " LOGGGG: " + line);
+                   System.err.println(name + " LOGGGG: " + line);
                     if(streamEnded.containsKey(streamId)&&streamEnded.get(streamId)==true) {
                         if (line.contains("frame=") && line.contains("time=")) {
                             String frameStr = extractFrameFromLog(line);
@@ -418,6 +417,8 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                 }
             } catch (InterruptedException | IOException e) {
                 System.err.println("❌ Lỗi khi xử lý dữ liệu từ queue cho streamKey: " + streamKey);
+                System.err.println("❌ Lỗi : " + e.getMessage());
+
             }
         }).start();
     }
