@@ -59,7 +59,6 @@ public class SecurityConfig {
             "follow/**",
             "/withdraw",
             "/chart/**",
-            "/chart/**/**"
     };
 
     @Value("${fe-url}")
