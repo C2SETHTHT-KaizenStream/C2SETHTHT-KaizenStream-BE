@@ -417,6 +417,8 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                 }
             } catch (InterruptedException | IOException e) {
                 System.err.println("❌ Lỗi khi xử lý dữ liệu từ queue cho streamKey: " + streamKey);
+                System.err.println("❌ Lỗi : " + e.getMessage());
+
             }
         }).start();
     }

@@ -29,11 +29,19 @@ public class SecurityConfig {
             "/auth/**",
             "/blogs/**",
             "/users/**",
-            "/comments/**",
+            "comments/**",
+            "*",
+            "/ws",
             "/ws/**",
+            "/ws/*/*",
             "/topic/notifications",
             "/api/stream/ws/info",
-            "/item/**",
+            "/item/*",
+            "/item/update/**",
+            "/item/update/*",
+            "/api/stream/ws/info",
+            "/api/stream/**",
+            "/profile/**",
             "/livestream/**",
             "/category/**",
             "/topic/**",
@@ -44,11 +52,14 @@ public class SecurityConfig {
             "/payment/**",
             "/report/**",
             "/leaderboard/**",
-            "/notification/**",
+            "/report/**",
+            "notification/**",
+            "/users/**",
             "/search/**",
-            "/follow/**",
+            "follow/**",
             "/withdraw",
-            "/chart/**"
+            "/chart/**",
+            "/chart/**/**"
     };
 
     @Value("${fe-url}")
@@ -62,6 +73,7 @@ public class SecurityConfig {
         this.customOAuth2UserService = customOAuth2UserService;
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -70,6 +82,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -116,3 +129,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+

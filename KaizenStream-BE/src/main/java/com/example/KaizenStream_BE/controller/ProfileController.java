@@ -18,7 +18,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class ProfileController {
     private final ProfileService profileService;
     private final ObjectMapper objectMapper;

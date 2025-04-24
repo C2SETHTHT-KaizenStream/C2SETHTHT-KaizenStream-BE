@@ -45,20 +45,8 @@ public class User {
 
 
     private Date createdAt;
-
     private Date updatedAt;
-
-
-//    @Column(columnDefinition = "nvarchar(255)")
-//    private String status;
-
-
-
-
     private int followerCount;
-
-
-
     @ManyToMany
     @JoinTable(
             name = "user_roles",
