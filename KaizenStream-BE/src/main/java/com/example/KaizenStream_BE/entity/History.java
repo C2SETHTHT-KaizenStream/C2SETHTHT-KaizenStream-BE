@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import java.util.Date;
 import java.util.UUID;
@@ -19,9 +21,18 @@ import java.util.UUID;
 @Builder
 public class History {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)  // Đảm bảo Hibernate sẽ tạo UUID cho cột này
-    @Column(name = "historyid", nullable = false)  // Đảm bảo không NULL
-    private UUID historyId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+//    @GenericGenerator(
+//            name = "UUID",
+//            strategy = "org.hibernate.id.UUIDGenerator"
+//    )
+    @Column(
+            name = "historyid",
+//            length = 255,
+            columnDefinition = "varchar(255)",
+            nullable = false
+    )
+    private String historyId;
 
     private String action;
     private Date actionTime;

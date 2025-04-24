@@ -11,7 +11,7 @@ import java.util.List;
 @org.springframework.stereotype.Repository
 public interface ReportRepository extends JpaRepository<Report,String> {
     Report save(Report report);
-
+    List<Report> findByStream_LivestreamId(String livestreamId);
     @Query(value = "SELECT FORMAT(r.created_at, 'MMM') AS month, COUNT(*) AS total_reports " +
             "FROM report r " +
             "WHERE r.status NOT IN ('PENDING', 'REJECT') " +

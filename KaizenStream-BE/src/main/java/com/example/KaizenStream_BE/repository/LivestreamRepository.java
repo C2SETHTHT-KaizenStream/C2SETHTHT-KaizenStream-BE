@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
 
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -28,6 +29,21 @@ public interface LivestreamRepository extends JpaRepository<Livestream, String> 
     Page<Livestream> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     Page<Livestream> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 
+    @Query("""
+      SELECT DISTINCT l
+      FROM Livestream l
+      LEFT JOIN l.tags t
+      LEFT JOIN l.categories c
+      WHERE l.status = :status
+        AND (t.name IN :tags OR c.name IN :categories)
+      ORDER BY l.viewerCount DESC
+      """)
+    Page<Livestream> findActiveByTagsOrCategoriesOrderByViewerCountDesc(
+            @Param("status") String status,
+            @Param("tags") Collection<String> tags,
+            @Param("categories") Collection<String> categories,
+            Pageable pageable
+    );
     @Query(value =
             "SELECT FORMAT(DATEADD(MONTH, MONTH(start_time)-1, '2025-01-01'), 'MMM') AS month, " +
                     "SUM(viewer_count) AS total_view_count " +

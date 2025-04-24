@@ -19,4 +19,5 @@ public class ReportDetailResponse {
     String streamerName;
     String userName;
     List<String> images;
+    ReportStatus status;
 }
