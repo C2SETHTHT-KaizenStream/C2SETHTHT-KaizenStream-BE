@@ -26,14 +26,39 @@ import java.util.List;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
+
+//            "/auth/**",
+//            //"/blogs/**",
+////            "/users/**",
+//            "/comments/**",
+//            "/ws/**",
+//            "/topic/notifications",
+//            "/api/stream/ws/info",
+//            "/item/**",
+//            "/livestream/**",
+//            "/category/**",
+//            "/topic/**",
+//            "/chat/**",
+//            "/donation/**",
+//            "/schedule/**",
+//            "/tag/**",
+//            "/payment/**",
+//            "/report/**",
+//            "/leaderboard/**",
+//            "/notification/**",
+//            "/search/**",
+////            "/follow/**",
+//            "/withdraw",
+//            "/chart/**"
+
             "/auth/**",
-           // "/blogs/**",
-           // "/users/**",
-            "comments/**",
-            "*",
+           //"/blogs/**",
+            //"/users/**",
+            "/comments/**",
+//            "*",
             "/ws",
             "/ws/**",
-            "/ws/*/*",
+//            "/ws/*",
             "/topic/notifications",
             "/api/stream/ws/info",
             "/item/*",
@@ -53,13 +78,13 @@ public class SecurityConfig {
             "/report/**",
             "/leaderboard/**",
             "/report/**",
-            "notification/**",
+            "/notification/**",
             "/users/**",
             "/search/**",
-           // "follow/**",
+            //"follow/**",
             "/withdraw",
             "/chart/**",
-            "/chart/**/**"
+//            "/chart/**"
     };
 
     @Value("${fe-url}")
