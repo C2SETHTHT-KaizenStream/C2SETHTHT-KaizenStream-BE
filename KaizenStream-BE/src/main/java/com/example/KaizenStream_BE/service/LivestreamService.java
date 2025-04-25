@@ -337,6 +337,18 @@ public class LivestreamService {
         return resp;
     }
 
+    public LivestreamRespone getLastLiveStream(String streamerId) {
+        Livestream live = livestreamRepository.findTopInactiveLivestreamByStreamerOrderedByStartTimeDesc(streamerId)
+                .orElse(null);
+        return mapToResponse(live);
+    }
+
+    public LivestreamRespone getLastLiveStreamOnStreamerBaseOnLive(String livestreamId) {
+        Livestream live = livestreamRepository.findById(livestreamId)
+                .orElseThrow(() -> new RuntimeException("Error: Cannot find livestream"));
+        return getLastLiveStream(live.getUser().getUserId());
+    }
+
 
     public void stopLive(String livestreamId, int viewCount) {
         log.warn("stopLivestopLivestopLivestopLivestopLive: " + viewCount);
