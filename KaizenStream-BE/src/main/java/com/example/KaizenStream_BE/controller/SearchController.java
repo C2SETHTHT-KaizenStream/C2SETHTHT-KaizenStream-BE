@@ -29,23 +29,46 @@ public class SearchController {
     ChannelService channelService;
     LivestreamService livestreamService;
 
+//    @GetMapping
+//    public ResponseEntity<SearchResultResponse> searchAll(@RequestParam String query,
+//                                                          @RequestParam(defaultValue = "0") int page,
+//                                                          @RequestParam(defaultValue = "10") int size) {
+//        List<BlogResponse> blogs = blogService.searchBlogs(query, page, size).getContent();
+//        List<ChannelResponse> channel = channelService.searchChannels(query, page, size).getContent();
+//        List<LivestreamRespone>livestream = livestreamService.searchLivestreams(query, page, size).getContent();
+//
+//
+//
+//        SearchResultResponse result = SearchResultResponse.builder()
+//                .blogResponseList(blogs)
+//                .channelResponseList(channel)
+//                .livestreamResponseList(livestream)
+//
+//                .build();
+//
+//        return ResponseEntity.ok(result);
+
+
     @GetMapping
     public ResponseEntity<SearchResultResponse> searchAll(@RequestParam String query,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
-        List<BlogResponse> blogs = blogService.searchBlogs(query, page, size).getContent();
-        List<ChannelResponse> channel = channelService.searchChannels(query, page, size).getContent();
-        List<LivestreamRespone>livestream = livestreamService.searchLivestreams(query, page, size).getContent();
-
-
+        var blogPage = blogService.searchBlogs(query, page, size);
+        var channelPage = channelService.searchChannels(query, page, size);
+        var livestreamPage = livestreamService.searchLivestreams(query, page, size);
 
         SearchResultResponse result = SearchResultResponse.builder()
-                .blogResponseList(blogs)
-                .channelResponseList(channel)
-                .livestreamResponseList(livestream)
-
+                .blogResponseList(blogPage.getContent())
+                .channelResponseList(channelPage.getContent())
+                .livestreamResponseList(livestreamPage.getContent())
+                .totalChannels(channelPage.getTotalElements())
+                .totalLivestreams(livestreamPage.getTotalElements())
+                .currentPage(page)
+                .pageSize(size)
                 .build();
 
         return ResponseEntity.ok(result);
     }
+
 }
+
