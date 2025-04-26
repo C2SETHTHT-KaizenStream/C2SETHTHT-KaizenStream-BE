@@ -119,9 +119,8 @@ public class LiveStreamController {
 
     public  static  String processName="liveStream";
 
-
     @PostMapping("/start")
-    public ApiResponse<String> startStream(@RequestParam String name) {
+    public  ResponseEntity<String> startStream(@RequestParam String name) {
         name=getKey(name);
 
         System.out.println("🔴 Stream bắt đầu 1 live stream: "+name );
@@ -153,10 +152,10 @@ public class LiveStreamController {
                 System.out.println("✅ Script đồng bộ HLS đang chạy trong nền ");
             } catch (IOException e) {
                 System.err.println("❌ Lỗi khi chạy PowerShell script: " + e.getMessage());
-                return ApiResponse.<String>builder().result("Failed to start sync script").code(500).build();
+                return ResponseEntity.ok("Failed to start sync script");
             }
         }
-        return ApiResponse.<String>builder().result("Start new livestream").code(200).build();
+        return ResponseEntity.ok("Stream started");
     }
 
     @PostMapping("/end")

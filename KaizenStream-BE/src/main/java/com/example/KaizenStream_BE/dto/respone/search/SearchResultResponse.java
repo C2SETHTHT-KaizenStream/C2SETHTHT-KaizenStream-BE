@@ -22,4 +22,10 @@ public class SearchResultResponse {
     List<ChannelResponse> channelResponseList;
     List <LivestreamRespone> livestreamResponseList;
 
+
+    private long totalChannels;
+    private long totalLivestreams;
+    private int currentPage;
+    private int pageSize;
+
 }
