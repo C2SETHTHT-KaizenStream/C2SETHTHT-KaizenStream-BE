@@ -59,7 +59,22 @@ public class CommentService {
         if (!commentRepository.existsById(commentId)) {
             throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
         }
+
+
         commentRepository.deleteById(commentId);
     }
+
+
+//    @Transactional
+//    public void deleteComment(String commentId, String userId) {
+//        Comment comment = commentRepository.findById(commentId)
+//                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+//
+//        if (!comment.getUser().getUserId().equals(userId)) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+//        }
+//
+//        commentRepository.deleteById(commentId);
+//    }
 }
 

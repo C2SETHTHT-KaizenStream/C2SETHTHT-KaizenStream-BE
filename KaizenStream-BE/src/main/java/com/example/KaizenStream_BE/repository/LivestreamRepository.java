@@ -12,38 +12,61 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LivestreamRepository extends JpaRepository<Livestream, String> {
     @Query(value = "SELECT * FROM livestreams WHERE status = 'ACTIVE' ORDER BY NEWID() OFFSET 0 ROWS FETCH NEXT :limit ROWS ONLY", nativeQuery = true)
     List<Livestream> findRandomLivestreams(@Param("limit") int limit);
 
+    // Lấy tất cả livestream có trạng thái là ended và sắp xếp theo thứ tự startTime giảm dần
+    // (gần nhất với hiện tại trước tiên
+    @Query(value = """
+                SELECT *
+                FROM livestreams
+                WHERE status = 'ended' and userId = :userId
+                ORDER BY start_time DESC
+            """, nativeQuery = true)
+    List<Livestream> findAllInactiveLivestreamsByStreamerOrderedByStartTimeDesc(
+            @Param("userId") String userId
+    );
 
-
-
+    // Lấy ra duy nhất bản ghi livestream ended gần nhất theo startTime
+    @Query(value = """
+                SELECT TOP 1 *
+                FROM livestreams
+                WHERE status = 'ended' and userId = :userId
+                ORDER BY start_time DESC
+            """, nativeQuery = true)
+    Optional<Livestream> findTopInactiveLivestreamByStreamerOrderedByStartTimeDesc(
+            @Param("userId") String userId
+    );
 
     @Query("SELECT l FROM Livestream l WHERE l.status = 'ACTIVE' ORDER BY l.viewerCount DESC")
     List<Livestream> findTopLivestreamsByViewerCount();
 
     Page<Livestream> findByUser_UserId(String userId, Pageable pageable);
+
     Page<Livestream> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
     Page<Livestream> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 
     @Query("""
-      SELECT DISTINCT l
-      FROM Livestream l
-      LEFT JOIN l.tags t
-      LEFT JOIN l.categories c
-      WHERE l.status = :status
-        AND (t.name IN :tags OR c.name IN :categories)
-      ORDER BY l.viewerCount DESC
-      """)
+            SELECT DISTINCT l
+            FROM Livestream l
+            LEFT JOIN l.tags t
+            LEFT JOIN l.categories c
+            WHERE l.status = :status
+              AND (t.name IN :tags OR c.name IN :categories)
+            ORDER BY l.viewerCount DESC
+            """)
     Page<Livestream> findActiveByTagsOrCategoriesOrderByViewerCountDesc(
             @Param("status") String status,
             @Param("tags") Collection<String> tags,
             @Param("categories") Collection<String> categories,
             Pageable pageable
     );
+
     @Query(value =
             "SELECT FORMAT(DATEADD(MONTH, MONTH(start_time)-1, '2025-01-01'), 'MMM') AS month, " +
                     "SUM(viewer_count) AS total_view_count " +

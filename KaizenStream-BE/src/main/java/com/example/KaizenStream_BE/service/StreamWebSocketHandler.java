@@ -93,7 +93,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                     "-b:a", "128k",
                     "-ar", "44100",
                     "-f", "flv",
-                    "rtmp://localhost:1935/live/" + streamKey
+                    "rtmp://localhost:1936/live/" + streamKey
             );
             Process ffmpegProcess = rtmpPB.start();
             OutputStream ffmpegOutput = ffmpegProcess.getOutputStream();

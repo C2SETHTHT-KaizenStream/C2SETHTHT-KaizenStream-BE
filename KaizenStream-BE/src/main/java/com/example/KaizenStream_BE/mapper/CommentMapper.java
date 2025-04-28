@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface CommentMapper {
 
     @Mapping(source = "user.userName", target = "username")
+    @Mapping (source = "user.userId", target = "userId")
     CommentRespone toResponse(Comment comment);
 }

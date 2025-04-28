@@ -96,6 +96,17 @@ public class LiveStreamController {
     ApiResponse<LivestreamRespone>  getLivestreamById(@PathVariable("id") String id){
         return ApiResponse.<LivestreamRespone>builder().result(livestreamService.getLivestreamById(id)).code(200).build();
     }
+
+    @GetMapping("/{streamerId}/last-live")
+    public ResponseEntity<?> findLastLiveByStreamer(@PathVariable String streamerId) {
+        return ResponseEntity.ok().body(livestreamService.getLastLiveStream(streamerId));
+    }
+
+    @GetMapping("/{livestreamId}/base-last-live")
+    public ResponseEntity<?> findLastLiveByStreamerBaseOnLiveStream(@PathVariable String livestreamId) {
+        return ResponseEntity.ok().body(livestreamService.getLastLiveStreamOnStreamerBaseOnLive(livestreamId));
+    }
+
     @PutMapping()
     ApiResponse<LivestreamRespone> updateById(@RequestBody @Valid UpdateLivestreamRequest updateLivestreamRequest){
         return  ApiResponse.<LivestreamRespone>builder().result(livestreamService.updateLivestreamById(updateLivestreamRequest)).build();
@@ -107,7 +118,6 @@ public class LiveStreamController {
 
 
     public  static  String processName="liveStream";
-
 
     @PostMapping("/start")
     public  ResponseEntity<String> startStream(@RequestParam String name) {

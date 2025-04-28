@@ -31,7 +31,7 @@ public class ChatService {
     UserRepository userRepository;
     LivestreamRepository livestreamRepository;
     RedisTemplate<String, ChatResponse> redisTemplate;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();  // Executor để thực hiện lưu DB bất đồng bộ
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     static final String CHAT_KEY = "chat:";
 
