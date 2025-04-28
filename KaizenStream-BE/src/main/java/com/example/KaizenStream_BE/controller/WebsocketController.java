@@ -85,8 +85,11 @@ public class WebsocketController {
     private RedisTemplate<String, Integer> redisTemplate;
 
     private void sendViewCount(String livestreamId, String keyViewCount, String keyCurrentViewers) {
+        Integer currentViewers;
+        if(keyCurrentViewers!="-1")   currentViewers = redisTemplate.opsForValue().get(keyCurrentViewers);
+        else currentViewers=0;
         Integer viewCount = redisTemplate.opsForValue().get(keyViewCount);
-        Integer currentViewers = redisTemplate.opsForValue().get(keyCurrentViewers);
+
         LivestreamViewCountRespone respone=new LivestreamViewCountRespone(viewCount,currentViewers);
         // Gửi số lượt xem và số người xem trực tiếp tới tất cả người xem và streamer
         messagingTemplate.convertAndSend("/live/streamer/" + livestreamId, respone);
@@ -110,31 +113,42 @@ public class WebsocketController {
 //        System.out.println("User joined, livestreamId: " + livestreamId);
 //        log.warn("User joined, livestreamId: " + livestreamId);
 //    }
-@MessageMapping("/join/watch/{livestreamId}/{userId}")
-public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
-    String keyViewCount = "livestream:viewCount:" + livestreamId;
-    String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
-    System.out.println("{userId}"+userId);
-    log.warn("{userId}"+userId);
+    @MessageMapping("/join/watch/{livestreamId}/{userId}")
+    public void joinStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
+        String keyViewCount = "livestream:viewCount:" + livestreamId;
+        String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
+        System.out.println("{userId}"+userId);
+        log.warn("{userId}"+userId);
 
-    // Tăng số lượt xem tổng thể (viewCount)
-    redisTemplate.opsForValue().increment(keyViewCount, 1);
+        // Tăng số lượt xem tổng thể (viewCount)
+        redisTemplate.opsForValue().increment(keyViewCount, 1);
 
-    // Tăng số người xem trực tiếp (currentViewers)
-    redisTemplate.opsForValue().increment(keyCurrentViewers, 1);
+        // Tăng số người xem trực tiếp (currentViewers)
+        redisTemplate.opsForValue().increment(keyCurrentViewers, 1);
 
-    // Lấy giá trị mới để gửi cho người dùng
-    sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
+        // Lấy giá trị mới để gửi cho người dùng
+        sendViewCount(livestreamId, keyViewCount, keyCurrentViewers);
 
-    // Gọi HistoryService để lưu thông tin lịch sử khi người dùng tham gia livestream
-    historyService.saveViewHistory(userId, livestreamId, 0);  // Ban đầu, thời gian xem là 0 giây
+        // Gọi HistoryService để lưu thông tin lịch sử khi người dùng tham gia livestream
+        historyService.saveViewHistory(userId, livestreamId, 0);  // Ban đầu, thời gian xem là 0 giây
 
-    // In log cho việc tham gia
-    System.out.println("User joined, livestreamId: " + livestreamId);
-    log.warn("User joined, livestreamId: " + livestreamId);
-}
+        // In log cho việc tham gia
+        System.out.println("User joined, livestreamId: " + livestreamId);
+        log.warn("User joined, livestreamId: " + livestreamId);
+    }
 
 
+    @MessageMapping("/join/watch/vod/{livestreamId}/{userId}")
+    public void joinVodStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
+        String keyViewCount = "vod:viewCount:" + livestreamId;
+        System.out.println("{userId}"+userId);
+        log.warn("{userId}"+userId);
+        redisTemplate.opsForValue().increment(keyViewCount, 1);
+        sendViewCount(livestreamId, keyViewCount, "-1");
+        historyService.saveViewHistory(userId, livestreamId, 0);
+        System.out.println("User joined, livestreamId: " + livestreamId);
+        log.warn("User joined, livestreamId: " + livestreamId);
+    }
 
     @MessageMapping("/join/live/{livestreamId}")
     public void startStream(@DestinationVariable String livestreamId) {

@@ -7,7 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class LivestreamRedisService {
@@ -47,5 +51,19 @@ public class LivestreamRedisService {
 
     public LivestreamRedisData getData(String livestreamId) {
         return safeGet(buildKey(livestreamId));
+    }
+
+    public Map<String, LivestreamRedisData> getAllLivestreamData() {
+        Set<String> keys = livestreamRedisTemplate.keys("vod:viewCount:*");
+        Map<String, LivestreamRedisData> result = new HashMap<>();
+
+        if (keys != null) {
+            for (String key : keys) {
+                LivestreamRedisData data = safeGet(key);
+                result.put(key.replace("vod:viewCount:", ""), data); // remove prefix for clarity
+            }
+        }
+
+        return result;
     }
 }
