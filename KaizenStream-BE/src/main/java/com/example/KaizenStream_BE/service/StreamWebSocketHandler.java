@@ -1,4 +1,7 @@
 
+
+
+
 package com.example.KaizenStream_BE.service;
 
 import lombok.AccessLevel;
@@ -134,7 +137,7 @@ public class StreamWebSocketHandler extends BinaryWebSocketHandler {
                                             if (streamId != null) {
                                                 log.warn("storeStreamEndTime: " + timeInSeconds);
 
-                                                livestreamRedisService.saveOrUpdateDuration(streamId,timeInSeconds);
+                                                livestreamRedisService.saveOrUpdateDuration(streamId,timeInSeconds,true);
                                                // log.warn("storeStreamEndTime: " + streamService.getStreamEndTime(streamId));
 
                                             }

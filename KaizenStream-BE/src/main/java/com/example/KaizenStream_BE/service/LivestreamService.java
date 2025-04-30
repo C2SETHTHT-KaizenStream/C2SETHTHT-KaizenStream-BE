@@ -1,6 +1,7 @@
 package com.example.KaizenStream_BE.service;
 
 import com.example.KaizenStream_BE.dto.request.livestream.CreateLivestreamRequest;
+import com.example.KaizenStream_BE.dto.request.livestream.LivestreamRedisData;
 import com.example.KaizenStream_BE.dto.request.livestream.UpdateLivestreamRequest;
 import com.example.KaizenStream_BE.dto.respone.ApiResponse;
 import com.example.KaizenStream_BE.dto.respone.chart.MonthlyViewerCountDTO;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,6 +43,7 @@ public class LivestreamService {
     ProfileRepository profileRepository;
     UserPreferencesRepository   userPreferencesRepository;
 
+    LivestreamRedisService livestreamRedisService;
 
     public LivestreamRespone createLivestream(CreateLivestreamRequest request) {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
@@ -498,6 +501,48 @@ public class LivestreamService {
                     .result(null)
                     .status("ERROR")
                     .build();  // Trả về lỗi khi có ngoại lệ
+        }
+    }
+    public void flushSingleStreamView(String streamId, int currentView) {
+
+        // Ví dụ: cứ mỗi 10 view thì flush vào database 1 lần
+        if (currentView > 0) {
+            Livestream livestream = livestreamRepository.findById(streamId).orElseThrow(()->new AppException(ErrorCode.LIVESTREAM_NOT_EXIST));
+            int newVodViewCount = livestream.getViewerCount() + currentView;
+            livestream.setViewerCount(newVodViewCount);
+            livestreamRepository.save(livestream);
+
+            log.info("Updated vodViewCount for streamId {} to {}", streamId, newVodViewCount);
+
+        }
+    }
+    @Scheduled(cron = "0 */1 * * * *") // mỗi 5 phút
+    public void scheduledFlushViews() {
+        log.info("update vod count.");
+
+        Map<String, LivestreamRedisData> keys = livestreamRedisService.getAllLivestreamData();
+        if (keys == null || keys.isEmpty()) {
+            log.info("No VOD views to flush at this time.");
+            return;
+        }
+
+        for (String key : keys.keySet()) {
+            try {
+                String streamId = key.replace("vod:viewcount:", "");
+
+                LivestreamRedisData live = livestreamRedisService.getData(streamId,false);
+                log.warn("id: "+streamId);
+                log.warn("count"+live.getViewCount());
+                int redisViewCount=live.getViewCount();
+                if (redisViewCount > 0) {
+                    flushSingleStreamView(streamId, redisViewCount);
+                    livestreamRedisService.removeData(streamId,false);
+
+                }
+
+            } catch (Exception e) {
+                log.error("Error flushing view for key: {}", key, e);
+            }
         }
     }
 }
