@@ -211,7 +211,7 @@ public class LiveStreamController {
 
             livestreamService.updateStatus(streamId, Status.ENDED);
             Thread.sleep(10000); // Chờ 10 giây (10,000 milliseconds)
-            LivestreamRedisData data = livestreamRedisService.getData(streamId);
+            LivestreamRedisData data = livestreamRedisService.getData(streamId,true);
             Integer viewCount = data.getViewCount() != null ? data.getViewCount() : 0;
             Integer duration = data.getDuration() != null ? data.getDuration() : 0;
             log.warn("LivestreamRedisData ", viewCount, "\n",duration);

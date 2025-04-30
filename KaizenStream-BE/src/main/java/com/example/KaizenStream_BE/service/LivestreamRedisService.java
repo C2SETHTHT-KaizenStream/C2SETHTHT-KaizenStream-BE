@@ -19,8 +19,9 @@ public class LivestreamRedisService {
     private final RedisTemplate<String, Object> livestreamRedisTemplate;
     private final ObjectMapper objectMapper;
 
-    private String buildKey(String livestreamId) {
-        return "livestream:" + livestreamId;
+    private String buildKey(String livestreamId, boolean isLive ) {
+        if(isLive) return "livestream:" + livestreamId;
+        else return "vod:viewCount:"+livestreamId;
     }
 
     private LivestreamRedisData safeGet(String key) {
@@ -35,22 +36,27 @@ public class LivestreamRedisService {
         return new LivestreamRedisData(); // fallback
     }
 
-    public void saveOrUpdateViewCounts(String livestreamId, int count) {
-        String key = buildKey(livestreamId);
+    public void saveOrUpdateViewCounts(String livestreamId, int count,boolean isLive) {
+        String key = buildKey(livestreamId,isLive);
         LivestreamRedisData data = safeGet(key);
         data.setViewCount(count);
         livestreamRedisTemplate.opsForValue().set(key, data);
     }
 
-    public void saveOrUpdateDuration(String livestreamId, int duration) {
-        String key = buildKey(livestreamId);
+    public void saveOrUpdateDuration(String livestreamId, int duration,boolean isLive) {
+        String key = buildKey(livestreamId,isLive);
         LivestreamRedisData data = safeGet(key);
         data.setDuration(duration);
         livestreamRedisTemplate.opsForValue().set(key, data);
     }
 
-    public LivestreamRedisData getData(String livestreamId) {
-        return safeGet(buildKey(livestreamId));
+    public LivestreamRedisData getData(String livestreamId,boolean isLive) {
+        return safeGet(buildKey(livestreamId,isLive));
+    }
+    public void removeData(String livestreamId,boolean isLive) {
+        String key=buildKey(livestreamId,isLive);
+        if(livestreamRedisTemplate.hasKey(key))
+            livestreamRedisTemplate.delete(key);
     }
 
     public Map<String, LivestreamRedisData> getAllLivestreamData() {

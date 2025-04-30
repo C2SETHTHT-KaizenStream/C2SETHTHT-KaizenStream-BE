@@ -506,9 +506,10 @@ public class LivestreamService {
     public void flushSingleStreamView(String streamId, int currentView) {
 
         // Ví dụ: cứ mỗi 10 view thì flush vào database 1 lần
-        if (currentView % 10 == 0) {
+        if (currentView > 0) {
             Livestream livestream = livestreamRepository.findById(streamId).orElseThrow(()->new AppException(ErrorCode.LIVESTREAM_NOT_EXIST));
-            int newVodViewCount = livestream.getViewerCount() + 10;
+            int newVodViewCount = livestream.getViewerCount() + currentView;
+            livestream.setViewerCount(newVodViewCount);
             livestreamRepository.save(livestream);
 
             log.info("Updated vodViewCount for streamId {} to {}", streamId, newVodViewCount);
@@ -528,11 +529,17 @@ public class LivestreamService {
         for (String key : keys.keySet()) {
             try {
                 String streamId = key.replace("vod:viewcount:", "");
-                LivestreamRedisData live = livestreamRedisService.getData(streamId);
+
+                LivestreamRedisData live = livestreamRedisService.getData(streamId,false);
+                log.warn("id: "+streamId);
+                log.warn("count"+live.getViewCount());
                 int redisViewCount=live.getViewCount();
                 if (redisViewCount > 0) {
                     flushSingleStreamView(streamId, redisViewCount);
+                    livestreamRedisService.removeData(streamId,false);
+
                 }
+
             } catch (Exception e) {
                 log.error("Error flushing view for key: {}", key, e);
             }
