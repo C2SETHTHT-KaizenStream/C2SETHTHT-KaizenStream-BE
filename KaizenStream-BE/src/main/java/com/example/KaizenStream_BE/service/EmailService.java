@@ -152,7 +152,7 @@ public class EmailService {
         """.formatted(username, lockedAt, username, lockDuration, reason);
     }
 
-//    @Async
+    @Async
     public void sendHtmlEmail(String reportId, String banReason, LocalDateTime banDuration) throws MessagingException {
         Report report = reportRepository.findById(reportId).orElseThrow(()-> new AppException(ErrorCode.REPORT_NOT_EXIST));
 

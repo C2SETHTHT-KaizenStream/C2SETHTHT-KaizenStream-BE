@@ -17,7 +17,7 @@ public interface DonationRepository extends JpaRepository<Donation,String> {
 
     // Tìm danh sách donation theo livestream
     List<Donation> findByLivestream(Livestream livestream);
-
+    List<Donation> findByLivestream_LivestreamId(String livestreamId);
     // Tìm tất cả donation của một người dùng trong một livestream cụ thể
     List<Donation> findByUserAndLivestream(User user, Livestream livestream);
 
