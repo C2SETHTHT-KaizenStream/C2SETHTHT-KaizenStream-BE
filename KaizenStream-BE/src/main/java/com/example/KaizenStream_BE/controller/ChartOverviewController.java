@@ -49,9 +49,10 @@ public class ChartOverviewController {
 
             // Chuyển đổi dữ liệu từ Object[] thành DTO
             Object[] data = result.get(0);
-            double currentMonth = ((Number) data[0]).doubleValue();  // Ép kiểu đúng
-            double lastMonth = ((Number) data[1]).doubleValue();    // Ép kiểu đúng
-            double growthPercentage = ((Number) data[2]).doubleValue(); // Ép kiểu đúng
+            double currentMonth = data[0] != null ? ((Number) data[0]).doubleValue() : 0.0;
+            double lastMonth = data[1] != null ? ((Number) data[1]).doubleValue() : 0.0;
+            double growthPercentage = data[2] != null ? ((Number) data[2]).doubleValue() : 0.0;
+
 
             // Tạo DTO để trả về
             DonationGrowthDTO donationGrowthDTO = new DonationGrowthDTO(growthPercentage, currentMonth);
