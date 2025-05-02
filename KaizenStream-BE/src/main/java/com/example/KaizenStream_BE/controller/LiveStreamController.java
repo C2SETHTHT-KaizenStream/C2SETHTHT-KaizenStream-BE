@@ -65,6 +65,13 @@ public class LiveStreamController {
         LivestreamRespone respone=livestreamService.createLivestream(request);
         return ApiResponse.<LivestreamRespone>builder().result(respone).build();
     }
+
+    @PostMapping("/{userId}")
+    ApiResponse<Boolean> checkIsStreamming(@PathVariable String userId){
+        return  ApiResponse.<Boolean>builder().result(livestreamService.checkIsStreamming(userId)).build();
+    }
+
+
     @GetMapping
     ApiResponse<List<LivestreamRespone>>  getAll(){
         return ApiResponse.<List<LivestreamRespone>>builder().result(livestreamService.getAll()).build();

@@ -45,8 +45,16 @@ public class LivestreamService {
 
     LivestreamRedisService livestreamRedisService;
 
+    public  Boolean checkIsStreamming(String userId){
+        return livestreamRedisService.checkIsCurrentLive(userId);
+
+    }
+
+
     public LivestreamRespone createLivestream(CreateLivestreamRequest request) {
+
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
         List<Category> categoryEntities = request.getCategories().stream()
                 .map(name -> {
                     return categoryRepository.findFirstByNameIgnoreCase(name)

@@ -72,4 +72,9 @@ public class LivestreamRedisService {
 
         return result;
     }
+
+
+    public  boolean checkIsCurrentLive(String userId){
+        return livestreamRedisTemplate.hasKey("streamer:"+userId);
+    }
 }
