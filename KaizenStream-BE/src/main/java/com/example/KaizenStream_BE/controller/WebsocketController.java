@@ -141,31 +141,36 @@ public class WebsocketController {
 
     }
 
-    @MessageMapping("/join/live/{livestreamId}")
-    public void startStream(@DestinationVariable String livestreamId) {
+    @MessageMapping("/join/live/{livestreamId}/{userId}")
+    public void startStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
         String keyViewCount = "livestream:viewCount:" + livestreamId;
         String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
-
+        String streamerKey="streamer:"+userId;
         // Kiểm tra và khởi tạo số lượt xem nếu chưa có
         if (!redisTemplate.hasKey(keyViewCount)) {
             redisTemplate.opsForValue().set(keyViewCount, 0);  // Khởi tạo với 0 lượt xem
+
         }
         if (!redisTemplate.hasKey(keyCurrentViewers)) {
             redisTemplate.opsForValue().set(keyCurrentViewers, 0);  // Khởi tạo với 0 người xem
         }
-
-
-        // Lấy số lượt xem tổng thể và người xem hiện tại
+        if(!redisTemplate.hasKey(streamerKey)){
+            redisTemplate.opsForValue().set(streamerKey,0);
+        }
         sendViewCount(livestreamId, keyViewCount, keyCurrentViewers,true);
     }
-    @MessageMapping("/join/live/stop/{livestreamId}")
-    public void stopStream(@DestinationVariable String livestreamId) {
+    @MessageMapping("/join/live/stop/{livestreamId}/{userId}")
+    public void stopStream(@DestinationVariable String livestreamId, @DestinationVariable String userId) {
 
         String keyViewCount = "livestream:viewCount:" + livestreamId;
         Integer viewCount = redisTemplate.opsForValue().get(keyViewCount);
-        if(viewCount>=0) {
-            redisTemplate.opsForValue().set(livestreamId, -1);
+        String keyCurrentViewers = "livestream:currentViewers:" + livestreamId;
 
+        String streamerKey="streamer:"+userId;
+        redisTemplate.delete(streamerKey);
+        if(viewCount>=0) {
+            redisTemplate.delete(keyViewCount);
+            redisTemplate.delete(keyCurrentViewers);
             log.warn("stopLivestopLivestopLivestopLivestopLive: " + viewCount);
             log.warn("set viewcount: " + viewCount);
 
