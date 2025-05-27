@@ -11,6 +11,7 @@ import com.example.KaizenStream_BE.enums.ReportStatus;
 import com.example.KaizenStream_BE.enums.Status;
 import com.example.KaizenStream_BE.exception.AppException;
 import com.example.KaizenStream_BE.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -295,7 +296,8 @@ public class ReportService {
     }
 
     public List<ReportResponse> getListReport() {
-        List<Report> reports = reportRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+        List<Report> reports = reportRepository.findAllByIsReadFalseOrderByCreatedAtDesc();
+//        List<Report> reports = reportRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
         return reports.stream()
                 .map(
 
@@ -352,5 +354,10 @@ public class ReportService {
                     .status("ERROR")
                     .build();  // Trả về lỗi 1002 khi có ngoại lệ
         }
+    }
+
+    @Transactional
+    public void markAsRead(List<String> reportIds) {
+        reportRepository.markReportsAsRead(reportIds);
     }
 }
