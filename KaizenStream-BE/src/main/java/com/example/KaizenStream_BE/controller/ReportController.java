@@ -172,6 +172,12 @@ public class ReportController {
                 .build();
     }
 
-
-
+    @PutMapping("/read")
+    public ApiResponse<Void> markReportsAsRead(@RequestBody List<String> reportIds) {
+        reportService.markAsRead(reportIds);
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Marked reports as read successfully.")
+                .build();
+    }
 }

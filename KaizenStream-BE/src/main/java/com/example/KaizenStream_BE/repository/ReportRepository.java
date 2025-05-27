@@ -2,7 +2,10 @@ package com.example.KaizenStream_BE.repository;
 
 import com.example.KaizenStream_BE.entity.Chat;
 import com.example.KaizenStream_BE.entity.Report;
+import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
@@ -19,4 +22,11 @@ public interface ReportRepository extends JpaRepository<Report,String> {
             "GROUP BY MONTH(r.created_at), FORMAT(r.created_at, 'MMM') " +
             "ORDER BY MONTH(r.created_at)", nativeQuery = true)
     List<Object[]> findReportCountByMonth();  // Trả về List<Object[]>, mỗi Object[] chứa month và total_reports
+    List<Report> findAllByIsReadFalseOrderByCreatedAtDesc();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Report r SET r.isRead = true WHERE r.reportId IN :reportIds")
+    void markReportsAsRead(@Param("reportIds") List<String> reportIds);
+
 }
